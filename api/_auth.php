@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/../inc/bootstrap.php';
+trustaiConfigureSession();
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -29,19 +31,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {
     exit;
 }
 
-if (!isset($_COOKIE) || !is_array($_COOKIE)) {
-    $_COOKIE = [];
-}
-
-if (isset($_SERVER['HTTP_COOKIE']) && is_string($_SERVER['HTTP_COOKIE'])) {
-    $pairs = array_filter(array_map('trim', explode(';', $_SERVER['HTTP_COOKIE'])));
-    foreach ($pairs as $pair) {
-        [$k, $v] = array_pad(explode('=', $pair, 2), 2, '');
-        $name = trim((string)$k);
-        if ($name !== '' && !array_key_exists($name, $_COOKIE)) {
-            $_COOKIE[$name] = urldecode((string)$v);
-        }
-    }
+function trustaiIsDebugMode(): bool
+{
+    return trustaiGetAppBool('APP_DEBUG', false);
 }
 
 function jsonResponse(int $status, array $payload): void
@@ -61,15 +53,6 @@ function readJsonBody(): array
     return is_array($data) ? $data : [];
 }
 
-function getBearerToken(): string
-{
-    $header = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-    if (preg_match('/Bearer\s+(.+)/i', $header, $m)) {
-        return trim($m[1]);
-    }
-    return '';
-}
-
 function getCurrentUser(): ?array
 {
     global $pdo;
@@ -83,8 +66,8 @@ function getCurrentUser(): ?array
         return $_SESSION['trustai_user'];
     }
 
-    $sessionUserId = (int)($_SESSION['trustai_user_id'] ?? 0);
-    $sessionEmail = trim((string)($_SESSION['trustai_user_email'] ?? ''));
+    $sessionUserId = (int)($_SESSION['trustai_user_id'] ?? $_SESSION['user_id'] ?? 0);
+    $sessionEmail = trim((string)($_SESSION['trustai_user_email'] ?? $_SESSION['email'] ?? ''));
     $email = trim((string)($_SERVER['HTTP_X_USER_EMAIL'] ?? ''));
     $id = (int)($_SERVER['HTTP_X_USER_ID'] ?? 0);
 
@@ -93,9 +76,6 @@ function getCurrentUser(): ?array
     }
     if ($email === '' && $sessionEmail !== '') {
         $email = $sessionEmail;
-    }
-    if ($email === '' && !empty($_SESSION['vipps_user']) && is_array($_SESSION['vipps_user'])) {
-        $email = strtolower(trim((string)($_SESSION['vipps_user']['email'] ?? '')));
     }
 
     if ($id <= 0 && $email === '') {
@@ -110,7 +90,7 @@ function getCurrentUser(): ?array
         $stmt->execute(['email' => strtolower($email)]);
     }
 
-    $user = $stmt->fetch();
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$user) {
         return null;
     }
@@ -118,6 +98,9 @@ function getCurrentUser(): ?array
     $_SESSION['trustai_user'] = $user;
     $_SESSION['trustai_user_id'] = (int)($user['id'] ?? 0);
     $_SESSION['trustai_user_email'] = (string)($user['email'] ?? '');
+    $_SESSION['user_id'] = (int)($user['id'] ?? 0);
+    $_SESSION['email'] = (string)($user['email'] ?? '');
+    $_SESSION['role'] = (string)($user['role'] ?? '');
     return $user;
 }
 

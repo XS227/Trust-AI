@@ -70,5 +70,13 @@ if (!trustaiCanLogin($user)) {
 }
 
 trustaiStartSessionForUser($user);
+
+// Keep legacy and trustai-prefixed session keys explicitly in login flow.
+$_SESSION['user_id'] = (int)$user['id'];
+$_SESSION['email'] = (string)$user['email'];
+$_SESSION['role'] = (string)($user['role'] ?? '');
+$_SESSION['trustai_user_id'] = (int)$user['id'];
+$_SESSION['trustai_user_email'] = (string)$user['email'];
+
 $role = (string)($user['role'] ?? '');
 jsonResponse(200, ['ok' => true, 'role' => $role, 'redirect' => trustaiRoleRedirect($user)]);

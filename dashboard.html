@@ -290,7 +290,7 @@ async function loadDashboard(email) {
   ambassadorQuery.set('email', email);
   if (filter.code) ambassadorQuery.set('code', filter.code);
 
-  const ambassadorsResponse = await fetch('/api/dashboard.php?' + ambassadorQuery.toString());
+  const ambassadorsResponse = await fetch('/api/dashboard.php?' + ambassadorQuery.toString(), { credentials: 'include' });
   const ambassadorsData = await ambassadorsResponse.json();
   const ambassadors = Array.isArray(ambassadorsData?.ambassadors) ? ambassadorsData.ambassadors : [];
 

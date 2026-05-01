@@ -299,7 +299,7 @@ async function loadDashboard(email) {
     return;
   }
 
-  const ordersResponse = await fetch('/api/list-orders.php');
+  const ordersResponse = await fetch('/api/list-orders.php', { credentials: 'include' });
   const ordersData = await ordersResponse.json();
   const allOrders = Array.isArray(ordersData?.orders) ? ordersData.orders : [];
 

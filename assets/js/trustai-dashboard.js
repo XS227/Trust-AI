@@ -2,6 +2,7 @@
   const ui = window.DashboardUI;
   function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2200)}
   const qs=(id)=>document.getElementById(id);
+  const get=(url,options={})=>fetch(url,{...options,credentials:'include'}).then(r=>r.json());
   const post=(url,payload)=>fetch(url,{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload||{})}).then(r=>r.json());
   function closeModal(){const b=qs('globalModal');if(b) b.style.display='none';}
   function showModal(title,bodyHtml,onSubmit,submitLabel='Lagre'){
@@ -23,6 +24,6 @@
   }
   function toggleSidebar(){document.querySelector('.app')?.classList.toggle('sidebar-open')}
   function normalizeDomain(v){return (v||'').toLowerCase().replace(/^https?:\/\//,'').replace(/\/$/,'').trim();}
-  window.TrustAIDashboard={toast,qs,post,showModal,closeModal,toggleSidebar,setupSidebar,normalizeDomain};
+  window.TrustAIDashboard={toast,qs,get,post,showModal,closeModal,toggleSidebar,setupSidebar,normalizeDomain};
   document.addEventListener('DOMContentLoaded',setupSidebar);
 })();

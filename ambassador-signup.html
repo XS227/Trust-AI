@@ -25,18 +25,29 @@
     const form = document.getElementById('f');
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sender...';
       const payload = {
-        store_domain: document.getElementById('partner').value.trim(),
         name: document.getElementById('name').value.trim(),
         email: document.getElementById('email').value.trim(),
         phone: document.getElementById('phone').value.trim(),
-        partner: document.getElementById('partner').value.trim(),
+        store_url: document.getElementById('partner').value.trim(),
+        domain: document.getElementById('partner').value.trim(),
       };
+      try {
       const res = await fetch('/api/create-ambassador-application.php', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
       const data = await res.json();
       status.className = 'status show';
-      status.textContent = data.ok ? `Søknad mottatt. Status: pending. Søknads-ID: ${data.application_id}` : `Feil: ${data.error||'ukjent'}`;
+      status.textContent = data.ok ? `Søknad mottatt. Status: pending. Søknads-ID: ${data.application_id}` : `Feil: ${data.message || data.error || 'ukjent'}`;
       if (data.ok) form.reset();
+      } catch (err) {
+        status.className = 'status show';
+        status.textContent = `Feil: ${err.message}`;
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send søknad';
+      }
     });
     document.getElementById('gmailSignup').addEventListener('click',()=>{window.location.href='/api/auth/google.php?action=start';});
   </script>

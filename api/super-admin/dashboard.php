@@ -30,7 +30,23 @@ if ($storeId > 0) {
     ];
 }
 
-$stores = $pdo->query('SELECT id, name, domain, public_url, platform, owner_user_id, default_commission_percent, status, contact_name, contact_email, contact_phone, created_at FROM stores ORDER BY created_at DESC')->fetchAll(PDO::FETCH_ASSOC);
+$stores = $pdo->query("SELECT
+    id,
+    name,
+    domain,
+    url,
+    public_url,
+    platform,
+    status,
+    commission_percent,
+    default_commission_percent,
+    contact_name,
+    contact_email,
+    contact_phone,
+    created_at,
+    updated_at
+FROM stores
+ORDER BY created_at DESC")->fetchAll(PDO::FETCH_ASSOC);
 
 $ambStmt = $pdo->prepare('SELECT a.id, a.store_id, a.user_id, a.name, a.email, a.referral_code, a.status, a.commission_percent, a.created_at, a.approved_at, s.name AS store_name FROM ambassadors a LEFT JOIN stores s ON s.id=a.store_id' . $ambWhere . ' ORDER BY a.created_at DESC LIMIT 300');
 $ambStmt->execute($params);

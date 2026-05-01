@@ -16,7 +16,9 @@ try {
     if (!function_exists('jsonResponse') || !function_exists('getCurrentUser')) {
         http_response_code(200);
         header('Content-Type: application/json; charset=utf-8');
-        echo json_encode(['ok' => false, 'error' => 'not_logged_in'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $response = ['ok' => false, 'error' => 'not_logged_in'];
+        ob_clean();
+        echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         exit;
     }
 
@@ -45,6 +47,8 @@ try {
 
     http_response_code(200);
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode(['ok' => false, 'error' => 'not_logged_in'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    $response = ['ok' => false, 'error' => 'not_logged_in'];
+    ob_clean();
+    echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     exit;
 }

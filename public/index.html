@@ -155,6 +155,7 @@
       box-shadow: var(--shadow);
       position: relative;
       overflow: hidden;
+      isolation: isolate;
     }
     .network-card::before {
       content: "";
@@ -167,9 +168,9 @@
       mask-image: radial-gradient(circle at center, black, transparent 78%);
     }
     .ring { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); border-radius: 50%; border: 1px solid rgba(37,99,235,.16); }
-    .r1 { width: 210px; height: 210px; }
-    .r2 { width: 320px; height: 320px; border-style: dashed; }
-    .r3 { width: 420px; height: 420px; opacity: .45; }
+    .r1 { width: 210px; height: 210px; animation: orbit-slow 26s linear infinite; }
+    .r2 { width: 320px; height: 320px; border-style: dashed; animation: orbit-rev 40s linear infinite; }
+    .r3 { width: 420px; height: 420px; opacity: .45; animation: orbit-slow 58s linear infinite; }
     .center-logo {
       position: absolute;
       left: 50%; top: 50%; transform: translate(-50%, -50%);
@@ -179,7 +180,10 @@
       background: white;
       border: 1px solid #cfe3fa;
       box-shadow: 0 18px 54px rgba(37,99,235,.16);
+      animation: core-pulse 4.8s ease-in-out infinite;
     }
+    .center-logo::before { content: ""; position: absolute; inset: -14px; border-radius: 50%; border: 1px solid rgba(56,189,248,.34); animation: halo-spin 18s linear infinite; pointer-events: none; }
+    .center-logo::after { content: ""; position: absolute; inset: -7px; border-radius: 50%; border: 1px dashed rgba(124,58,237,.28); animation: halo-spin-rev 12s linear infinite; pointer-events: none; }
     .center-logo .logo { width: 62px; height: 62px; border-radius: 20px; font-size: 39px; }
     .node {
       position: absolute;
@@ -194,19 +198,43 @@
       display: flex;
       gap: 8px;
       align-items: center;
+      transition: transform .25s ease, box-shadow .25s ease;
     }
-    .node i { width: 8px; height: 8px; border-radius: 99px; background: var(--blue); box-shadow: 0 0 0 5px rgba(37,99,235,.1); }
-    .people { left: 50%; top: 12%; transform: translateX(-50%); }
-    .growth { right: 8%; top: 31%; }
-    .insight { right: 12%; bottom: 23%; }
-    .connections { left: 8%; bottom: 23%; }
-    .trust { left: 9%; top: 31%; }
-    .line { position: absolute; height: 1px; width: 155px; background: linear-gradient(90deg, transparent, rgba(37,99,235,.35), transparent); transform-origin: left; }
+    .node:hover { transform: translateY(-2px) scale(1.015); box-shadow: 0 18px 36px rgba(16,32,51,.12); }
+    .node i { width: 8px; height: 8px; border-radius: 99px; background: var(--blue); box-shadow: 0 0 0 5px rgba(37,99,235,.1); animation: node-dot 3.6s ease-in-out infinite; }
+    .people { left: 50%; top: 12%; transform: translateX(-50%); animation: float-y-centered 6s ease-in-out infinite; }
+    .growth { right: 8%; top: 31%; animation: float-x 7.4s ease-in-out infinite; }
+    .insight { right: 12%; bottom: 23%; animation: float-y 6.8s ease-in-out infinite reverse; }
+    .connections { left: 8%; bottom: 23%; animation: float-x 7.8s ease-in-out infinite reverse; }
+    .trust { left: 9%; top: 31%; animation: float-y 7.1s ease-in-out infinite; }
+    .line { position: absolute; height: 1px; width: 155px; background: linear-gradient(90deg, rgba(37,99,235,.05), rgba(37,99,235,.35), rgba(56,189,248,.08)); transform-origin: left; overflow: hidden; }
+    .line::before, .line::after { content: ""; position: absolute; top: -1px; width: 32%; height: 3px; border-radius: 4px; background: linear-gradient(90deg, transparent, rgba(56,189,248,.95), transparent); opacity: .75; }
+    .line::before { left: -35%; animation: signal-to-core 3.7s ease-in-out infinite; }
+    .line::after { left: 105%; animation: signal-from-core 4.6s ease-in-out infinite; }
     .l1 { left: 50%; top: 28%; transform: rotate(90deg); }
     .l2 { left: 56%; top: 42%; transform: rotate(-17deg); }
     .l3 { left: 56%; top: 59%; transform: rotate(22deg); }
     .l4 { left: 20%; top: 59%; transform: rotate(-22deg); }
     .l5 { left: 20%; top: 42%; transform: rotate(17deg); }
+    .particle { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: rgba(56,189,248,.36); box-shadow: 0 0 0 4px rgba(56,189,248,.08); animation: drift 9s ease-in-out infinite; }
+    .p1 { left: 24%; top: 22%; animation-delay: -1s; }
+    .p2 { right: 18%; top: 18%; animation-delay: -3.2s; }
+    .p3 { right: 24%; bottom: 20%; animation-delay: -5.1s; }
+    .p4 { left: 20%; bottom: 24%; animation-delay: -7.3s; }
+
+    @keyframes core-pulse { 0%, 100% { box-shadow: 0 18px 54px rgba(37,99,235,.16), 0 0 0 0 rgba(37,99,235,.18); } 50% { box-shadow: 0 22px 64px rgba(37,99,235,.2), 0 0 0 16px rgba(37,99,235,0); } }
+    @keyframes halo-spin { to { transform: rotate(360deg); } }
+    @keyframes halo-spin-rev { to { transform: rotate(-360deg); } }
+    @keyframes orbit-slow { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+    @keyframes orbit-rev { from { transform: translate(-50%, -50%) rotate(360deg); } to { transform: translate(-50%, -50%) rotate(0deg); } }
+    @keyframes float-y { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    @keyframes float-y-centered { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-8px); } }
+    @keyframes float-x { 0%,100% { transform: translateX(0); } 50% { transform: translateX(6px); } }
+    @keyframes node-dot { 0%,100% { box-shadow: 0 0 0 5px rgba(37,99,235,.1); } 50% { box-shadow: 0 0 0 8px rgba(37,99,235,.05); } }
+    @keyframes signal-to-core { 0% { left: -35%; opacity: 0; } 25% { opacity: .85; } 100% { left: 108%; opacity: 0; } }
+    @keyframes signal-from-core { 0% { left: 105%; opacity: 0; } 25% { opacity: .7; } 100% { left: -38%; opacity: 0; } }
+    @keyframes drift { 0%,100% { transform: translate(0,0); opacity: .2; } 50% { transform: translate(8px,-10px); opacity: .6; } }
+
 
     section { padding: 78px 0; }
     .section-head { max-width: 760px; margin-bottom: 34px; }
@@ -318,7 +346,12 @@
       .wrap { width: min(100% - 28px, 1160px); }
       .hero { padding: 54px 0 46px; }
       .hero-note, .use-grid, .outcome-grid, .feature-list, .platforms { grid-template-columns: 1fr; }
-      .network-card { min-height: 390px; border-radius: 26px; }
+      .network-card { min-height: 360px; border-radius: 26px; }
+      .line { width: 120px; }
+      .r3 { width: 360px; height: 360px; }
+      .people { top: 14%; }
+      .growth, .trust { top: 34%; }
+      .insight, .connections { bottom: 19%; }
       .node { font-size: 12px; padding: 8px 10px; }
       .growth { right: 2%; }
       .trust { left: 2%; }
@@ -326,6 +359,9 @@
       .insight { right: 3%; }
       section { padding: 58px 0; }
       .footer-inner { align-items: flex-start; flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition: none !important; }
     }
   </style>
 </head>
@@ -366,6 +402,7 @@
 
         <div class="network-card" aria-label="TrustAi network visual">
           <div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+          <span class="particle p1" aria-hidden="true"></span><span class="particle p2" aria-hidden="true"></span><span class="particle p3" aria-hidden="true"></span><span class="particle p4" aria-hidden="true"></span>
           <div class="line l1"></div><div class="line l2"></div><div class="line l3"></div><div class="line l4"></div><div class="line l5"></div>
           <div class="center-logo"><div class="logo"></div></div>
           <div class="node people"><i></i> People</div>

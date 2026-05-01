@@ -56,8 +56,7 @@ if (trustaiIsDebugMode()) {
     $response['debug'] = [
         'has_session_id' => session_id() !== '',
         'session_key_names' => array_values(array_keys($_SESSION)),
-        'user_id' => (int)($currentUser['id'] ?? 0),
-        'role' => (string)($currentUser['role'] ?? ''),
+        'current_role' => (string)($currentUser['role'] ?? ($_SESSION['role'] ?? '')),
     ];
 }
 

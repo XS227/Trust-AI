@@ -371,7 +371,7 @@
       try {
         const [ordersRes, dashboardRes] = await Promise.allSettled([
           fetch('/api/list-orders.php', { cache: 'no-store' }),
-          fetch('/api/dashboard.php', { cache: 'no-store' })
+          fetch('/api/dashboard.php', { cache: 'no-store', credentials: 'include' })
         ]);
 
         let orders = [];

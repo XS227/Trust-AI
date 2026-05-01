@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TrustAi — Referral infrastructure for every network</title>
+  <link rel="icon" type="image/png" href="/logo.png" />
   <style>
     :root {
       --bg: #fbfcff;
@@ -61,16 +62,11 @@
       width: 40px;
       height: 40px;
       border-radius: 14px;
-      background: linear-gradient(135deg, #67e8f9 0%, #2563eb 52%, #7c3aed 100%);
+      background: #fff url('/logo.png') center/cover no-repeat;
       box-shadow: 0 14px 32px rgba(37,99,235,.22);
-      display: grid;
-      place-items: center;
-      color: white;
-      font-size: 25px;
-      font-weight: 850;
-      line-height: 1;
+      border: 1px solid #dbe7f5;
+      flex-shrink: 0;
     }
-    .logo::before { content: "T"; transform: translateY(-1px); }
 
     nav { display: flex; align-items: center; gap: 28px; color: #415064; font-size: 14px; font-weight: 520; }
     nav a:hover { color: var(--blue); }

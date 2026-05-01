@@ -2,8 +2,25 @@
   const ui = window.DashboardUI;
   function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2200)}
   const qs=(id)=>document.getElementById(id);
-  const get=(url,options={})=>fetch(url,{...options,credentials:'include'}).then(r=>r.json());
-  const post=(url,payload)=>fetch(url,{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload||{})}).then(r=>r.json());
+  async function safeJsonResponse(response){
+    const text=await response.text();
+    if(!text){
+      return {ok:false,error:'empty_response',message:'Tomt svar fra serveren.',status:response.status};
+    }
+    try{
+      const data=JSON.parse(text);
+      if(typeof data==='object' && data!==null){
+        if(typeof data.ok!=='boolean') data.ok=response.ok;
+        data.status=response.status;
+        return data;
+      }
+      return {ok:false,error:'invalid_json_shape',message:'Uventet svarformat fra serveren.',status:response.status};
+    }catch(_e){
+      return {ok:false,error:'invalid_json',message:'Serveren returnerte ugyldig JSON.',raw:text,status:response.status};
+    }
+  }
+  const get=(url,options={})=>fetch(url,{...options,credentials:'include'}).then(safeJsonResponse);
+  const post=(url,payload)=>fetch(url,{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload||{})}).then(safeJsonResponse);
   function closeModal(){const b=qs('globalModal');if(b) b.style.display='none';}
   function showModal(title,bodyHtml,onSubmit,submitLabel='Lagre'){
     const back=qs('globalModal'); const content=qs('globalModalContent'); if(!back||!content) return;

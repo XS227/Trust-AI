@@ -40,7 +40,7 @@ try {
     $storeStmt = $pdo->prepare('INSERT INTO stores (name, domain, url, public_url, platform, status, commission_percent, default_commission_percent, contact_name, contact_email, contact_phone, created_at) VALUES (:name,:domain,:url,:url,:platform,"active",:comm,:comm,:cname,:cemail,:cphone,NOW())');
     $storeStmt->execute([
         'name'=>$storeName,'domain'=>$domain,'url'=>$storeUrl,
-        const urlEl=app.qs('#n_url');const url=urlEl?urlEl.value.trim():'';
+        'platform'=>$platform?:null,'comm'=>$commission,
         'cname'=>$name?:null,'cemail'=>$email,'cphone'=>$phone?:null
     ]);
     $storeId = (int)$pdo->lastInsertId();

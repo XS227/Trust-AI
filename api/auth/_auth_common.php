@@ -45,4 +45,8 @@ function trustaiStartSessionForUser(array $user): void
     $_SESSION['trustai_user_id'] = (int)$user['id'];
     $_SESSION['trustai_user_email'] = (string)$user['email'];
     $_SESSION['trustai_user'] = $user;
+    $_SESSION['user_id'] = (int)$user['id'];
+    $_SESSION['email'] = (string)$user['email'];
+    $_SESSION['role'] = (string)($user['role'] ?? '');
 }
+

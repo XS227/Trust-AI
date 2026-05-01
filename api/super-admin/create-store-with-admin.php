@@ -1,4 +1,3 @@
-cat > /var/www/trustai/api/super-admin/create-store-with-admin.php << 'PHPEOF'
 <?php
 declare(strict_types=1);
 

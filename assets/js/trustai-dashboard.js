@@ -13,7 +13,7 @@
     qs('closeModal').onclick=close; qs('cancelModal').onclick=close;
     back.onclick=(e)=>{if(e.target===back) close();};
     document.onkeydown=(e)=>{if(e.key==='Escape') close();};
-    qs('submitModal').onclick=async()=>{const btn=qs('submitModal');btn.disabled=true;btn.textContent='Lagrer...';const ok=await onSubmit();btn.disabled=false;btn.textContent=submitLabel;if(ok!==false) close();};
+    qs('submitModal').onclick=async()=>{const btn=qs('submitModal');btn.disabled=true;btn.textContent='Lagrer...';let ok=false;try{ok=await onSubmit();}catch(e){console.error('Modal submit failed',e);toast('Noe gikk galt. Prøv igjen.');ok=false;}finally{btn.disabled=false;btn.textContent=submitLabel;}if(ok!==false) close();};
   }
   function setupSidebar(){
     const app=document.querySelector('.app'); if(!app) return;

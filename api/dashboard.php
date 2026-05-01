@@ -1,6 +1,18 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (defined('APP_DEBUG') && APP_DEBUG) {
+    echo json_encode([
+        'session_id' => session_id(),
+        'session_data' => array_keys($_SESSION),
+    ]);
+    exit;
+}
+
 $baseDir = __DIR__;
 $ambassadorsDir = $baseDir . '/ambassadors';
 $salesDir = $baseDir . '/sales';

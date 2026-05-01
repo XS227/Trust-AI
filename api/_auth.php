@@ -57,6 +57,21 @@ function getCurrentUser(): ?array
 {
     global $pdo;
 
+    $sessionUserId = (int)($_SESSION['trustai_user_id'] ?? $_SESSION['user_id'] ?? 0);
+    $sessionEmail = trim((string)($_SESSION['trustai_user_email'] ?? $_SESSION['email'] ?? ''));
+    $sessionRole = trim((string)($_SESSION['role'] ?? ''));
+
+    if ($sessionRole !== '' && $sessionUserId > 0) {
+        return [
+            'id' => $sessionUserId,
+            'email' => $sessionEmail,
+            'role' => $sessionRole,
+            'store_id' => isset($_SESSION['store_id']) ? (int)$_SESSION['store_id'] : null,
+            'ambassador_id' => isset($_SESSION['ambassador_id']) ? (int)$_SESSION['ambassador_id'] : null,
+            'created_at' => null,
+        ];
+    }
+
     if (!$pdo instanceof PDO) {
         error_log('api/_auth.php: getCurrentUser called without DB connection');
         return null;
@@ -66,8 +81,6 @@ function getCurrentUser(): ?array
         return $_SESSION['trustai_user'];
     }
 
-    $sessionUserId = (int)($_SESSION['trustai_user_id'] ?? $_SESSION['user_id'] ?? 0);
-    $sessionEmail = trim((string)($_SESSION['trustai_user_email'] ?? $_SESSION['email'] ?? ''));
     $email = trim((string)($_SERVER['HTTP_X_USER_EMAIL'] ?? ''));
     $id = (int)($_SERVER['HTTP_X_USER_ID'] ?? 0);
 

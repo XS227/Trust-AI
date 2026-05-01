@@ -19,22 +19,28 @@ DROP TABLE IF EXISTS users;
 CREATE TABLE users (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT,
   email VARCHAR(191) NOT NULL,
-  password_hash VARCHAR(255) NOT NULL,
-  role VARCHAR(40) NOT NULL,
-  status VARCHAR(40) NOT NULL DEFAULT 'active',
   store_id INT UNSIGNED DEFAULT NULL,
+  ambassador_id INT UNSIGNED DEFAULT NULL,
+  phone VARCHAR(60) DEFAULT NULL,
+  name VARCHAR(191) DEFAULT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  user_role VARCHAR(40) NOT NULL,
+  user_type VARCHAR(40) NOT NULL DEFAULT 'internal',
+  status VARCHAR(40) NOT NULL DEFAULT 'active',
   must_change_password TINYINT(1) NOT NULL DEFAULT 0,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uniq_users_email (email),
-  KEY idx_users_role (role),
-  KEY idx_users_store_id (store_id)
+  KEY idx_users_user_role (user_role),
+  KEY idx_users_store_id (store_id),
+  KEY idx_users_ambassador_id (ambassador_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE admin_users (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT,
   user_id INT UNSIGNED DEFAULT NULL,
+  ambassador_id INT UNSIGNED DEFAULT NULL,
   email VARCHAR(191) NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
   role VARCHAR(40) NOT NULL DEFAULT 'admin',
@@ -43,7 +49,8 @@ CREATE TABLE admin_users (
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uniq_admin_users_email (email),
-  KEY idx_admin_users_user_id (user_id)
+  KEY idx_admin_users_user_id (user_id),
+  KEY idx_admin_users_ambassador_id (ambassador_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE stores (
@@ -195,11 +202,15 @@ ALTER TABLE stores
   ADD CONSTRAINT fk_stores_admin_user FOREIGN KEY (store_admin_user_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE;
 
 ALTER TABLE admin_users
-  ADD CONSTRAINT fk_admin_users_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE;
+  ADD CONSTRAINT fk_admin_users_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT fk_admin_users_ambassador FOREIGN KEY (ambassador_id) REFERENCES ambassadors(id) ON DELETE SET NULL ON UPDATE CASCADE;
 
 ALTER TABLE ambassadors
   ADD CONSTRAINT fk_ambassadors_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT fk_ambassadors_store FOREIGN KEY (store_id) REFERENCES stores(id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE users
+  ADD CONSTRAINT fk_users_ambassador FOREIGN KEY (ambassador_id) REFERENCES ambassadors(id) ON DELETE SET NULL ON UPDATE CASCADE;
 
 ALTER TABLE orders
   ADD CONSTRAINT fk_orders_store FOREIGN KEY (store_id) REFERENCES stores(id) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -220,8 +231,8 @@ ALTER TABLE clicks
   ADD CONSTRAINT fk_clicks_store FOREIGN KEY (store_id) REFERENCES stores(id) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT fk_clicks_ambassador FOREIGN KEY (ambassador_id) REFERENCES ambassadors(id) ON DELETE SET NULL ON UPDATE CASCADE;
 
-INSERT INTO users (email, password_hash, role, status, must_change_password, created_at, updated_at)
-VALUES ('admin@trustai.no', '$2y$12$Ugnq3OyCsnw3bOBfxpAQaei/4mN.osHyEDz0xB8gZQjdRvVm43f9u', 'super_admin', 'active', 0, NOW(), NOW());
+INSERT INTO users (email, store_id, ambassador_id, phone, name, password_hash, user_role, user_type, status, must_change_password, created_at, updated_at)
+VALUES ('admin@trustai.no', NULL, NULL, NULL, 'TrustAI Admin', '$2y$12$Ugnq3OyCsnw3bOBfxpAQaei/4mN.osHyEDz0xB8gZQjdRvVm43f9u', 'super_admin', 'internal', 'active', 0, NOW(), NOW());
 
 INSERT INTO stores (
   name, url, domain, platform, public_url,

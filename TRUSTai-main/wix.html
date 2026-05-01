@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TrustAI for Wix – Referral og ambassadørsystem</title>
+  <meta name="description" content="Installer TrustAI på Wix på få minutter. Spor referral-lenker, klikk, leads og konverteringer med enkel setup via Wix Custom Code." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: "Inter", sans-serif; }
+    .logo { display:inline-flex; align-items:baseline; gap:2px; text-decoration:none; font-family:"Orbitron",sans-serif; letter-spacing:-1.5px; font-size:28px; font-weight:800; color:#07111f; line-height:1; }
+    .logo .ai { background: linear-gradient(135deg, #1769ff, #18c7ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .soft-grid { background-image: radial-gradient(#e2e8f0 1px, transparent 1px); background-size:22px 22px; }
+    .glass { background: rgba(255,255,255,.82); backdrop-filter: blur(18px); }
+    .hero-visual { background: radial-gradient(circle at 20% 20%, rgba(23,105,255,.22), transparent 28%), radial-gradient(circle at 80% 10%, rgba(24,199,255,.18), transparent 30%), linear-gradient(145deg,#ffffff,#f8fafc); }
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {"@type":"Question","name":"Må jeg kode?","acceptedAnswer":{"@type":"Answer","text":"Nei, for standardoppsett holder det å lime inn ett script i Wix Custom Code."}},
+      {"@type":"Question","name":"Fungerer dette på alle Wix-sider?","acceptedAnswer":{"@type":"Answer","text":"Ja, velg All pages i Wix Custom Code for å aktivere scriptet på hele nettstedet."}},
+      {"@type":"Question","name":"Kan jeg bruke TrustAI for bookings?","acceptedAnswer":{"@type":"Answer","text":"Ja, booking-forespørsler og andre leads kan spores via TrustAI på Wix."}},
+      {"@type":"Question","name":"Kan ambassadører få dashboard?","acceptedAnswer":{"@type":"Answer","text":"Ja, ambassadører kan få eget dashboard for lenker, klikk og resultater."}},
+      {"@type":"Question","name":"Hva hvis jeg bruker Wix Stores?","acceptedAnswer":{"@type":"Answer","text":"Grunnsporing fungerer, men full kjøpssporing i checkout kan kreve ekstra oppsett med Velo eller Wix events."}}
+    ]
+  }
+  </script>
+</head>
+<body class="bg-white text-slate-950 antialiased">
+  <header class="sticky top-0 z-50 border-b border-slate-100 bg-white/90 backdrop-blur">
+    <div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
+      <a href="/" class="logo" aria-label="TrustAI.no"><span>TRUST</span><span class="ai">ai</span><span class="ml-1 text-base font-bold">.no</span></a>
+      <nav class="hidden items-center gap-7 text-sm font-extrabold text-slate-700 lg:flex">
+        <a href="/how-it-works.html" class="hover:text-slate-950">Slik fungerer det</a>
+        <a href="#installasjon" class="hover:text-slate-950">Installasjon</a>
+        <a href="#faq" class="hover:text-slate-950">FAQ</a>
+      </nav>
+      <div class="flex items-center gap-2">
+        <a href="/ambassador-signup.html" class="rounded-full bg-pink-600 px-5 py-2.5 text-sm font-black text-white hover:bg-pink-700">Start gratis</a>
+        <a href="/dashboard.html" class="rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-black text-slate-900 hover:bg-slate-50">Logg inn</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="soft-grid px-5 py-20 md:py-28">
+      <div class="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-2">
+        <div>
+          <h1 class="text-4xl font-black leading-tight tracking-tight md:text-6xl">Installer TrustAI på Wix</h1>
+          <p class="mt-6 max-w-2xl text-lg leading-8 text-slate-600">Spor ambassadørlenker, leads og konverteringer fra Wix-nettsiden din – uten tung teknisk setup.</p>
+          <div class="mt-9 flex flex-wrap gap-3">
+            <a href="/ambassador-signup.html" class="rounded-full bg-pink-600 px-8 py-4 text-sm font-black text-white shadow-lg shadow-pink-600/25 hover:bg-pink-700">Start gratis</a>
+            <a href="#installasjon" class="rounded-full border border-slate-200 bg-white px-8 py-4 text-sm font-black hover:bg-slate-50">Se installasjonsguide</a>
+          </div>
+        </div>
+        <div class="hero-visual rounded-[2rem] border border-slate-200 p-6 shadow-2xl">
+          <div class="rounded-3xl border border-slate-200 bg-white p-6">
+            <h2 class="text-2xl font-black">Klar på få minutter</h2>
+            <p class="mt-3 text-slate-600">Legg inn én script-tag i Wix Custom Code, publiser, og start sporing av referrals og leads.</p>
+            <p class="mt-4 rounded-xl bg-slate-50 p-4 text-sm font-semibold text-slate-700">Wix-oppsett: Settings → Custom Code → Add Custom Code → All pages</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="installasjon" class="px-5 py-16">
+      <div class="mx-auto max-w-4xl">
+        <h2 class="text-3xl font-black tracking-tight">Slik installerer du på Wix</h2>
+        <ol class="mt-8 space-y-4 text-slate-700">
+          <li><strong>1.</strong> Logg inn på Wix Dashboard.</li>
+          <li><strong>2.</strong> Gå til <strong>Settings → Custom Code</strong>.</li>
+          <li><strong>3.</strong> Klikk <strong>Add Custom Code</strong>.</li>
+          <li><strong>4.</strong> Lim inn scriptet:</li>
+        </ol>
+        <pre class="mt-3 overflow-auto rounded-2xl bg-slate-950 p-4 text-sm text-emerald-300"><code>&lt;script src="https://trustai.no/api/trustai-referral.js"&gt;&lt;/script&gt;</code></pre>
+        <ol start="5" class="mt-4 space-y-4 text-slate-700">
+          <li><strong>5.</strong> Velg <strong>All pages</strong>.</li>
+          <li><strong>6.</strong> Velg plassering <strong>Body - end</strong> eller <strong>Head</strong>.</li>
+          <li><strong>7.</strong> Trykk <strong>Apply</strong> og deretter <strong>Publish</strong>.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="bg-slate-50 px-5 py-16">
+      <div class="mx-auto max-w-4xl rounded-3xl border bg-white p-8 shadow-sm">
+        <h2 class="text-3xl font-black tracking-tight">Test installasjonen</h2>
+        <p class="mt-4 text-slate-700">Åpne nettsiden din med en testlenke, for eksempel:</p>
+        <pre class="mt-3 overflow-auto rounded-2xl bg-slate-950 p-4 text-sm text-emerald-300"><code>https://dinside.no/?ref=TEST123</code></pre>
+        <p class="mt-4 text-slate-700">Deretter sjekker du TrustAI-dashboardet for registrerte klikk og referral.</p>
+      </div>
+    </section>
+
+    <section class="px-5 py-16">
+      <div class="mx-auto max-w-5xl">
+        <h2 class="text-3xl font-black tracking-tight">Hva fungerer bra på Wix?</h2>
+        <ul class="mt-6 grid gap-3 text-slate-800 md:grid-cols-2">
+          <li class="rounded-2xl border bg-white p-4 font-bold">Referral-lenker</li>
+          <li class="rounded-2xl border bg-white p-4 font-bold">Klikksporing</li>
+          <li class="rounded-2xl border bg-white p-4 font-bold">Lead tracking</li>
+          <li class="rounded-2xl border bg-white p-4 font-bold">Kontaktskjema</li>
+          <li class="rounded-2xl border bg-white p-4 font-bold">Bookinger</li>
+          <li class="rounded-2xl border bg-white p-4 font-bold">Ambassadør-dashboard</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="bg-amber-50 px-5 py-16">
+      <div class="mx-auto max-w-4xl rounded-3xl border border-amber-200 bg-white p-8">
+        <h2 class="text-3xl font-black tracking-tight">Viktig om Wix checkout</h2>
+        <p class="mt-4 text-slate-700">Wix checkout kan ha begrensninger sammenlignet med Shopify. TrustAI fungerer best på Wix når målet er leads, kontaktskjema, booking eller forespørsler. Full kjøpssporing kan kreve ekstra oppsett med Velo eller Wix events.</p>
+      </div>
+    </section>
+
+    <section class="px-5 py-16">
+      <div class="mx-auto max-w-4xl">
+        <h2 class="text-3xl font-black tracking-tight">For avansert oppsett</h2>
+        <ul class="mt-5 list-disc space-y-2 pl-6 text-slate-700">
+          <li>Velo by Wix kan brukes for mer avansert tracking.</li>
+          <li>Backend logic bør ligge sikkert server-side.</li>
+          <li>TrustAI kan kobles mot custom events senere.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="faq" class="bg-slate-50 px-5 py-16">
+      <div class="mx-auto max-w-4xl">
+        <h2 class="text-3xl font-black tracking-tight">FAQ</h2>
+        <div class="mt-6 grid gap-4 text-slate-700">
+          <p><strong>Må jeg kode?</strong><br>Nei. For standardoppsett holder det å lime inn scriptet i Wix Custom Code.</p>
+          <p><strong>Fungerer dette på alle Wix-sider?</strong><br>Ja, velg “All pages” for å aktivere scriptet på hele nettstedet.</p>
+          <p><strong>Kan jeg bruke TrustAI for bookings?</strong><br>Ja. Bookinger og forespørsler kan spores som leads.</p>
+          <p><strong>Kan ambassadører få dashboard?</strong><br>Ja, de får eget dashboard med lenker, klikk og resultater.</p>
+          <p><strong>Hva hvis jeg bruker Wix Stores?</strong><br>Grunnsporing fungerer, men full kjøpssporing i checkout kan kreve ekstra Velo/Wix events-oppsett.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t bg-slate-950 px-5 py-10 text-center text-sm text-slate-400">
+    <p>© 2026 TrustAI. All rights reserved.</p>
+    <p class="mt-3"><a href="/wix.html" class="font-semibold text-cyan-300 hover:text-cyan-200">Wix-guide</a> · <a href="/how-it-works.html" class="font-semibold text-cyan-300 hover:text-cyan-200">Slik fungerer det</a></p>
+  </footer>
+</body>
+</html>

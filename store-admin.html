@@ -1,0 +1,75 @@
+<!doctype html><html lang="no"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TrustAI Store Admin</title><link rel="stylesheet" href="/assets/css/trustai-dashboard.css"><script src="/assets/js/dashboard-ui.js"></script><script src="/assets/js/trustai-dashboard.js"></script></head>
+<body><div class="app header-nav"><aside class="sidebar"><div class="logo">Trust<span>AI</span></div><div class="user-chip" id="storeInfo">Store Admin</div><nav class="nav"><a class="active" href="#">Dashboard</a></nav><button class="btn secondary" id="logoutBtn">Logout</button></aside>
+<main class="main"><div class="topbar"><button class="btn secondary mobile-toggle" onclick="TrustAIDashboard.toggleSidebar()">☰</button><strong>Store Admin</strong><div class="muted">Egen butikk</div></div><div class="content" id="content" style="display:none">
+<div class="cards" id="kpis"></div>
+<div class="grid-2"><div>
+<div class="card"><h3>Innstillinger</h3><div class="toolbar"><input class="input" id="defaultCommission" type="number" step="0.01"><button class="btn" id="saveSettings">Lagre</button></div></div><div class="card"><h3>Endre passord</h3><div class='field-help'>Nåværende passord: Skriv passordet du bruker i dag.</div><input class='input' id='currentPassword' type='password'><div class='field-help'>Nytt passord: Velg et nytt passord på minst 8 tegn.</div><input class='input' id='newPassword' type='password'><div class='field-help'>Bekreft nytt passord: Skriv det nye passordet én gang til.</div><input class='input' id='confirmPassword' type='password'><div class='toolbar'><button class='btn' id='changePasswordBtn'>Oppdater passord</button></div></div>
+<div class="card"><h3>Pending applications</h3><div id="pendingList"></div></div>
+<div class="card"><h3>Ambassadører</h3><div class="toolbar"><input class="input" id="ambSearch" placeholder="Søk ambassador"></div><div id="ambTable"></div></div>
+<div class="card"><h3>Ordre</h3><div class="toolbar"><input class="input" id="orderSearch" placeholder="Søk ordre"></div><div id="ordersTable"></div></div>
+</div><div><div class="card"><h3>Payouts</h3><div id="payoutsTable"></div></div></div></div>
+</div><div class="content" id="guard"></div><div class="footer">© 2026 <a href="https://setai.no" target="_blank" rel="noopener">SETAEI</a>. All rights reserved.</div></main></div>
+<div class="modal-backdrop" id="globalModal"><div class="modal" id="globalModalContent"></div></div>
+<script>
+const ui=DashboardUI, app=TrustAIDashboard; let state={ambassadors:[],orders:[],payouts:[],dashboard:{}};
+const normalizeStatus=(v)=>ui.normalizeStatus(v);
+const renderStatusDot=(v)=>ui.renderStatusDot(v);
+function getAmbassadorActions(a){const st=normalizeStatus(a.status);if(st==='pending')return `<button class='btn' onclick='ambAction(${a.id},"approve")'>Godkjenn</button><button class='btn danger' onclick='ambAction(${a.id},"reject")'>Avvis</button>`;if(st==='approved')return `<button class='btn secondary' onclick='ambAction(${a.id},"pause")'>Pause</button>`;if(st==='paused'||st==='rejected')return `<button class='btn' onclick='ambAction(${a.id},"activate")'>Aktiver</button>`;return '';}
+async function logout(){await fetch('/api/auth/logout.php',{method:'POST',credentials:'include'});location.href='/login.html';}
+async function auth(){const d=await fetch('/api/auth/route.php',{credentials:'include'}).then(r=>r.json());if(!d.ok||d.role!=='store_admin'){guard.innerHTML='Ingen tilgang';return false;}content.style.display='block';guard.style.display='none';return true;}
+function bySearch(rows,q){q=q.trim().toLowerCase();if(!q) return rows;return rows.filter(r=>JSON.stringify(r).toLowerCase().includes(q));}
+function render(){const d=state.dashboard; const m=[['Ambassadører',d.metrics?.ambassadors],['Pending',d.metrics?.pending_ambassadors],['Salg',ui.formatCurrency(d.metrics?.total_sales)],['Commission',ui.formatCurrency(d.metrics?.total_commission)],['Pending payouts',ui.formatCurrency(d.metrics?.payouts_pending)]];kpis.innerHTML=m.map(([k,v])=>`<div class='card'><div class='muted'>${k}</div><div class='kpi'>${ui.escapeHtml(v??0)}</div></div>`).join('');
+storeInfo.innerHTML=`${ui.escapeHtml(d.store?.name||'')}<br><span class='muted'>${ui.escapeHtml(d.store?.domain||'')}</span>`;
+defaultCommission.value=d.store?.default_commission_percent??20;
+const pending=state.ambassadors.filter(a=>normalizeStatus(a.status)==='pending');pendingList.innerHTML=pending.length?pending.map(a=>`<div class='pending-card'><strong>${ui.escapeHtml(a.name)}</strong><div class='muted'>${ui.escapeHtml(a.email||'')}</div><div class='toolbar'>${getAmbassadorActions(a)}</div></div>`).join(''):'<div class="empty">Ingen pending søknader.</div>';
+const amb=bySearch(state.ambassadors,ambSearch.value);ui.renderTable(ambTable,amb,[{key:'id',label:'ID'},{key:'name',label:'Navn',render:(_,r)=>`${ui.escapeHtml(r.name||'')} ${renderStatusDot(r.status)}`},{key:'email',label:'E-post'},{key:'status',label:'Status',render:v=>ui.renderBadge(v)},{key:'commission_percent',label:'Comm %'},{key:'id',label:'Actions',render:(_,r)=>`<button class='btn secondary' onclick='editAmb(${r.id})'>Edit</button>${getAmbassadorActions(r)}`}]);
+const orders=bySearch(state.orders,orderSearch.value);ui.renderTable(ordersTable,orders,[{key:'id',label:'ID'},{key:'customer_name',label:'Kunde'},{key:'amount',label:'Beløp',render:v=>ui.formatCurrency(v)},{key:'commission_amount',label:'Kommisjon',render:v=>ui.formatCurrency(v)},{key:'payout_status',label:'Payout',render:v=>ui.renderBadge(v)},{key:'created_at',label:'Dato',render:v=>ui.formatDate(v)}]);
+ui.renderTable(payoutsTable,state.payouts,[{key:'id',label:'ID'},{key:'ambassador_id',label:'Amb.'},{key:'amount',label:'Beløp',render:v=>ui.formatCurrency(v)},{key:'status',label:'Status',render:v=>ui.renderBadge(v)},{key:'id',label:'Actions',render:(_,r)=>`<button class='btn' onclick='setPayout(${r.id},"paid")'>Paid</button><button class='btn danger' onclick='setPayout(${r.id},"rejected")'>Reject</button>`}]);}
+async function load(){
+    const [d, a, o, p] = await Promise.all([
+        fetch('/api/store-admin/dashboard.php', { credentials: 'include' }).then(r => r.json()),
+        fetch('/api/store-admin/ambassadors.php', { credentials: 'include' }).then(r => r.json()),
+        fetch('/api/store-admin/orders.php', { credentials: 'include' }).then(r => r.json()),
+        fetch('/api/store-admin/payouts.php', { credentials: 'include' }).then(r => r.json())
+    ]);
+    if (!d.ok) {
+        app.toast('Kunne ikke laste');
+        return;
+    }
+    // Start with the existing ambassadors returned from the store-admin API
+    let ambassadorsList = a.ambassadors || [];
+    // Attempt to load any pending applications so store admins can see them
+    try {
+        const apps = await fetch('/api/list-ambassador-applications.php', { credentials: 'include' }).then(r => r.json());
+        if (apps && apps.ok && Array.isArray(apps.applications)) {
+            const storeId = d.store?.id;
+            const pendingApps = apps.applications
+                .filter(app => normalizeStatus(app.status) === 'pending' && (storeId === undefined || Number(app.store_id) === Number(storeId)))
+                .map(app => ({
+                    id: app.application_id,
+                    name: app.name,
+                    email: app.email,
+                    phone: app.phone,
+                    status: app.status,
+                    commission_percent: 0
+                }));
+            ambassadorsList = ambassadorsList.concat(pendingApps);
+        }
+    } catch (e) {
+        // ignore errors; pending list will remain empty if fetch fails
+    }
+    state = {
+        dashboard: d,
+        ambassadors: ambassadorsList,
+        orders: o.orders || [],
+        payouts: p.payouts || []
+    };
+    render();
+}
+window.ambAction=async(id,act)=>{const map={approve:'/api/store-admin/approve-ambassador.php',reject:'/api/store-admin/reject-ambassador.php',pause:'/api/store-admin/pause-ambassador.php',activate:'/api/store-admin/activate-ambassador.php'};const r=await app.post(map[act],{ambassador_id:id});app.toast(r.ok?'Oppdatert':(r.error||'Feil'));if(r.ok&&r.ambassador){const i=state.ambassadors.findIndex(x=>Number(x.id)===Number(id));if(i>-1) state.ambassadors[i]=r.ambassador;render();} else if(r.ok){load();}}
+window.editAmb=(id)=>{const a=state.ambassadors.find(x=>Number(x.id)===Number(id));app.showModal('Rediger ambassador',`<input class='input' id='am_name' value='${ui.escapeHtml(a.name||'')}'><input class='input' id='am_email' value='${ui.escapeHtml(a.email||'')}'><input class='input' id='am_phone' value='${ui.escapeHtml(a.phone||'')}'><input class='input' id='am_comm' type='number' step='0.01' value='${ui.escapeHtml(a.commission_percent||0)}'>`,async()=>{const r=await app.post('/api/store-admin/update-ambassador.php',{ambassador_id:id,name:app.qs('am_name').value,email:app.qs('am_email').value,phone:app.qs('am_phone').value,commission_percent:Number(app.qs('am_comm').value||0)});app.toast(r.ok?'Lagret':'Feil');if(r.ok)load();});}
+window.setPayout=async(id,status)=>{const r=await app.post('/api/store-admin/update-payout.php',{payout_id:id,status});app.toast(r.ok?'Payout oppdatert':'Feil');if(r.ok)load();}
+saveSettings.onclick=async()=>{const r=await app.post('/api/store-admin/update-settings.php',{default_commission_percent:Number(defaultCommission.value||0)});app.toast(r.ok?'Lagt til':'Feil');if(r.ok)load();}
+logoutBtn.onclick=logout;ambSearch.oninput=render;orderSearch.oninput=render;auth().then(ok=>ok&&load());
+changePasswordBtn.onclick=async()=>{const body={current_password:currentPassword.value,new_password:newPassword.value,confirm_password:confirmPassword.value};changePasswordBtn.disabled=true;const r=await app.post('/api/auth/change-password.php',body);changePasswordBtn.disabled=false;app.toast(r.ok?'Passord oppdatert':(r.error||'Feil'));if(r.ok){currentPassword.value='';newPassword.value='';confirmPassword.value='';}};
+</script></body></html>

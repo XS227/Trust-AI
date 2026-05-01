@@ -1,0 +1,13 @@
+RewriteEngine On
+
+# Hvis config.local.php ikke finnes -> send til /install
+RewriteCond %{REQUEST_URI} !^/install
+RewriteCond %{DOCUMENT_ROOT}/inc/config.local.php !-f
+RewriteRule ^(.*)$ /install/index.php [L]
+
+# /r/ABC123 -> /r.php?code=ABC123
+RewriteRule ^r/([A-Za-z0-9_-]+)$ r.php?code=$1 [L,QSA]
+
+# Google OAuth route aliases
+RewriteRule ^api/auth/google$ /api/auth/google.php?action=start [L,QSA]
+RewriteRule ^api/auth/google/callback$ /api/auth/google.php?action=callback [L,QSA]

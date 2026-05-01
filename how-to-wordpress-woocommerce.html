@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WordPress / WooCommerce guide | TrustAI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html { scroll-behavior: smooth; }
+    .soft-grid { background-image: radial-gradient(#e5e7eb 1px, transparent 1px); background-size: 22px 22px; }
+    .glass { background: rgba(255,255,255,.82); backdrop-filter: blur(18px); }
+  </style>
+</head>
+<body class="bg-white text-slate-950 antialiased">
+  <header class="sticky top-0 z-50 border-b border-slate-100 glass">
+    <div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
+      <a href="/" class="flex items-center gap-3">
+        <div class="grid h-11 w-11 place-items-center rounded-2xl bg-slate-950 text-white font-black shadow-lg">T</div>
+        <div>
+          <div class="text-xl font-black tracking-tight">TrustAI</div>
+          <div class="text-xs font-semibold text-slate-500">Referral & growth engine</div>
+        </div>
+      </a>
+      <div class="flex items-center gap-2">
+        <a href="/how-it-works.html" class="rounded-full border px-4 py-2 text-sm font-black hover:bg-slate-50">Se hvordan det fungerer</a>
+        <a href="/" class="rounded-full border px-4 py-2 text-sm font-black hover:bg-slate-50">← Tilbake</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="relative overflow-hidden soft-grid px-5 py-16 md:py-24">
+      <div class="absolute left-1/2 top-8 -z-10 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-cyan-100 blur-3xl"></div>
+      <div class="mx-auto max-w-5xl rounded-[2rem] border border-slate-200 bg-white p-8 shadow-xl md:p-12">
+        <span class="inline-flex rounded-full bg-cyan-100 px-4 py-2 text-sm font-black text-cyan-700">🧩 HOW TO – WordPress / WooCommerce</span>
+        <h1 class="mt-5 text-4xl font-black tracking-tight md:text-5xl">Installer TrustAI på WordPress / WooCommerce</h1>
+        <p class="mt-5 text-lg text-slate-600">Spor ambassadørlenker, salg og provisjoner automatisk i WooCommerce.</p>
+        <div class="mt-8 grid max-w-xl grid-cols-2 gap-4">
+          <div class="rounded-2xl border bg-white p-4 text-center shadow-sm"><img src="https://cdn.worldvectorlogo.com/logos/wordpress-icon-1.svg" alt="WordPress" class="mx-auto h-10" loading="lazy"><p class="mt-2 text-sm font-bold">WordPress</p></div>
+          <div class="rounded-2xl border bg-white p-4 text-center shadow-sm"><img src="https://cdn.worldvectorlogo.com/logos/woocommerce.svg" alt="WooCommerce" class="mx-auto h-10" loading="lazy"><p class="mt-2 text-sm font-bold">WooCommerce</p></div>
+        </div>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="#steps" class="rounded-full bg-pink-600 px-6 py-3 text-sm font-black text-white hover:bg-pink-700">Start installasjon</a>
+          <a href="/how-it-works.html" class="rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-black hover:bg-slate-50">Se hvordan det fungerer</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="px-5 py-12 md:py-16">
+      <div class="mx-auto max-w-5xl rounded-3xl border p-7 shadow-sm">
+        <h2 class="text-2xl font-black">Kort forklaring</h2>
+        <ul class="mt-5 grid gap-3 text-slate-700 md:grid-cols-2">
+          <li class="rounded-2xl bg-slate-50 p-4">1) Ambassadør deler unik lenke</li>
+          <li class="rounded-2xl bg-slate-50 p-4">2) Kunden besøker WooCommerce-butikken</li>
+          <li class="rounded-2xl bg-slate-50 p-4">3) Referral-kode lagres i cookie/localStorage</li>
+          <li class="rounded-2xl bg-slate-50 p-4">4) WooCommerce-ordre sendes til TrustAI</li>
+          <li class="rounded-2xl bg-slate-50 p-4 md:col-span-2">5) Dashboard oppdateres med salg og provisjon</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="steps" class="bg-slate-50 px-5 py-14 md:py-20">
+      <div class="mx-auto max-w-5xl">
+        <h2 class="text-3xl font-black">Steg-for-steg installasjon</h2>
+        <div class="mt-8 grid gap-4 md:grid-cols-2">
+          <div class="rounded-2xl border bg-white p-5 shadow-sm"><p class="text-sm font-black text-pink-600">Steg 1</p><p class="mt-2 font-bold">Opprett butikk i TrustAI admin</p></div>
+          <div class="rounded-2xl border bg-white p-5 shadow-sm"><p class="text-sm font-black text-pink-600">Steg 2</p><p class="mt-2 font-bold">Installer TrustAI WordPress plugin</p></div>
+          <div class="rounded-2xl border bg-white p-5 shadow-sm"><p class="text-sm font-black text-pink-600">Steg 3</p><p class="mt-2 font-bold">Lim inn Store ID / API key</p></div>
+          <div class="rounded-2xl border bg-white p-5 shadow-sm"><p class="text-sm font-black text-pink-600">Steg 4</p><p class="mt-2 font-bold">Aktiver WooCommerce order tracking</p></div>
+          <div class="rounded-2xl border bg-white p-5 shadow-sm"><p class="text-sm font-black text-pink-600">Steg 5</p><p class="mt-2 font-bold">Test med referral-lenke</p></div>
+          <div class="rounded-2xl border bg-white p-5 shadow-sm"><p class="text-sm font-black text-pink-600">Steg 6</p><p class="mt-2 font-bold">Se salg i TrustAI dashboard</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="px-5 py-14">
+      <div class="mx-auto max-w-5xl grid gap-8 lg:grid-cols-2">
+        <article class="rounded-3xl border p-7 shadow-sm">
+          <h2 class="text-2xl font-black">Teknisk flow</h2>
+          <pre class="mt-4 overflow-auto rounded-2xl bg-slate-950 p-4 text-sm text-emerald-300"><code>Referral link
+→ WordPress/WooCommerce
+→ TrustAI script
+→ Cookie: trustai_ref
+→ WooCommerce order
+→ TrustAI API
+→ Ambassador dashboard</code></pre>
+        </article>
+        <article class="rounded-3xl border p-7 shadow-sm">
+          <h2 class="text-2xl font-black">TrustAI for WooCommerce</h2>
+          <p class="mt-3 text-sm font-black text-amber-600">Status: Coming soon / Beta</p>
+          <ul class="mt-4 space-y-2 text-slate-700">
+            <li>• Automatisk script injection</li>
+            <li>• WooCommerce order tracking</li>
+            <li>• Referral cookie capture</li>
+            <li>• Commission calculation</li>
+            <li>• Dashboard sync</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="bg-slate-50 px-5 py-14">
+      <div class="mx-auto max-w-5xl grid gap-6">
+        <article class="rounded-3xl border bg-white p-7 shadow-sm">
+          <h2 class="text-2xl font-black">Manuell installasjon (midlertidig)</h2>
+          <p class="mt-3 text-slate-700">Hvis plugin ikke er aktiv enda, kan scriptet legges inn midlertidig:</p>
+          <pre class="mt-3 overflow-auto rounded-2xl bg-slate-950 p-4 text-sm text-emerald-300"><code>&lt;script src="https://trustai.no/api/trustai-referral.js"&gt;&lt;/script&gt;</code></pre>
+          <p class="mt-4 text-slate-700">For WordPress bør scripts normalt legges inn med <code>wp_enqueue_script()</code>, via <code>wp_enqueue_scripts</code>-hooken, i stedet for hardkoding i theme header.</p>
+        </article>
+        <article class="rounded-3xl border bg-white p-7 shadow-sm">
+          <h2 class="text-2xl font-black">WooCommerce ordre-sporing</h2>
+          <p class="mt-3 text-slate-700">Pluginen kan sende ordre til TrustAI med WooCommerce hooks eller webhooks. Vanlig oppsett er hook etter checkout (f.eks. <code>woocommerce_thankyou</code>) og/eller webhooks ved ordre-hendelser.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="px-5 py-14">
+      <div class="mx-auto max-w-5xl">
+        <h2 class="text-3xl font-black">FAQ</h2>
+        <div class="mt-6 grid gap-4 md:grid-cols-2">
+          <div class="rounded-2xl border p-5"><p class="font-black">Må kunden kunne kode?</p><p class="mt-2 text-slate-600">Nei, plugin-oppsettet er laget for ikke-tekniske brukere.</p></div>
+          <div class="rounded-2xl border p-5"><p class="font-black">Fungerer dette med alle WordPress themes?</p><p class="mt-2 text-slate-600">Ja, så lenge temaet følger standard WordPress hooks.</p></div>
+          <div class="rounded-2xl border p-5"><p class="font-black">Hva skjer hvis kunden betaler senere?</p><p class="mt-2 text-slate-600">Salg registreres når ordrehendelsen sendes til TrustAI.</p></div>
+          <div class="rounded-2xl border p-5"><p class="font-black">Hvor lenge varer referral-cookie?</p><p class="mt-2 text-slate-600">Butikken velger cookie-varighet i TrustAI-oppsettet.</p></div>
+          <div class="rounded-2xl border p-5"><p class="font-black">Kan man bruke dette uten WooCommerce?</p><p class="mt-2 text-slate-600">Ja, TrustAI kan brukes med andre plattformer og manuell integrasjon.</p></div>
+          <div class="rounded-2xl border p-5"><p class="font-black">Kan TrustAI brukes for leads, ikke bare salg?</p><p class="mt-2 text-slate-600">Ja, TrustAI kan også spore leads og andre konverteringer.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-slate-950 px-5 py-20 text-white">
+      <div class="mx-auto max-w-5xl text-center">
+        <h2 class="text-4xl font-black">Klar for WooCommerce-integrasjon?</h2>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <a href="/how-it-works.html" class="inline-flex rounded-full bg-pink-600 px-8 py-4 text-sm font-black text-white hover:bg-pink-700">Kontakt TrustAI</a>
+          <a href="/how-it-works.html" class="inline-flex rounded-full border border-white/40 px-8 py-4 text-sm font-black text-white hover:bg-white/10">Se Shopify guide</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t bg-slate-950 px-5 py-10 text-center text-sm text-slate-400">
+    © 2026 <a href="https://setaei.no" target="_blank" rel="noopener" class="font-bold text-slate-300 hover:text-white">SETAEI</a>. All rights reserved.
+  </footer>
+</body>
+</html>

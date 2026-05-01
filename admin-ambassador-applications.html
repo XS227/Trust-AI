@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin – Ambassadørsøknader</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f6f7fb; color: #14151a; }
+    .container { max-width: 1000px; margin: 40px auto; padding: 0 16px; }
+    h1 { margin-bottom: 8px; }
+    .muted { color: #5f6472; margin-top: 0; }
+    .toolbar { display: flex; gap: 10px; margin: 18px 0; }
+    button { border: 0; border-radius: 8px; padding: 10px 14px; cursor: pointer; font-weight: 600; }
+    .btn-refresh { background: #dbeafe; color: #1d4ed8; }
+    .btn-approve { background: #16a34a; color: #fff; }
+    .btn-approve[disabled] { background: #9ca3af; cursor: not-allowed; }
+    .grid { display: grid; gap: 12px; }
+    .card { background: #fff; border-radius: 12px; padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+    .row { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+    .status { font-size: 12px; border-radius: 999px; padding: 4px 8px; font-weight: 700; text-transform: uppercase; }
+    .status.pending { background: #fff7d6; color: #8a6b00; }
+    .status.approved { background: #dcfce7; color: #166534; }
+    .meta { color: #4b5563; font-size: 14px; margin-top: 8px; }
+    .message { padding: 12px; border-radius: 10px; margin: 14px 0; }
+    .message.error { background: #fee2e2; color: #991b1b; }
+    .message.ok { background: #dcfce7; color: #166534; }
+    .empty { background: #fff; border-radius: 12px; padding: 18px; color: #4b5563; }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>Ambassadørsøknader</h1>
+    <p class="muted">Admin ser alle søknader og kan klikke <strong>Godkjenn</strong>.</p>
+
+    <div class="toolbar">
+      <button class="btn-refresh" id="refreshBtn">Oppdater</button>
+    </div>
+
+    <div id="message"></div>
+    <section class="grid" id="applications"></section>
+  </main>
+
+  <script>
+    const listEndpoint = '/api/list-ambassador-applications.php';
+    const approveEndpoint = '/api/approve-ambassador-application.php';
+
+    const applicationsEl = document.getElementById('applications');
+    const messageEl = document.getElementById('message');
+    const refreshBtn = document.getElementById('refreshBtn');
+
+    function fmtDate(value) {
+      if (!value) return 'Ukjent dato';
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return value;
+      return d.toLocaleString('no-NO');
+    }
+
+    function showMessage(text, type) {
+      if (!text) {
+        messageEl.innerHTML = '';
+        return;
+      }
+      messageEl.innerHTML = `<div class="message ${type}">${text}</div>`;
+    }
+
+    async function approveApplication(applicationId, buttonEl) {
+      buttonEl.disabled = true;
+      showMessage('', '');
+
+      try {
+        // Always include credentials so session cookies are sent. Without this the
+        // API considers the request unauthenticated and approval fails silently.
+        const res = await fetch(approveEndpoint, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ application_id: applicationId })
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          throw new Error(data.error || 'Kunne ikke godkjenne søknad');
+        }
+
+        showMessage(`Søknad ${applicationId} er godkjent.`, 'ok');
+        await loadApplications();
+      } catch (err) {
+        showMessage(`Feil ved godkjenning: ${err.message}`, 'error');
+        buttonEl.disabled = false;
+      }
+    }
+
+    function renderApplications(applications) {
+      if (!applications.length) {
+        applicationsEl.innerHTML = '<div class="empty">Ingen søknader ennå.</div>';
+        return;
+      }
+
+      applicationsEl.innerHTML = applications.map(app => {
+        const isApproved = app.status === 'approved';
+        return `
+          <article class="card">
+            <div class="row">
+              <div>
+                <strong>${app.name || 'Uten navn'}</strong><br />
+                <span class="meta">${app.email || 'Ingen e-post'}</span>
+              </div>
+              <span class="status ${isApproved ? 'approved' : 'pending'}">${isApproved ? 'Godkjent' : 'Pending'}</span>
+            </div>
+
+            <div class="meta">Telefon: ${app.phone || '-'}</div>
+            <div class="meta">Partner: ${app.partner || '-'}</div>
+            <div class="meta">Type: ${app.applicant_type || '-'}</div>
+            <div class="meta">Søkt: ${fmtDate(app.created_at)}</div>
+
+            <div style="margin-top: 12px;">
+              <button class="btn-approve" data-id="${app.application_id}" ${isApproved ? 'disabled' : ''}>
+                ${isApproved ? 'Allerede godkjent' : 'Godkjenn'}
+              </button>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      applicationsEl.querySelectorAll('.btn-approve').forEach(btn => {
+        if (btn.disabled) return;
+        btn.addEventListener('click', () => approveApplication(btn.dataset.id, btn));
+      });
+    }
+
+    async function loadApplications() {
+      showMessage('', '');
+      try {
+        // Fetch ambassador applications with credentials so the authenticated admin
+        // session cookie is included. Without credentials the list would return
+        // an error and appear empty to the admin.
+        const res = await fetch(listEndpoint, { credentials: 'include' });
+        const data = await res.json();
+        if (!res.ok || !data.ok || !Array.isArray(data.applications)) {
+          throw new Error(data.error || 'Kunne ikke hente søknader');
+        }
+        renderApplications(data.applications);
+      } catch (err) {
+        applicationsEl.innerHTML = '';
+        showMessage(`Feil ved lasting: ${err.message}`, 'error');
+      }
+    }
+
+    refreshBtn.addEventListener('click', loadApplications);
+    loadApplications();
+  </script>
+</body>
+</html>

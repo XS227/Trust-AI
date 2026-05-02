@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="no">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bli ambassadør | TrustAI</title>
+<style>body{font-family:Inter,Arial,sans-serif;background:linear-gradient(160deg,#0f172a,#111827);color:#e2e8f0;margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}.card{width:100%;max-width:460px;background:#0b1220;border:1px solid #334155;border-radius:14px;padding:24px}.msg{margin-top:12px;padding:10px;border-radius:9px;display:none}.msg.show{display:block}.ok{background:#102a1a;border:1px solid #14532d;color:#bbf7d0}.error{background:#3f1d1d;border:1px solid #7f1d1d;color:#fecaca}label{display:block;margin-top:10px;font-size:13px;color:#94a3b8}input,button{width:100%;padding:11px;border-radius:10px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;box-sizing:border-box;margin-top:6px}input:focus{outline:none;border-color:#2563eb}button{margin-top:14px;background:#2563eb;color:#fff;border:0;font-weight:600;cursor:pointer}button:hover{background:#1d4ed8}button:disabled{opacity:.6;cursor:not-allowed}.secondary{background:#fff;color:#0f172a}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.meta{margin-top:14px;text-align:center;font-size:14px}.meta a{color:#60a5fa;text-decoration:none}.meta a:hover{text-decoration:underline}h1{margin:0 0 6px;font-size:24px}p.help{margin:0 0 8px;color:#94a3b8;font-size:14px}</style></head>
+<body><div class="card">
+<h1>Bli ambassadør</h1>
+<p class="help">Søknaden kobles automatisk til riktig butikk via domenet.</p>
+<form id="f">
+  <label>Navn</label><input id="name" required>
+  <label>E-post</label><input id="email" type="email" required>
+  <label>Telefon</label><input id="phone" required>
+  <label>Domene til butikk/partner</label><input id="partner" placeholder="eks. butikk.no" required>
+  <div class="row">
+    <div><label>Passord</label><input id="password" type="password" minlength="8" required></div>
+    <div><label>Bekreft passord</label><input id="password2" type="password" minlength="8" required></div>
+  </div>
+  <button id="submitBtn">Send søknad</button>
+  <button type="button" id="gmailSignup" class="secondary">Registrer med Google</button>
+</form>
+<div id="status" class="msg"></div>
+<div class="meta">Allerede medlem? <a href="/login.html">Logg inn her</a></div>
+</div>
+<script>
+const status=document.getElementById('status');const form=document.getElementById('f');
+function flash(t,ok=false){status.className='msg show '+(ok?'ok':'error');status.textContent=t;}
+form.addEventListener('submit',async(e)=>{
+  e.preventDefault();
+  const submitBtn=document.getElementById('submitBtn');
+  const pw=document.getElementById('password').value;
+  const pw2=document.getElementById('password2').value;
+  if(pw!==pw2){flash('Passordene stemmer ikke overens.');return;}
+  if(pw.length<8){flash('Passordet må være minst 8 tegn.');return;}
+  submitBtn.disabled=true;submitBtn.textContent='Sender...';
+  const payload={
+    name:document.getElementById('name').value.trim(),
+    email:document.getElementById('email').value.trim(),
+    phone:document.getElementById('phone').value.trim(),
+    store_url:document.getElementById('partner').value.trim(),
+    domain:document.getElementById('partner').value.trim(),
+    password:pw
+  };
+  try{
+    const res=await fetch('/api/create-ambassador-application.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const data=await res.json();
+    if(data.ok){flash(`Søknad mottatt! Status: pending. Du kan logge inn så snart butikken godkjenner deg.`,true);form.reset();}
+    else{flash(`Feil: ${data.message||data.error||'ukjent'}`);}
+  }catch(err){flash(`Feil: ${err.message}`);}
+  finally{submitBtn.disabled=false;submitBtn.textContent='Send søknad';}
+});
+document.getElementById('gmailSignup').addEventListener('click',()=>{window.location.href='/api/auth/google.php?action=start';});
+</script></body></html>

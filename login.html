@@ -15,4 +15,5 @@ function setForgot(on){document.getElementById('passwordWrap').classList.toggle(
 document.getElementById('forgotLink').onclick=(e)=>{e.preventDefault();setForgot(true)};document.getElementById('backLink').onclick=(e)=>{e.preventDefault();setForgot(false)};
 forgotBtn.onclick=async()=>{const email=document.getElementById('email').value.trim();const r=await fetch('/api/auth/forgot-password.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})});const d=await r.json().catch(()=>({}));flash(d.message||'Hvis e-posten er registrert, sender vi deg en melding.',true);};
 document.getElementById('loginForm').onsubmit=async(e)=>{e.preventDefault();const payload={email:email.value.trim(),password:password.value};const res=await fetch('/api/auth/login.php',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await res.json().catch(()=>({}));if(!res.ok||!data.ok){flash(data.message||'Feil e-post eller passord.');return;}location.href=data.redirect||'/app.html';};
-</script></body></html>
+</script><script src="/global-footer.js"></script>
+</body></html>

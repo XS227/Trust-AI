@@ -72,4 +72,5 @@ window.setPayout=async(id,status)=>{const r=await app.post('/api/store-admin/upd
 saveSettings.onclick=async()=>{const r=await app.post('/api/store-admin/update-settings.php',{default_commission_percent:Number(defaultCommission.value||0)});app.toast(r.ok?'Lagt til':'Feil');if(r.ok)load();}
 logoutBtn.onclick=logout;ambSearch.oninput=render;orderSearch.oninput=render;auth().then(ok=>ok&&load());
 changePasswordBtn.onclick=async()=>{const body={current_password:currentPassword.value,new_password:newPassword.value,confirm_password:confirmPassword.value};changePasswordBtn.disabled=true;const r=await app.post('/api/auth/change-password.php',body);changePasswordBtn.disabled=false;app.toast(r.ok?'Passord oppdatert':(r.error||'Feil'));if(r.ok){currentPassword.value='';newPassword.value='';confirmPassword.value='';}};
-</script></body></html>
+</script><script src="/global-footer.js"></script>
+</body></html>

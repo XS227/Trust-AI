@@ -1,31 +1,245 @@
-<!doctype html><html lang="no"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TrustAI Ambassador Dashboard</title><link rel="stylesheet" href="/assets/css/trustai-dashboard.css"><script src="/assets/js/dashboard-ui.js"></script><script src="/assets/js/trustai-dashboard.js"></script></head>
-<body><div class="app header-nav"><aside class="sidebar"><div class="logo">Trust<span>AI</span></div><div class="user-chip" id="profileChip"></div><nav class="nav"><a class="active" href="#">Dashboard</a><a href="#share">Del lenke</a><a href="#earn">Inntekt</a><a href="#profile">Profil</a></nav><button class="btn secondary" id="logoutBtn">Logout</button></aside>
-<main class="main"><div class="topbar"><button class="btn secondary mobile-toggle" onclick="TrustAIDashboard.toggleSidebar()">☰</button><strong>Ambassador</strong><div class="muted">Referral & payouts</div></div><div class="content" id="content" style="display:none">
-<div class="cards" id="kpis"></div>
-<div class="grid-2"><div>
-<div id="share" class="card"><h3>Din referral-lenke</h3><label class='muted'>Full referral link</label><div class="toolbar"><input class="input" id="refLink" readonly style="flex:1"><button class="btn" id="copyBtn">Kopier lenke</button></div><div class='muted' id='storeDomainInfo'></div></div>
-<div id="earn" class="card"><h3>Orders</h3><div id="ordersTable"></div></div>
-<div class="card"><h3>Klikk</h3><div id="clicksTable"></div></div>
-</div><div>
-<div class="card"><h3>Request payout</h3><div class="toolbar"><button class="btn" id="requestPayoutBtn">Request payout</button></div></div>
-<div id="profile" class="card"><h3>Profil</h3><input class="input" id="pName" placeholder="Navn"><input class="input" id="pEmail" placeholder="E-post"><input class="input" id="pPhone" placeholder="Telefon"><div class="toolbar"><button class="btn" id="saveProfileBtn">Lagre profil</button></div><h4>Endre passord</h4><input class='input' id='aCurrentPassword' type='password' placeholder='Nåværende passord'><input class='input' id='aNewPassword' type='password' placeholder='Nytt passord (minst 8 tegn)'><input class='input' id='aConfirmPassword' type='password' placeholder='Bekreft nytt passord'><div class='toolbar'><button class='btn' id='aChangePasswordBtn'>Oppdater passord</button></div></div>
-<div class="card"><h3>Payouts</h3><div id="payoutsTable"></div></div>
-</div></div>
-</div><div class="content" id="guard"></div><div class='footer'>© 2026 <a href='https://setai.no' target='_blank' rel='noopener'>SETAEI</a>. All rights reserved.</div></main></div><div class="modal-backdrop" id="globalModal"><div class="modal" id="globalModalContent"></div></div>
+<!doctype html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TrustAI Ambassador Dashboard</title>
+<link rel="stylesheet" href="/assets/css/trustai-dashboard.css">
+<script src="/assets/js/dashboard-ui.js"></script>
+<script src="/assets/js/trustai-dashboard.js"></script>
+<style>
+.share-card{background:#0b1220;border:1px solid #334155;border-radius:14px;padding:20px;margin-bottom:16px}
+.share-link-box{display:flex;gap:8px;margin:10px 0 14px;flex-wrap:wrap}
+.share-link-box input{flex:1;min-width:220px;padding:11px 12px;border-radius:10px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;font-family:'DM Mono',monospace;font-size:13px}
+.share-link-box button{padding:11px 18px;border-radius:10px;border:0;background:#2563eb;color:#fff;font-weight:600;cursor:pointer;white-space:nowrap}
+.share-link-box button:hover{background:#1d4ed8}
+.share-icons{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;margin-top:14px}
+.share-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;border-radius:12px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;cursor:pointer;text-decoration:none;transition:all .15s;font-size:12px;font-weight:500}
+.share-btn:hover{transform:translateY(-2px);border-color:#475569;background:#1e293b}
+.share-btn svg{width:24px;height:24px}
+.share-btn.facebook{color:#1877f2}
+.share-btn.x{color:#e2e8f0}
+.share-btn.whatsapp{color:#25d366}
+.share-btn.linkedin{color:#0a66c2}
+.share-btn.telegram{color:#26a5e4}
+.share-btn.email{color:#94a3b8}
+.share-btn.sms{color:#10b981}
+.qr-box{display:flex;align-items:center;gap:16px;margin-top:16px;padding:14px;background:#0f172a;border-radius:10px;border:1px solid #334155}
+.qr-box img{background:#fff;padding:8px;border-radius:8px;width:140px;height:140px}
+.qr-info{flex:1;font-size:13px;color:#94a3b8;line-height:1.5}
+.profile-form{display:grid;gap:12px;max-width:500px}
+.profile-form label{font-size:13px;color:#94a3b8;display:block;margin-bottom:4px}
+.profile-form input{width:100%;padding:11px 12px;border-radius:10px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;font-size:14px;box-sizing:border-box}
+.profile-form input:focus{outline:none;border-color:#2563eb}
+.profile-form button{padding:12px 18px;border-radius:10px;border:0;background:#2563eb;color:#fff;font-weight:600;cursor:pointer;font-size:14px;margin-top:6px}
+.profile-form button:hover{background:#1d4ed8}
+.profile-msg{padding:10px;border-radius:8px;font-size:13px;display:none;margin-top:8px}
+.profile-msg.show{display:block}
+.profile-msg.ok{background:#102a1a;border:1px solid #14532d;color:#bbf7d0}
+.profile-msg.error{background:#3f1d1d;border:1px solid #7f1d1d;color:#fecaca}
+.copy-toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#10b981;color:#fff;padding:10px 18px;border-radius:10px;font-weight:600;display:none;z-index:1000;box-shadow:0 8px 20px rgba(0,0,0,.3)}
+.copy-toast.show{display:block;animation:fadeIn .2s}
+@keyframes fadeIn{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
+section.card h3{margin-top:0}
+.section-title{font-size:13px;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin:18px 0 8px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="app header-nav">
+<aside class="sidebar">
+  <div class="logo">Trust<span>AI</span></div>
+  <div class="user-chip" id="profileChip"></div>
+  <nav class="nav">
+    <a class="active" href="#dashboard">Dashboard</a>
+    <a href="#share">Del lenke</a>
+    <a href="#earn">Inntekt</a>
+    <a href="#profile">Profil</a>
+  </nav>
+  <button class="btn secondary" id="logoutBtn">Logout</button>
+</aside>
+<main class="main">
+  <header class="topbar"><h2 id="welcome">Velkommen</h2></header>
+
+  <div class="kpis" id="kpis"></div>
+
+  <section id="share" class="share-card">
+    <h3 style="margin:0 0 4px">🔗 Din referral-lenke</h3>
+    <div class="muted" id="storeDomainInfo" style="font-size:13px;margin-bottom:8px"></div>
+    <div class="share-link-box">
+      <input id="refLink" readonly>
+      <button id="copyBtn">📋 Kopier</button>
+    </div>
+
+    <div class="section-title">Del på sosiale medier</div>
+    <div class="share-icons">
+      <a href="#" class="share-btn facebook" id="shareFacebook" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        Facebook
+      </a>
+      <a href="#" class="share-btn x" id="shareX" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        X (Twitter)
+      </a>
+      <a href="#" class="share-btn whatsapp" id="shareWhatsApp" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+        WhatsApp
+      </a>
+      <a href="#" class="share-btn telegram" id="shareTelegram" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+        Telegram
+      </a>
+      <a href="#" class="share-btn linkedin" id="shareLinkedIn" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        LinkedIn
+      </a>
+      <a href="#" class="share-btn email" id="shareEmail">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+        E-post
+      </a>
+      <a href="#" class="share-btn sms" id="shareSMS">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        SMS
+      </a>
+    </div>
+
+    <div class="qr-box">
+      <img id="qrImg" alt="QR-kode" src="">
+      <div class="qr-info">
+        <strong style="color:#e2e8f0">QR-kode</strong><br>
+        Skann med mobil for å åpne lenken direkte. Perfekt til visittkort og print.
+      </div>
+    </div>
+  </section>
+
+  <section id="earn" class="card">
+    <h3>Mine ordrer & inntekt</h3>
+    <div id="ordersTable"></div>
+  </section>
+
+  <section class="card">
+    <h3>Klikk-statistikk</h3>
+    <div id="clicksTable"></div>
+  </section>
+
+  <section id="profile" class="card">
+    <h3>Min profil</h3>
+    <form class="profile-form" id="profileForm">
+      <div><label>Navn</label><input id="pName" required></div>
+      <div><label>E-post</label><input id="pEmail" type="email" required></div>
+      <div><label>Telefon</label><input id="pPhone"></div>
+      <div><label>Nytt passord <span style="opacity:.6">(la stå tom for å beholde)</span></label><input id="pPass" type="password" minlength="8" placeholder="Minst 8 tegn"></div>
+      <div><label>Bekreft nytt passord</label><input id="pPass2" type="password" minlength="8"></div>
+      <button type="submit">Lagre endringer</button>
+      <div class="profile-msg" id="profileMsg"></div>
+    </form>
+  </section>
+</main>
+</div>
+
+<div class="copy-toast" id="copyToast">✓ Lenke kopiert!</div>
+
 <script>
-const ui=DashboardUI, app=TrustAIDashboard; let state={};
-async function logout(){await fetch('/api/auth/logout.php',{method:'POST',credentials:'include'});location.href='/login.html';}
-async function auth(){const d=await fetch('/api/auth/route.php',{credentials:'include'}).then(r=>r.json());if(!d.ok||d.role!=='ambassador'){guard.innerHTML='Ingen tilgang';return false;}content.style.display='block';guard.style.display='none';return true;}
-function render(){const d=state;const m=[['Klikk',d.metrics?.clicks],['Ordre',d.metrics?.orders],['Salg',ui.formatCurrency(d.metrics?.total_sales)],['Kommisjon',ui.formatCurrency(d.metrics?.total_commission)],['Payout requests',(d.payouts||[]).filter(p=>p.status==='requested').length]];kpis.innerHTML=m.map(([k,v])=>`<div class='card'><div class='muted'>${k}</div><div class='kpi'>${ui.escapeHtml(v??0)}</div></div>`).join('');
-profileChip.innerHTML=`${ui.escapeHtml(d.ambassador?.name||'Ambassador')}<br><span class='muted'>${ui.escapeHtml(d.ambassador?.status||'')}</span>`;
-refLink.value=d.referral_link||'';storeDomainInfo.textContent='Tilknyttet butikk: '+(d.store?.domain||'-'); pName.value=d.ambassador?.name||''; pEmail.value=d.ambassador?.email||''; pPhone.value=d.ambassador?.phone||'';
-ui.renderTable(ordersTable,d.orders||[],[{key:'id',label:'ID'},{key:'customer_name',label:'Kunde'},{key:'amount',label:'Beløp',render:v=>ui.formatCurrency(v)},{key:'commission_amount',label:'Kommisjon',render:v=>ui.formatCurrency(v)},{key:'payout_status',label:'Payout',render:v=>ui.renderBadge(v)}]);
-ui.renderTable(clicksTable,d.clicks||[],[{key:'source',label:'Kilde'},{key:'referral_code',label:'Kode'},{key:'created_at',label:'Dato',render:v=>ui.formatDate(v)}]);
-ui.renderTable(payoutsTable,d.payouts||[],[{key:'id',label:'ID'},{key:'amount',label:'Beløp',render:v=>ui.formatCurrency(v)},{key:'status',label:'Status',render:v=>ui.renderBadge(v)},{key:'invoice_url',label:'Faktura'}]);}
-async function load(){const d=await fetch('/api/ambassador/dashboard.php',{credentials:'include'}).then(r=>r.json());if(!d.ok){app.toast('Kunne ikke laste');return;}state=d;render();}
-copyBtn.onclick=async()=>{if(!refLink.value)return;await navigator.clipboard.writeText(refLink.value);app.toast('Lenke kopiert');};
-requestPayoutBtn.onclick=()=>{app.showModal('Request payout',`<div class='muted'>Tilgjengelig beløp: ${ui.escapeHtml(ui.formatCurrency(state.metrics?.total_commission||0))}</div><label>Beløp *</label><input class='input' id='m_amount' type='number' step='0.01'><label>Fakturafil (PDF/JPG/PNG) *</label><input class='input' id='m_invoice' type='file' accept='.pdf,.jpg,.jpeg,.png'><label>Kommentar</label><textarea class='input' id='m_comment'></textarea>`,async()=>{const fd=new FormData();fd.append('amount',String(Number(app.qs('m_amount').value||0)));fd.append('comment',app.qs('m_comment').value);if(app.qs('m_invoice').files[0])fd.append('invoice_file',app.qs('m_invoice').files[0]);const resp=await fetch('/api/ambassador/request-payout.php',{method:'POST',credentials:'include',body:fd}).then(r=>r.json());app.toast(resp.ok?'Payout forespurt':'Feil');if(resp.ok)load();return resp.ok;},'Send');};
-saveProfileBtn.onclick=async()=>{const r=await app.post('/api/ambassador/update-profile.php',{name:pName.value,email:pEmail.value,phone:pPhone.value});app.toast(r.ok?'Profil lagret':'Feil');if(r.ok)load();};
-aChangePasswordBtn.onclick=async()=>{const r=await app.post('/api/auth/change-password.php',{current_password:aCurrentPassword.value,new_password:aNewPassword.value,confirm_password:aConfirmPassword.value});app.toast(r.ok?'Passord oppdatert':(r.error||'Feil'));if(r.ok){aCurrentPassword.value='';aNewPassword.value='';aConfirmPassword.value='';}};logoutBtn.onclick=logout;auth().then(ok=>ok&&load());
-</script><script src="/global-footer.js"></script>
-</body></html>
+const ui=DashboardUI, app=TrustAIDashboard;
+let currentLink='';
+
+async function load(){
+  const res=await fetch('/api/ambassador/dashboard.php',{credentials:'include'});
+  const json=await res.json();
+  if(!json.ok){alert(json.message||'Kunne ikke laste dashboard');return;}
+  const d=json.data||json;
+  render(d);
+}
+
+function render(d){
+  document.getElementById('welcome').textContent='Velkommen, '+(d.ambassador?.name||'ambassadør');
+  document.getElementById('profileChip').textContent=d.ambassador?.email||'';
+
+  // KPIs
+  const m=d.metrics||{};
+  document.getElementById('kpis').innerHTML=[
+    ['Klikk',m.clicks||0],
+    ['Ordrer',m.orders||0],
+    ['Salg',ui.formatCurrency(m.total_sales||0)],
+    ['Provisjon',ui.formatCurrency(m.total_commission||0)]
+  ].map(([k,v])=>`<div class='card'><div class='muted'>${k}</div><div class='kpi'>${v}</div></div>`).join('');
+
+  // Referral link (full URL)
+  currentLink=d.referral_link||'';
+  document.getElementById('refLink').value=currentLink;
+  document.getElementById('storeDomainInfo').textContent='Tilknyttet butikk: '+(d.store?.name||'-')+' ('+(d.store?.domain||'-')+')';
+
+  // Sosiale media-lenker
+  const enc=encodeURIComponent(currentLink);
+  const text=encodeURIComponent('Sjekk ut '+(d.store?.name||'denne butikken')+'! ');
+  document.getElementById('shareFacebook').href=`https://www.facebook.com/sharer/sharer.php?u=${enc}`;
+  document.getElementById('shareX').href=`https://twitter.com/intent/tweet?text=${text}&url=${enc}`;
+  document.getElementById('shareWhatsApp').href=`https://wa.me/?text=${text}${enc}`;
+  document.getElementById('shareTelegram').href=`https://t.me/share/url?url=${enc}&text=${text}`;
+  document.getElementById('shareLinkedIn').href=`https://www.linkedin.com/sharing/share-offsite/?url=${enc}`;
+  document.getElementById('shareEmail').href=`mailto:?subject=${text}&body=${text}%0A%0A${enc}`;
+  document.getElementById('shareSMS').href=`sms:?body=${text}${enc}`;
+
+  // QR-kode (gratis API fra QR Server)
+  document.getElementById('qrImg').src=`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${enc}`;
+
+  // Profil
+  document.getElementById('pName').value=d.ambassador?.name||'';
+  document.getElementById('pEmail').value=d.ambassador?.email||'';
+  document.getElementById('pPhone').value=d.ambassador?.phone||'';
+
+  // Tabeller
+  ui.renderTable(document.getElementById('ordersTable'),d.orders||[],[
+    {key:'created_at',label:'Dato',render:v=>ui.formatDate(v)},
+    {key:'platform_order_id',label:'Ordre'},
+    {key:'amount',label:'Beløp',render:v=>ui.formatCurrency(v)},
+    {key:'commission_amount',label:'Provisjon',render:v=>ui.formatCurrency(v)},
+    {key:'payout_status',label:'Status',render:v=>ui.renderBadge(v)}
+  ]);
+  ui.renderTable(document.getElementById('clicksTable'),d.clicks||[],[
+    {key:'source',label:'Kilde'},
+    {key:'referral_code',label:'Kode'},
+    {key:'created_at',label:'Dato',render:v=>ui.formatDate(v)}
+  ]);
+}
+
+// Kopier-knapp
+document.getElementById('copyBtn').onclick=async()=>{
+  try{await navigator.clipboard.writeText(currentLink);}
+  catch{document.getElementById('refLink').select();document.execCommand('copy');}
+  const t=document.getElementById('copyToast');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),1800);
+};
+
+// Profil-skjema
+document.getElementById('profileForm').onsubmit=async(e)=>{
+  e.preventDefault();
+  const msg=document.getElementById('profileMsg');
+  const pw=document.getElementById('pPass').value;
+  const pw2=document.getElementById('pPass2').value;
+  if(pw && pw!==pw2){msg.className='profile-msg show error';msg.textContent='Passordene er ikke like.';return;}
+  if(pw && pw.length<8){msg.className='profile-msg show error';msg.textContent='Passord må være minst 8 tegn.';return;}
+  const payload={
+    name:document.getElementById('pName').value.trim(),
+    email:document.getElementById('pEmail').value.trim(),
+    phone:document.getElementById('pPhone').value.trim()
+  };
+  if(pw)payload.password=pw;
+  try{
+    const res=await fetch('/api/ambassador/update-profile.php',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const data=await res.json();
+    if(data.ok){msg.className='profile-msg show ok';msg.textContent=data.message||'Profil oppdatert.';document.getElementById('pPass').value='';document.getElementById('pPass2').value='';}
+    else{msg.className='profile-msg show error';msg.textContent=data.message||'Kunne ikke oppdatere profil.';}
+  }catch(err){msg.className='profile-msg show error';msg.textContent='Feil: '+err.message;}
+};
+
+// Logout
+document.getElementById('logoutBtn').onclick=async()=>{
+  await fetch('/api/auth/logout.php',{method:'POST',credentials:'include'});
+  location.href='/login.html';
+};
+
+load();
+</script>
+</body>
+</html>

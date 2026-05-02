@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TrustAi for nettbutikker | Ambassadører, referrals og målbar vekst</title>
+  <meta name="description" content="TrustAi hjelper nettbutikker og butikker å hente nye kunder gjennom ambassadører, kunder og partnere – med sporing fra deling til salg og provisjon." />
+  <style>
+    :root{
+      --bg:#f7f9fc;--white:#fff;--text:#122033;--muted:#617086;--line:#e5ebf3;--blue:#2563eb;--blue2:#0ea5e9;--green:#16a34a;--orange:#f97316;--shadow:0 24px 70px rgba(18,32,51,.10);--radius:26px;
+    }
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.5}a{text-decoration:none;color:inherit}.container{width:min(1140px,calc(100% - 40px));margin:0 auto}
+    .nav{position:sticky;top:0;z-index:50;background:rgba(247,249,252,.82);backdrop-filter:blur(18px);border-bottom:1px solid rgba(229,235,243,.9)}.nav-inner{height:76px;display:flex;align-items:center;justify-content:space-between;gap:24px}.brand{display:flex;align-items:center;gap:10px;font-weight:750;letter-spacing:-.03em;font-size:24px}.brand-mark{width:38px;height:38px;border-radius:13px;background:linear-gradient(135deg,var(--blue),var(--blue2));display:grid;place-items:center;color:#fff;box-shadow:0 10px 28px rgba(37,99,235,.25)}.brand span span{color:var(--blue)}.nav-links{display:flex;align-items:center;gap:26px;color:var(--muted);font-size:15px;font-weight:560}.nav-cta{display:flex;align-items:center;gap:12px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:999px;padding:13px 20px;font-weight:720;font-size:15px;border:1px solid transparent;transition:.2s ease;cursor:pointer;white-space:nowrap}.btn-primary{background:var(--text);color:#fff;box-shadow:0 14px 36px rgba(18,32,51,.18)}.btn-primary:hover{transform:translateY(-2px);box-shadow:0 18px 42px rgba(18,32,51,.23)}.btn-secondary{background:#fff;color:var(--text);border-color:var(--line)}.btn-secondary:hover{border-color:#cbd5e1;transform:translateY(-2px)}.burger{display:none;border:0;background:#fff;border-radius:12px;width:44px;height:44px;box-shadow:0 8px 20px rgba(18,32,51,.08);font-size:22px}
+    .hero{padding:82px 0 54px;overflow:hidden}.hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:54px;align-items:center}.eyebrow{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 13px;color:var(--muted);font-size:14px;font-weight:650;box-shadow:0 8px 20px rgba(18,32,51,.05)}.dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 5px rgba(22,163,74,.12)}h1{font-size:clamp(42px,6vw,72px);line-height:.98;letter-spacing:-.065em;margin:22px 0 18px;font-weight:780}.lead{font-size:20px;color:var(--muted);max-width:640px;margin:0 0 30px}.hero-actions{display:flex;gap:13px;flex-wrap:wrap;margin-bottom:34px}.micro{display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:14px}.micro b{color:var(--text)}
+    .visual{position:relative;min-height:520px;border-radius:36px;background:radial-gradient(circle at 50% 45%,#fff 0,#f6fbff 42%,#eef5ff 100%);border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden}.shop-card{position:absolute;background:#fff;border:1px solid var(--line);border-radius:24px;box-shadow:0 18px 50px rgba(18,32,51,.11);padding:18px}.storefront{left:50%;top:50%;transform:translate(-50%,-50%);width:210px;text-align:center;z-index:4}.store-icon{width:64px;height:64px;border-radius:20px;margin:0 auto 12px;background:linear-gradient(135deg,var(--blue),var(--blue2));display:grid;place-items:center;color:#fff;font-size:30px}.storefront strong{font-size:24px;letter-spacing:-.04em}.storefront span{display:block;color:var(--muted);font-size:13px;margin-top:4px}.metric{z-index:5;min-width:150px}.metric b{display:block;font-size:24px;letter-spacing:-.04em}.metric small{color:var(--muted);font-size:12px}.m1{left:34px;top:70px}.m2{right:34px;top:86px}.m3{left:42px;bottom:88px}.m4{right:42px;bottom:72px}.bubble{position:absolute;border-radius:999px;background:#fff;border:1px solid var(--line);box-shadow:0 12px 28px rgba(18,32,51,.08);padding:10px 13px;font-weight:760;font-size:13px;z-index:5;animation:float 4.5s ease-in-out infinite}.b1{left:50%;top:24px;transform:translateX(-50%)}.b2{left:28px;top:245px;animation-delay:.7s}.b3{right:28px;top:245px;animation-delay:1.2s}.ring{position:absolute;inset:76px;border:1px dashed rgba(37,99,235,.18);border-radius:50%;animation:spin 26s linear infinite}.ring.two{inset:126px;animation-direction:reverse;animation-duration:34s}.signal{position:absolute;width:8px;height:8px;background:var(--orange);border-radius:50%;left:50%;top:50%;z-index:3;box-shadow:0 0 0 7px rgba(249,115,22,.13);animation:signal 3s linear infinite}.s1{--x:-190px;--y:-135px}.s2{--x:190px;--y:-120px;animation-delay:.55s}.s3{--x:-185px;--y:135px;animation-delay:1.1s}.s4{--x:185px;--y:140px;animation-delay:1.65s}.s5{--x:0px;--y:-205px;animation-delay:2.1s}.line{position:absolute;left:50%;top:50%;width:1px;height:200px;background:linear-gradient(to bottom,transparent,rgba(37,99,235,.33),transparent);transform-origin:top;z-index:1}.l1{transform:rotate(-55deg)}.l2{transform:rotate(55deg)}.l3{transform:rotate(-125deg)}.l4{transform:rotate(125deg)}.l5{transform:rotate(180deg);height:150px}
+    section{padding:78px 0}.section-head{max-width:780px;margin:0 auto 34px;text-align:center}.section-head h2{font-size:clamp(30px,4vw,48px);line-height:1.05;letter-spacing:-.05em;margin:0 0 14px}.section-head p{font-size:18px;color:var(--muted);margin:0}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:0 14px 40px rgba(18,32,51,.06)}.card h3{margin:0 0 9px;font-size:18px;letter-spacing:-.02em}.card p{margin:0;color:var(--muted)}.split{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:stretch}.panel{background:#fff;border:1px solid var(--line);border-radius:34px;padding:34px;box-shadow:var(--shadow)}.panel h2{font-size:38px;line-height:1.05;letter-spacing:-.05em;margin:0 0 18px}.check{display:grid;gap:14px;margin-top:22px}.check div{display:flex;gap:11px;color:var(--muted)}.check b{color:var(--text)}.tick{flex:0 0 24px;width:24px;height:24px;border-radius:50%;background:#ecfdf5;color:#16a34a;display:grid;place-items:center;font-weight:900}.flow{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}.step{background:#fff;border:1px solid var(--line);border-radius:22px;padding:20px;min-height:138px;box-shadow:0 12px 32px rgba(18,32,51,.05)}.step .num{width:30px;height:30px;border-radius:50%;background:#eff6ff;color:var(--blue);display:grid;place-items:center;font-weight:800;margin-bottom:14px}.step h3{font-size:16px;margin:0 0 8px}.step p{font-size:14px;color:var(--muted);margin:0}.revenue{background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;border-radius:38px;padding:50px;display:grid;grid-template-columns:1fr .9fr;gap:30px;align-items:center}.revenue p{color:#cbd5e1;font-size:18px}.calc{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:28px;padding:26px}.calc-row{display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.12);padding:12px 0;color:#dbeafe}.calc-row:last-child{border:0;font-size:24px;font-weight:850;color:#fff}.platforms{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}.platform{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px 20px;box-shadow:0 12px 30px rgba(18,32,51,.06);font-weight:800}.case{background:#fff;border:1px solid var(--line);border-radius:38px;padding:42px;box-shadow:var(--shadow);display:grid;grid-template-columns:.8fr 1.2fr;gap:34px}.quote{font-size:28px;line-height:1.15;letter-spacing:-.04em;font-weight:760}.case p{color:var(--muted);font-size:18px;margin:0}.faq{max-width:900px;margin:0 auto}.faq details{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px 22px;margin-bottom:12px;box-shadow:0 10px 28px rgba(18,32,51,.05)}.faq summary{font-weight:760;cursor:pointer}.faq p{color:var(--muted);margin:12px 0 0}.final{padding:80px 0}.final-box{text-align:center;background:linear-gradient(135deg,#ffffff,#eff6ff);border:1px solid var(--line);border-radius:42px;padding:58px 30px;box-shadow:var(--shadow)}.final-box h2{font-size:clamp(32px,4vw,52px);letter-spacing:-.055em;line-height:1.03;margin:0 0 15px}.final-box p{color:var(--muted);font-size:18px;margin:0 auto 28px;max-width:680px}footer{background:#0f172a;color:#cbd5e1;padding:44px 0;margin-top:40px}.foot{display:flex;justify-content:space-between;gap:20px;align-items:center}.foot .brand{color:#fff}.foot a{color:#e2e8f0}
+    @keyframes spin{to{transform:rotate(360deg)}}@keyframes float{0%,100%{translate:0 0}50%{translate:0 -10px}}@keyframes signal{0%{transform:translate(-50%,-50%) scale(.5);opacity:0}15%{opacity:1}100%{transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1);opacity:0}}
+    @media(max-width:920px){.nav-links,.nav-cta{display:none}.burger{display:block}.hero-grid,.split,.revenue,.case{grid-template-columns:1fr}.visual{min-height:440px}.cards{grid-template-columns:1fr 1fr}.flow{grid-template-columns:1fr 1fr}.foot{flex-direction:column;text-align:center}.metric{min-width:130px}.m1{left:18px}.m2{right:18px}.m3{left:18px}.m4{right:18px}}
+    @media(max-width:560px){.container{width:min(100% - 28px,1140px)}.hero{padding:54px 0 36px}h1{font-size:42px}.lead{font-size:17px}.cards,.flow{grid-template-columns:1fr}.panel,.case,.revenue{padding:26px}.visual{min-height:390px;border-radius:28px}.storefront{width:165px}.metric{font-size:12px;padding:12px;min-width:112px}.metric b{font-size:18px}.b2,.b3{display:none}section{padding:56px 0}}
+    @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important}}
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="/"><span class="brand-mark">T</span><span>Trust<span>Ai</span></span></a>
+      <nav class="nav-links">
+        <a href="/#integrasjoner">Integrasjoner</a>
+        <a href="/#bruk">Bruksområder</a>
+        <a href="/how-it-works.html">Hvordan det fungerer</a>
+        <a href="/#pricing">Priser</a>
+      </nav>
+      <div class="nav-cta"><a class="btn btn-secondary" href="/login.html">Logg inn</a><a class="btn btn-primary" href="#demo">Book demo</a></div>
+      <button class="burger" aria-label="Åpne meny">☰</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow"><span class="dot"></span> TrustAi for ecommerce & butikker</div>
+          <h1>Få nye kunder gjennom menneskene som allerede liker butikken din</h1>
+          <p class="lead">TrustAi gjør kunder, ambassadører og partnere om til en målbar salgskanal – med sporing fra deling til klikk, ordre og provisjon.</p>
+          <div class="hero-actions"><a class="btn btn-primary" href="#flow">Se hvordan det fungerer</a><a class="btn btn-secondary" href="#demo">Book en kort demo</a></div>
+          <div class="micro"><span><b>Betal når du tjener.</b> Ikke for tom trafikk.</span><span><b>Fra anbefaling</b> til faktisk ordre.</span></div>
+        </div>
+        <div class="visual" aria-label="TrustAi ecommerce visual">
+          <div class="ring"></div><div class="ring two"></div>
+          <div class="line l1"></div><div class="line l2"></div><div class="line l3"></div><div class="line l4"></div><div class="line l5"></div>
+          <div class="signal s1"></div><div class="signal s2"></div><div class="signal s3"></div><div class="signal s4"></div><div class="signal s5"></div>
+          <div class="shop-card storefront"><div class="store-icon">🛍️</div><strong>Din butikk</strong><span>nye kunder + målbare salg</span></div>
+          <div class="shop-card metric m1"><b>+ nye kunder</b><small>fra nettverk og deling</small></div>
+          <div class="shop-card metric m2"><b>kr salg</b><small>ordre koblet til kilde</small></div>
+          <div class="shop-card metric m3"><b>% provisjon</b><small>kun når verdi skapes</small></div>
+          <div class="shop-card metric m4"><b>ROI</b><small>se hva som faktisk virker</small></div>
+          <div class="bubble b1">Kunder</div><div class="bubble b2">Ambassadører</div><div class="bubble b3">Partnere</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="section-head"><h2>Nettbutikker trenger ikke bare mer trafikk. De trenger lønnsomme kunder.</h2><p>Ads blir dyrere, rabattkoder spres ukontrollert, og det er vanskelig å vite hvilke aktiviteter som faktisk skaper salg.</p></div>
+        <div class="cards">
+          <div class="card"><h3>Dyre annonser</h3><p>Du betaler for klikk før du vet om trafikken blir til kjøp.</p></div>
+          <div class="card"><h3>Lav tillit</h3><p>Kalde kampanjer konverterer ofte dårligere enn anbefalinger fra ekte mennesker.</p></div>
+          <div class="card"><h3>Lite kontroll</h3><p>Rabattkoder og manuell affiliate blir fort rotete å følge opp.</p></div>
+          <div class="card"><h3>Utydelig ROI</h3><p>Du trenger å vite hvem som skaper salg – ikke bare hvem som skaper klikk.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container split">
+        <div class="panel">
+          <h2>TrustAi gjør anbefalinger til en salgsmotor</h2>
+          <p class="lead">Gi kunder, ambassadører og samarbeidspartnere egne delingslenker. Når en ordre kommer inn, ser du hvem som skapte salget og hva det kostet.</p>
+        </div>
+        <div class="panel">
+          <div class="check"><div><span class="tick">✓</span><span><b>Unike referral-lenker</b> for kunder, creators, partnere og ambassadører.</span></div><div><span class="tick">✓</span><span><b>Sporing fra klikk til ordre</b>, slik at salg kobles til riktig kilde.</span></div><div><span class="tick">✓</span><span><b>Dashboard for butikk</b> med salg, provisjon, ambassadører og performance.</span></div><div><span class="tick">✓</span><span><b>Provisjon kun ved verdi</b>, så veksten kan bli mer performance-basert.</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="flow">
+      <div class="container">
+        <div class="section-head"><h2>Fra deling til betalt ordre</h2><p>En enkel flyt som gjør referral-salg målbart for nettbutikker og butikker.</p></div>
+        <div class="flow">
+          <div class="step"><div class="num">1</div><h3>Ambassadør deler</h3><p>En kunde, creator eller partner deler en unik lenke.</p></div>
+          <div class="step"><div class="num">2</div><h3>Ny kunde klikker</h3><p>TrustAi lagrer riktig kilde på en ryddig måte.</p></div>
+          <div class="step"><div class="num">3</div><h3>Kunden handler</h3><p>Ordren kobles til riktig ambassadør eller kampanje.</p></div>
+          <div class="step"><div class="num">4</div><h3>Salg måles</h3><p>Butikken ser omsetning, AOV og konvertering.</p></div>
+          <div class="step"><div class="num">5</div><h3>Provisjon beregnes</h3><p>Systemet viser hva som er opptjent og hva som kan utbetales.</p></div>
+          <div class="step"><div class="num">6</div><h3>Vekst skaleres</h3><p>Du ser hvilke mennesker og tekster som skaper best ROI.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container revenue">
+        <div>
+          <h2>Fra markedsføringskostnad til målbar salgsprovisjon</h2>
+          <p>I stedet for å bruke hele budsjettet på annonser som kanskje fungerer, kan butikken aktivere et nettverk som belønnes når ekte salg skjer.</p>
+        </div>
+        <div class="calc">
+          <div class="calc-row"><span>Ordreverdi</span><strong>1 000 kr</strong></div>
+          <div class="calc-row"><span>Provisjon til ambassadør</span><strong>10%</strong></div>
+          <div class="calc-row"><span>Kostnad først når salg skjer</span><strong>100 kr</strong></div>
+          <div class="calc-row"><span>Butikkens målbare salg</span><strong>900 kr</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="section-head"><h2>Bygget for plattformene butikkene allerede bruker</h2><p>TrustAi kan brukes som et lett lag rundt nettbutikken, med mål om enkel installasjon og tydelig tracking.</p></div>
+        <div class="platforms"><div class="platform">Shopify</div><div class="platform">WooCommerce</div><div class="platform">Wix</div><div class="platform">Custom store</div></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container case">
+        <div class="quote">Slik kan det se ut i praksis</div>
+        <p>En fornøyd kunde deler en jakke med en venn via sin TrustAi-lenke. Vennen klikker, besøker butikken og kjøper. Butikken ser nøyaktig hvem som skapte salget, hvilken tekst som fungerte, og hvor mye provisjon som skal betales.</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="section-head"><h2>Ofte stilte spørsmål</h2></div>
+        <div class="faq">
+          <details><summary>Er TrustAi en affiliate-løsning?</summary><p>Ja, men med mer fokus på kontroll, kvalitet og butikkens egen merkevare. Målet er å gjøre ambassadører og referrals enklere å styre.</p></details>
+          <details><summary>Må butikken betale før den får salg?</summary><p>Modellen kan settes opp performance-basert, slik at kostnaden knyttes til faktisk ordre eller verdi.</p></details>
+          <details><summary>Kan dette brukes med Shopify, WooCommerce og Wix?</summary><p>Ja. TrustAi er tenkt som et lett referral-lag for ulike butikkplattformer, med Shopify som naturlig første steg.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section id="demo" class="final">
+      <div class="container final-box">
+        <h2>Vil du se hvordan butikken kan få nye kunder gjennom egne ambassadører?</h2>
+        <p>Vi viser gjerne en kort demo av hvordan TrustAi kan brukes for nettbutikk – fra første deling til betalt ordre og provisjon.</p>
+        <div class="hero-actions" style="justify-content:center;margin:0"><a class="btn btn-primary" href="mailto:hello@trustai.no?subject=Demo%20TrustAi%20Ecommerce">Book demo</a><a class="btn btn-secondary" href="mailto:hello@trustai.no">Kontakt oss</a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container foot">
+      <a class="brand" href="/"><span class="brand-mark">T</span><span>Trust<span>Ai</span></span></a>
+      <div>© 2026 <a href="https://setai.no">SETAEI</a>. All rights reserved.</div>
+    </div>
+  </footer>
+</body>
+</html>
+

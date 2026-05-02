@@ -44,4 +44,5 @@ function newStoreModal(){app.showModal('Ny butikk',`<div class="form-grid">${fie
 window.setUserPassword=(userId)=>{app.showModal('Sett nytt passord',`<input class='input' id='su_pw' type='password' placeholder='Nytt passord (min 8)'>`,async()=>{const r=await app.post('/api/admin/set-user-password.php',{user_id:userId,new_password:app.qs('su_pw').value});app.toast(r.ok?'Passord oppdatert':'Feil');return r.ok;},'Lagre');};
 document.getElementById('logoutBtn').onclick=logout;document.getElementById('reloadBtn').onclick=load;document.getElementById('storeFilter').onchange=load;document.getElementById('searchInput').oninput=render;document.getElementById('newStoreBtn').onclick=newStoreModal;document.getElementById('newAdminBtn').onclick=newAdminModal;
 saChangePasswordBtn.onclick=async()=>{const r=await app.post('/api/auth/change-password.php',{current_password:saCurrentPassword.value,new_password:saNewPassword.value,confirm_password:saConfirmPassword.value});app.toast(r.ok?'Passord oppdatert':(r.error||'Feil'));if(r.ok){saCurrentPassword.value='';saNewPassword.value='';saConfirmPassword.value='';}};auth().then(ok=>ok&&load());
-</script></body></html>
+</script><script src="/global-footer.js"></script>
+</body></html>

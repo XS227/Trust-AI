@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TrustAi for salg | Lead generation og partnerdrevet vekst</title>
+  <meta name="description" content="TrustAi gjør nettverk, partnere og kunder om til en målbar salgskanal – med sporing fra introduksjon til møte, pipeline og lukket deal." />
+  <style>
+    :root{
+      --bg:#f7f9fc;--white:#fff;--text:#122033;--muted:#617086;--line:#e5ebf3;--blue:#2563eb;--blue2:#0ea5e9;--green:#16a34a;--purple:#7c3aed;--shadow:0 24px 70px rgba(18,32,51,.10);--radius:26px;
+    }
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.5}a{text-decoration:none;color:inherit}.container{width:min(1140px,calc(100% - 40px));margin:0 auto}
+    .nav{position:sticky;top:0;z-index:50;background:rgba(247,249,252,.82);backdrop-filter:blur(18px);border-bottom:1px solid rgba(229,235,243,.9)}.nav-inner{height:76px;display:flex;align-items:center;justify-content:space-between;gap:24px}.brand{display:flex;align-items:center;gap:10px;font-weight:750;letter-spacing:-.03em;font-size:24px}.brand-mark{width:38px;height:38px;border-radius:13px;background:linear-gradient(135deg,var(--blue),var(--blue2));display:grid;place-items:center;color:#fff;box-shadow:0 10px 28px rgba(37,99,235,.25)}.brand span span{color:var(--blue)}.nav-links{display:flex;align-items:center;gap:26px;color:var(--muted);font-size:15px;font-weight:560}.nav-cta{display:flex;align-items:center;gap:12px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border-radius:999px;padding:13px 20px;font-weight:720;font-size:15px;border:1px solid transparent;transition:.2s ease;cursor:pointer;white-space:nowrap}.btn-primary{background:var(--text);color:#fff;box-shadow:0 14px 36px rgba(18,32,51,.18)}.btn-primary:hover{transform:translateY(-2px);box-shadow:0 18px 42px rgba(18,32,51,.23)}.btn-secondary{background:#fff;color:var(--text);border-color:var(--line)}.btn-secondary:hover{border-color:#cbd5e1;transform:translateY(-2px)}.burger{display:none;border:0;background:#fff;border-radius:12px;width:44px;height:44px;box-shadow:0 8px 20px rgba(18,32,51,.08);font-size:22px}
+    .hero{padding:82px 0 54px;overflow:hidden}.hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:54px;align-items:center}.eyebrow{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 13px;color:var(--muted);font-size:14px;font-weight:650;box-shadow:0 8px 20px rgba(18,32,51,.05)}.dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 5px rgba(22,163,74,.12)}h1{font-size:clamp(42px,6vw,72px);line-height:.98;letter-spacing:-.065em;margin:22px 0 18px;font-weight:780}.lead{font-size:20px;color:var(--muted);max-width:640px;margin:0 0 30px}.hero-actions{display:flex;gap:13px;flex-wrap:wrap;margin-bottom:34px}.micro{display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:14px}.micro b{color:var(--text)}
+    .visual{position:relative;min-height:520px;border-radius:36px;background:radial-gradient(circle at 50% 45%,#fff 0,#f6fbff 42%,#eef5ff 100%);border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden}
+    .core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:160px;height:160px;border-radius:36px;background:#fff;display:grid;place-items:center;text-align:center;box-shadow:0 28px 80px rgba(124,58,237,.18);border:1px solid rgba(124,58,237,.14);z-index:3;animation:pulse 3.2s ease-in-out infinite}
+    .core strong{font-size:26px}.core span{color:var(--purple)}
+    .node{position:absolute;background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px 14px;box-shadow:0 14px 38px rgba(18,32,51,.10);font-size:14px;font-weight:720;z-index:4;animation:float 5s ease-in-out infinite}
+    .n1{left:40px;top:90px}.n2{right:40px;top:90px;animation-delay:.7s}.n3{left:40px;bottom:90px;animation-delay:1.3s}.n4{right:40px;bottom:90px;animation-delay:.4s}.n5{left:50%;top:30px;transform:translateX(-50%);animation-delay:.9s}
+    .line{position:absolute;left:50%;top:50%;width:1px;height:190px;background:linear-gradient(to bottom,transparent,rgba(124,58,237,.35),transparent);transform-origin:top;z-index:1}
+    .l1{transform:rotate(-60deg)}.l2{transform:rotate(60deg)}.l3{transform:rotate(-120deg)}.l4{transform:rotate(120deg)}.l5{transform:rotate(180deg)}
+    .signal{position:absolute;width:8px;height:8px;background:var(--purple);border-radius:50%;left:50%;top:50%;z-index:2;box-shadow:0 0 0 7px rgba(124,58,237,.15);animation:signal 3s linear infinite}
+    .s1{--x:-180px;--y:-130px}.s2{--x:180px;--y:-120px;animation-delay:.5s}.s3{--x:-180px;--y:130px;animation-delay:1s}.s4{--x:180px;--y:130px;animation-delay:1.5s}.s5{--x:0px;--y:-200px;animation-delay:2s}
+    section{padding:78px 0}.section-head{text-align:center;max-width:760px;margin:0 auto 34px}.section-head h2{font-size:clamp(30px,4vw,48px);letter-spacing:-.05em;margin-bottom:12px}.section-head p{color:var(--muted);font-size:18px}
+    .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:0 14px 40px rgba(18,32,51,.06)}.card h3{margin-bottom:8px}.card p{color:var(--muted)}
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:24px}.panel{background:#fff;border:1px solid var(--line);border-radius:34px;padding:34px;box-shadow:var(--shadow)}
+    .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.step{background:#fff;border:1px solid var(--line);border-radius:22px;padding:20px;box-shadow:0 12px 32px rgba(18,32,51,.05)}
+    .step .num{width:30px;height:30px;border-radius:50%;background:#ede9fe;color:var(--purple);display:grid;place-items:center;font-weight:800;margin-bottom:12px}
+    .revenue{background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;border-radius:38px;padding:50px;display:grid;grid-template-columns:1fr 1fr;gap:30px}
+    .case{background:#fff;border:1px solid var(--line);border-radius:38px;padding:42px;box-shadow:var(--shadow);display:grid;grid-template-columns:1fr 1fr;gap:34px}
+    .final{text-align:center}
+    @keyframes float{0%,100%{translate:0 0}50%{translate:0 -10px}}
+    @keyframes signal{0%{transform:translate(-50%,-50%) scale(.5);opacity:0}15%{opacity:1}100%{transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1);opacity:0}}
+    @keyframes pulse{0%,100%{box-shadow:0 28px 80px rgba(124,58,237,.18)}50%{box-shadow:0 28px 100px rgba(124,58,237,.3)}}
+    @media(max-width:920px){.hero-grid,.split,.revenue,.case{grid-template-columns:1fr}.cards{grid-template-columns:1fr 1fr}.flow{grid-template-columns:1fr 1fr}}
+    @media(max-width:560px){.cards,.flow{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="/"><span class="brand-mark">T</span><span>Trust<span>Ai</span></span></a>
+    <nav class="nav-links">
+      <a href="#">Integrasjoner</a>
+      <a href="#">Bruksområder</a>
+      <a href="#">Hvordan det fungerer</a>
+      <a href="#">Priser</a>
+    </nav>
+    <div class="nav-cta"><a class="btn btn-secondary" href="#">Logg inn</a><a class="btn btn-primary" href="#demo">Book demo</a></div>
+    <button class="burger">☰</button>
+  </div>
+</header>
+<main>
+<section class="hero">
+<div class="container hero-grid">
+<div>
+<div class="eyebrow"><span class="dot"></span> TrustAi for salg</div>
+<h1>Få flere deals gjennom nettverket ditt</h1>
+<p class="lead">TrustAi gjør partnere, kunder og relasjoner om til en målbar salgskanal – med sporing fra introduksjon til møte, pipeline og lukket deal.</p>
+<div class="hero-actions"><a class="btn btn-primary" href="#flow">Se hvordan det fungerer</a><a class="btn btn-secondary" href="#demo">Book demo</a></div>
+<div class="micro"><span><b>Fra intro til deal.</b></span><span><b>Se hvem som åpner dørene.</b></span></div>
+</div>
+<div class="visual">
+<div class="line l1"></div><div class="line l2"></div><div class="line l3"></div><div class="line l4"></div><div class="line l5"></div>
+<div class="signal s1"></div><div class="signal s2"></div><div class="signal s3"></div><div class="signal s4"></div><div class="signal s5"></div>
+<div class="core"><strong>Trust<span>Ai</span></strong></div>
+<div class="node n1">Partnere</div>
+<div class="node n2">Kunder</div>
+<div class="node n3">Nettverk</div>
+<div class="node n4">Relasjoner</div>
+<div class="node n5">Introduksjoner</div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="container">
+<div class="section-head"><h2>De fleste deals starter med en introduksjon</h2><p>Men de fleste selskaper har ingen kontroll på hvem som faktisk skaper pipeline.</p></div>
+<div class="cards">
+<div class="card"><h3>Skjult pipeline</h3><p>Introduksjoner skjer, men spores ikke.</p></div>
+<div class="card"><h3>Mangler struktur</h3><p>Partnerskap gir verdi, men er vanskelig å skalere.</p></div>
+<div class="card"><h3>Ingen måling</h3><p>Hvem skapte dealen?</p></div>
+<div class="card"><h3>Tapte muligheter</h3><p>Relasjoner brukes ikke aktivt.</p></div>
+</div>
+</div>
+</section>
+
+<section id="flow">
+<div class="container">
+<div class="section-head"><h2>Fra introduksjon til lukket deal</h2></div>
+<div class="flow">
+<div class="step"><div class="num">1</div><h3>Partner deler</h3></div>
+<div class="step"><div class="num">2</div><h3>Lead registreres</h3></div>
+<div class="step"><div class="num">3</div><h3>Møte bookes</h3></div>
+<div class="step"><div class="num">4</div><h3>Deal closes</h3></div>
+<div class="step"><div class="num">5</div><h3>Verdi måles</h3></div>
+</div>
+</div>
+</section>
+
+<section>
+<div class="container revenue">
+<div>
+<h2>Hvem åpnet døren?</h2>
+<p>TrustAi gir deg svaret – og lar deg bygge en struktur rundt det.</p>
+</div>
+<div>
+<h3>Deal verdi: 100 000 kr</h3>
+<h3>Partner cut: 10%</h3>
+<h2>ROI: 90 000 kr</h2>
+</div>
+</div>
+</section>
+
+<section>
+<div class="container case">
+<div><h2>Use case</h2></div>
+<p>En partner introduserer deg til en kunde. Kunden booker møte og blir til en deal. TrustAi viser hvem som skapte muligheten og hva den er verdt.</p>
+</div>
+</section>
+
+<section id="demo" class="final">
+<div class="container">
+<h2>Vil du se hvordan nettverket ditt kan bli en salgskanal?</h2>
+<div class="hero-actions" style="justify-content:center"><a class="btn btn-primary">Book demo</a></div>
+</div>
+</section>
+</main>
+</body>
+</html>
+

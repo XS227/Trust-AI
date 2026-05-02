@@ -10,8 +10,8 @@
   <style>
     html { scroll-behavior: smooth; }
     body { font-family: "Inter", sans-serif; }
-    .logo { display:inline-flex; align-items:baseline; gap:2px; text-decoration:none; font-family:"Orbitron",sans-serif; letter-spacing:-1.5px; font-size:28px; font-weight:800; color:#07111f; line-height:1; }
-    .logo .ai { background: linear-gradient(135deg, #1769ff, #18c7ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .logo { display:inline-flex; align-items:center; }
+    .logo img { height:40px; width:auto; display:block; }
     .soft-grid { background-image: radial-gradient(#e2e8f0 1px, transparent 1px); background-size:22px 22px; }
     .glass { background: rgba(255,255,255,.82); backdrop-filter: blur(18px); }
     .hero-visual { background: radial-gradient(circle at 20% 20%, rgba(23,105,255,.22), transparent 28%), radial-gradient(circle at 80% 10%, rgba(24,199,255,.18), transparent 30%), linear-gradient(145deg,#ffffff,#f8fafc); }
@@ -33,15 +33,11 @@
 <body class="bg-white text-slate-950 antialiased">
   <header class="sticky top-0 z-50 border-b border-slate-100 bg-white/90 backdrop-blur">
     <div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
-      <a href="/" class="logo" aria-label="TrustAI.no"><span>TRUST</span><span class="ai">ai</span><span class="ml-1 text-base font-bold">.no</span></a>
-      <nav class="hidden items-center gap-7 text-sm font-extrabold text-slate-700 lg:flex">
-        <a href="/how-it-works.html" class="hover:text-slate-950">Slik fungerer det</a>
-        <a href="#installasjon" class="hover:text-slate-950">Installasjon</a>
-        <a href="#faq" class="hover:text-slate-950">FAQ</a>
-      </nav>
-      <div class="flex items-center gap-2">
-        <a href="/ambassador-signup.html" class="rounded-full bg-pink-600 px-5 py-2.5 text-sm font-black text-white hover:bg-pink-700">Start gratis</a>
-        <a href="/dashboard.html" class="rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-black text-slate-900 hover:bg-slate-50">Logg inn</a>
+      <a href="/" class="logo" aria-label="TrustAI.no"><img src="/logo.png" alt="TrustAi logo"></a>
+      <div class="flex flex-wrap items-center justify-end gap-2">
+        <a href="/login.html" class="rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-black text-slate-900 hover:bg-slate-50">Login</a>
+        <a href="/ambassador-signup.html" class="rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-black text-slate-900 hover:bg-slate-50">Register</a>
+        <a href="#installasjon" class="rounded-full bg-pink-600 px-5 py-2.5 text-sm font-black text-white hover:bg-pink-700">Demo</a>
       </div>
     </div>
   </header>

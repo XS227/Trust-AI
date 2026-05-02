@@ -55,9 +55,8 @@
       gap: 24px;
     }
 
-    .brand { display: flex; align-items: center; gap: 11px; font-size: 23px; font-weight: 720; letter-spacing: -.035em; }
-    .brand strong { font-weight: 720; }
-    .brand strong span { color: var(--blue); }
+    .brand { display: flex; align-items: center; }
+    .brand img { height: 40px; width: auto; display: block; }
     .logo {
       width: 40px;
       height: 40px;
@@ -68,16 +67,13 @@
       flex-shrink: 0;
     }
 
-    nav { display: flex; align-items: center; gap: 28px; color: #415064; font-size: 14px; font-weight: 520; }
-    nav a:hover { color: var(--blue); }
+    nav { display: flex; align-items: center; gap: 10px; }
     .nav-cta {
-      color: white;
-      background: #102033;
-      padding: 11px 16px;
-      border-radius: 999px;
-      box-shadow: 0 12px 32px rgba(16,32,51,.12);
+      display:inline-flex; align-items:center; justify-content:center;
+      color: #102033; background: #fff; border:1px solid var(--line);
+      padding: 11px 16px; border-radius: 999px; font-weight:600;
     }
-    .nav-cta:hover { color: white; background: #1d3553; }
+    .nav-cta.demo {color: white;background:#102033;border-color:#102033;}
 
     .hero { padding: 82px 0 70px; }
     .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 54px; align-items: center; }
@@ -344,6 +340,8 @@
     }
     @media (max-width: 640px) {
       .wrap { width: min(100% - 28px, 1160px); }
+      .nav { height:auto; padding:12px 0; align-items:center; }
+      nav { width:100%; justify-content:flex-end; flex-wrap:wrap; }
       .hero { padding: 54px 0 46px; }
       .hero-note, .use-grid, .outcome-grid, .feature-list, .platforms { grid-template-columns: 1fr; }
       .network-card { min-height: 360px; border-radius: 26px; }
@@ -368,16 +366,11 @@
 <body>
   <header>
     <div class="wrap nav">
-      <a class="brand" href="/" aria-label="TrustAi home">
-        <div class="logo" aria-hidden="true"></div>
-        <strong>Trust<span>Ai</span></strong>
-      </a>
+      <a class="brand" href="/" aria-label="TrustAi home"><img src="/logo.png" alt="TrustAi logo"></a>
       <nav>
-        <a href="/">Home</a>
-        <a href="/how-it-works.html">How it works</a>
-        <a href="#use-cases">Use cases</a>
-        <a href="#contact">Contact</a>
-        <a class="nav-cta" href="#contact">Start a conversation</a>
+        <a class="nav-cta" href="/login.html">Login</a>
+        <a class="nav-cta" href="/ambassador-signup.html">Register</a>
+        <a class="nav-cta demo" href="#contact">Demo</a>
       </nav>
     </div>
   </header>

@@ -1,107 +1,100 @@
+/* TrustAI Shopify referral tracking
+ * Plukker opp ?trustai_ref= fra URL og lagrer som cart attribute
+ * slik at koden følger med ordren via webhook (note_attributes.trustai_ref)
+ */
 (function () {
-  const REF_KEY = "trustai_ref";
-  const REF_PATTERN = /^[A-Za-z0-9_-]{3,32}$/;
-  const COOKIE_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
+  'use strict';
+  var STORAGE_KEY = 'trustai_ref';
+  var COOKIE_DAYS = 30;
 
-  function isValidRef(value) {
-    return REF_PATTERN.test(String(value || "").trim());
+  function getQueryParam(name) {
+    try {
+      var p = new URLSearchParams(window.location.search);
+      return p.get(name) || '';
+    } catch (e) { return ''; }
   }
 
-  function setCookie(name, value, maxAge) {
-    document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)}; path=/; max-age=${maxAge}; SameSite=Lax`;
+  function setCookie(name, value, days) {
+    var d = new Date();
+    d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
+    document.cookie = name + '=' + encodeURIComponent(value) + ';expires=' + d.toUTCString() + ';path=/;SameSite=Lax';
   }
 
   function getCookie(name) {
-    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const match = document.cookie.match(new RegExp(`(?:^|; )${escaped}=([^;]*)`));
-    return match ? decodeURIComponent(match[1]) : "";
-  }
-
-  function readRefFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    const ref = params.get("ref") || "";
-    return isValidRef(ref) ? ref : "";
+    var match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    return match ? decodeURIComponent(match[1]) : '';
   }
 
   function getStoredRef() {
-    const fromStorage = localStorage.getItem(REF_KEY) || "";
-    if (isValidRef(fromStorage)) return fromStorage;
-
-    const fromCookie = getCookie(REF_KEY);
-    if (isValidRef(fromCookie)) return fromCookie;
-
-    return "";
+    var ref = '';
+    try { ref = window.localStorage.getItem(STORAGE_KEY) || ''; } catch (e) {}
+    if (!ref) ref = getCookie(STORAGE_KEY);
+    return ref;
   }
 
-  function persistRef(ref) {
-    if (!isValidRef(ref)) return;
-
-    // 🔥 viktig: lagre både i localStorage og cookie
-    localStorage.setItem(REF_KEY, ref);
-    setCookie(REF_KEY, ref, COOKIE_MAX_AGE);
-
-    // sørg for at input-feltet finnes og heter attributes[trustai_ref]
-    document.querySelectorAll('form[action*="/cart/add"]').forEach((form) => {
-      let hidden = form.querySelector('input[name="attributes[trustai_ref]"]');
-      if (!hidden) {
-        hidden = document.createElement("input");
-        hidden.type = "hidden";
-        hidden.name = "attributes[trustai_ref]";
-        form.appendChild(hidden);
-      }
-      hidden.value = ref;
-    });
-
-    // bruk FormData for å oppdatere handlekurven ved AJAX-kasser
-    const fd = new FormData();
-    fd.append("attributes[trustai_ref]", ref);
-    fetch("/cart/update.js", {
-      method: "POST",
-      body: fd
-    }).catch(() => {});
-  }
-
-  function isCartPage() {
-    return /^\/cart(?:\/|$)/.test(window.location.pathname);
-  }
-
-  function bindCartAddHooks() {
-    // før checkout eller ved add-to-cart
-    document.addEventListener("click", (e) => {
-      if (e.target.closest('form[action*="/cart/add"]') || e.target.closest(".shopify-payment-button")) {
-        persistRef(localStorage.getItem(REF_KEY));
-      }
-    });
-  }
-
-  function exposeGlobal(ref) {
-    // 🔥 gjør ref tilgjengelig globalt (for debugging / videre bruk)
-    window.TrustAI = {
-      getRef: () => ref
-    };
-  }
-
-  function initializeTrustAIReferral() {
-    const urlRef = readRefFromURL();
-    const storedRef = getStoredRef();
-
-    // 🔥 prioritet: URL → lagre → fallback storage
-    const ref = urlRef || storedRef;
+  function storeRef(ref) {
     if (!ref) return;
+    try { window.localStorage.setItem(STORAGE_KEY, ref); } catch (e) {}
+    setCookie(STORAGE_KEY, ref, COOKIE_DAYS);
+  }
 
-    persistRef(ref);
-    bindCartAddHooks();
+  function updateCart(ref) {
+    if (!ref) return;
+    // Send som cart attribute - dette kommer fram som note_attributes på ordren
+    fetch('/cart/update.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ attributes: { trustai_ref: ref } })
+    }).then(function (r) {
+      if (r.ok) {
+        console.log('[TrustAI] Referral code attached to cart:', ref);
+      } else {
+        console.warn('[TrustAI] Cart update failed:', r.status);
+      }
+    }).catch(function (err) {
+      console.warn('[TrustAI] Cart update error:', err);
+    });
+  }
 
-    if (isCartPage() || document.querySelector('form[action*="/cart/add"]')) {
-      persistRef(ref);
+  function init() {
+    // 1) Plukk opp fra URL hvis tilstede
+    var urlRef = getQueryParam('trustai_ref');
+    if (urlRef) {
+      storeRef(urlRef);
     }
 
-    exposeGlobal(ref);
+    // 2) Bruk lagret kode (URL eller tidligere besøk)
+    var ref = getStoredRef();
+    if (!ref) return;
+
+    // 3) Lagre i cart slik at den følger med ordren
+    updateCart(ref);
+
+    // 4) Re-attach hver gang noe legges i kurven
+    document.addEventListener('submit', function (e) {
+      var form = e.target;
+      if (form && form.action && /\/cart\/add/.test(form.action)) {
+        // Vent litt så cart faktisk oppdateres, så re-applyer attribute
+        setTimeout(function () { updateCart(ref); }, 600);
+      }
+    }, true);
+
+    // 5) Ekstra sikkerhet — re-applyer ved navigasjon til checkout
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      while (t && t !== document.body) {
+        if (t.tagName === 'A' && t.href && /\/checkout/.test(t.href)) {
+          updateCart(ref);
+          break;
+        }
+        t = t.parentNode;
+      }
+    }, true);
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initializeTrustAIReferral);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    initializeTrustAIReferral();
+    init();
   }
 })();

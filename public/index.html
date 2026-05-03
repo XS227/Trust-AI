@@ -445,6 +445,87 @@
         </div>
       </div>
     </section>
+    <!-- ===== TRUSTAI LIVE STATS — lim inn rett før <section id="use-cases"> ===== -->
+<style>
+  .live-stats { padding: 60px 0; background: linear-gradient(135deg, #f2f7ff, #ffffff); border-top: 1px solid var(--line, #dbe7f5); border-bottom: 1px solid var(--line, #dbe7f5); }
+  .live-stats .wrap { text-align: center; }
+  .live-stats .kicker { color: #2563eb; font-size: 12px; letter-spacing: 1.4px; text-transform: uppercase; font-weight: 700; margin-bottom: 8px; }
+  .live-stats h2 { font-size: 32px; margin: 0 0 8px; color: #102033; }
+  .live-stats .live-stats-sub { color: #5d6b7c; font-size: 15px; margin-bottom: 36px; }
+  .live-stats .live-stats-pulse { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #10b981; font-weight: 600; margin-bottom: 28px; }
+  .live-stats .live-stats-pulse::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #10b981; animation: livepulse 1.6s ease-in-out infinite; }
+  @keyframes livepulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .4; transform: scale(.8); } }
+  .live-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; max-width: 980px; margin: 0 auto; }
+  .live-stat { background: #fff; border: 1px solid var(--line, #dbe7f5); border-radius: 18px; padding: 28px 18px; text-align: center; box-shadow: 0 8px 24px rgba(16, 32, 51, .04); transition: transform .2s, box-shadow .2s; }
+  .live-stat:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(37, 99, 235, .12); }
+  .live-stat-icon { font-size: 32px; margin-bottom: 8px; }
+  .live-stat-value { font-size: 36px; font-weight: 800; color: #2563eb; margin: 4px 0; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .live-stat-label { color: #5d6b7c; font-size: 13px; font-weight: 500; }
+  .live-stat-sub { color: #94a3b8; font-size: 11px; margin-top: 4px; }
+  @media(max-width: 560px) { .live-stats h2 { font-size: 24px; } .live-stat-value { font-size: 28px; } }
+</style>
+<section class="live-stats">
+  <div class="wrap">
+    <div class="kicker">Live tall</div>
+    <h2>TrustAI i sanntid</h2>
+    <div class="live-stats-sub">Faktiske tall fra plattformen — oppdatert hvert 5. minutt.</div>
+    <div class="live-stats-pulse">LIVE</div>
+    <div class="live-stats-grid" id="liveStatsGrid">
+      <div class="live-stat"><div class="live-stat-icon">🏪</div><div class="live-stat-value" data-stat="businesses">—</div><div class="live-stat-label">Bedrifter på TrustAI</div></div>
+      <div class="live-stat"><div class="live-stat-icon">🤝</div><div class="live-stat-value" data-stat="ambassadors">—</div><div class="live-stat-label">Aktive ambassadører</div></div>
+      <div class="live-stat"><div class="live-stat-icon">💰</div><div class="live-stat-value" data-stat="total_sales">—</div><div class="live-stat-label">Solgt via referrals</div><div class="live-stat-sub">NOK</div></div>
+      <div class="live-stat"><div class="live-stat-icon">🎁</div><div class="live-stat-value" data-stat="total_commission">—</div><div class="live-stat-label">Tjent av ambassadører</div><div class="live-stat-sub">NOK</div></div>
+    </div>
+  </div>
+</section>
+<script>
+(function(){
+  function fmt(n,isCurrency){
+    n = Number(n) || 0;
+    if (isCurrency) {
+      if (n >= 1000000) return (n/1000000).toFixed(1).replace('.0','') + 'M';
+      if (n >= 1000) return Math.round(n/1000) + 'K';
+      return Math.round(n).toString();
+    }
+    return n.toLocaleString('no-NO');
+  }
+  function animate(el, target, isCurrency){
+    const start = 0, dur = 1400, t0 = performance.now();
+    function step(t){
+      const p = Math.min(1, (t - t0) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = fmt(start + (target - start) * eased, isCurrency);
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  async function load(){
+    try {
+      const res = await fetch('/api/public/stats.php');
+      const data = await res.json();
+      if (!data.ok) return;
+      const s = data.stats || {};
+      document.querySelectorAll('[data-stat]').forEach(el => {
+        const k = el.dataset.stat;
+        const v = s[k] || 0;
+        const isCurrency = (k === 'total_sales' || k === 'total_commission');
+        animate(el, v, isCurrency);
+      });
+    } catch(e) {}
+  }
+  // Trigger når seksjonen blir synlig
+  const section = document.getElementById('liveStatsGrid');
+  if (section && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { load(); io.disconnect(); } });
+    }, { threshold: 0.2 });
+    io.observe(section);
+  } else {
+    load();
+  }
+})();
+</script>
+<!-- ===== END TRUSTAI LIVE STATS ===== -->
 
     <section id="use-cases">
       <div class="wrap">

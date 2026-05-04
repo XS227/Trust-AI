@@ -1,474 +1,774 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="no">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TrustAI Ambassador Dashboard</title>
-<link rel="stylesheet" href="/assets/css/trustai-dashboard.css">
-<script src="/assets/js/dashboard-ui.js"></script>
-<script src="/assets/js/trustai-dashboard.js"></script>
+<title>Ambassador Dashboard | TrustAI</title>
 <style>
-.share-card{background:#0b1220;border:1px solid #334155;border-radius:14px;padding:20px;margin-bottom:16px}
-.share-link-box{display:flex;gap:8px;margin:10px 0 14px;flex-wrap:wrap}
-.share-link-box input{flex:1;min-width:220px;padding:11px 12px;border-radius:10px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;font-family:'DM Mono',monospace;font-size:13px}
-.share-link-box button{padding:11px 18px;border-radius:10px;border:0;background:#2563eb;color:#fff;font-weight:600;cursor:pointer;white-space:nowrap}
-.share-link-box button:hover{background:#1d4ed8}
-.share-icons{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;margin-top:14px}
-.share-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;border-radius:12px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;cursor:pointer;text-decoration:none;transition:all .15s;font-size:12px;font-weight:500}
-.share-btn:hover{transform:translateY(-2px);border-color:#475569;background:#1e293b}
-.share-btn svg{width:24px;height:24px}
-.share-btn.facebook{color:#1877f2}
-.share-btn.x{color:#e2e8f0}
-.share-btn.whatsapp{color:#25d366}
-.share-btn.linkedin{color:#0a66c2}
-.share-btn.telegram{color:#26a5e4}
-.share-btn.email{color:#94a3b8}
-.share-btn.sms{color:#10b981}
-.qr-box{display:flex;align-items:center;gap:16px;margin-top:16px;padding:14px;background:#0f172a;border-radius:10px;border:1px solid #334155}
-.qr-box img{background:#fff;padding:8px;border-radius:8px;width:140px;height:140px}
-.qr-info{flex:1;font-size:13px;color:#94a3b8;line-height:1.5}
-.profile-form{display:grid;gap:12px;max-width:500px}
-.profile-form label{font-size:13px;color:#94a3b8;display:block;margin-bottom:4px}
-.profile-form input{width:100%;padding:11px 12px;border-radius:10px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;font-size:14px;box-sizing:border-box}
-.profile-form input:focus{outline:none;border-color:#2563eb}
-.profile-form button{padding:12px 18px;border-radius:10px;border:0;background:#2563eb;color:#fff;font-weight:600;cursor:pointer;font-size:14px;margin-top:6px}
-.profile-form button:hover{background:#1d4ed8}
-.profile-msg{padding:10px;border-radius:8px;font-size:13px;display:none;margin-top:8px}
-.profile-msg.show{display:block}
-.profile-msg.ok{background:#102a1a;border:1px solid #14532d;color:#bbf7d0}
-.profile-msg.error{background:#3f1d1d;border:1px solid #7f1d1d;color:#fecaca}
-.copy-toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#10b981;color:#fff;padding:10px 18px;border-radius:10px;font-weight:600;display:none;z-index:1000;box-shadow:0 8px 20px rgba(0,0,0,.3)}
-.copy-toast.show{display:block;animation:fadeIn .2s}
-@keyframes fadeIn{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
-section.card h3{margin-top:0}
-.section-title{font-size:13px;color:#94a3b8;text-transform:uppercase;letter-spacing:.8px;margin:18px 0 8px;font-weight:600}
+:root{
+  --bg:#0a0e1a;
+  --bg-2:#0f1626;
+  --panel:#131c2e;
+  --panel-2:#1a2540;
+  --line:#1e2b47;
+  --line-strong:#2a3a5c;
+  --text:#e2e8f0;
+  --muted:#94a3b8;
+  --accent:#6366f1;
+  --accent-2:#a855f7;
+  --blue:#3b82f6;
+  --green:#10b981;
+  --orange:#f97316;
+  --red:#ef4444;
+  --gradient:linear-gradient(135deg,#6366f1 0%,#a855f7 100%);
+  --gradient-soft:linear-gradient(135deg,rgba(99,102,241,.18),rgba(168,85,247,.18));
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;font-size:14px;min-height:100vh}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+
+/* App shell */
+.app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+
+/* Sidebar */
+.sidebar{background:var(--bg-2);border-right:1px solid var(--line);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-head{padding:22px 20px 18px;border-bottom:1px solid var(--line)}
+.sidebar-brand{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.sidebar-brand img{height:30px}
+.sidebar-brand-txt{font-weight:800;font-size:18px;letter-spacing:-.02em}
+.sidebar-brand-txt span{background:var(--gradient);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sidebar-sub{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+
+.profile-card{margin:14px 20px;padding:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;display:flex;gap:11px;align-items:center}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--gradient);display:grid;place-items:center;font-weight:800;color:#fff;font-size:16px;flex-shrink:0}
+.profile-name{font-weight:700;font-size:13px;line-height:1.2}
+.profile-role{font-size:11px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:5px}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+
+.nav-list{padding:8px 12px;flex:1}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;color:var(--muted);font-size:13px;font-weight:500;margin-bottom:2px;border:0;background:transparent;width:100%;text-align:left;transition:.15s}
+.nav-item:hover{background:rgba(99,102,241,.08);color:var(--text)}
+.nav-item.active{background:var(--gradient-soft);color:#fff;font-weight:650}
+.nav-item .ico{width:18px;height:18px;display:grid;place-items:center;font-size:15px;flex-shrink:0}
+.nav-item .badge{margin-left:auto;font-size:10px;padding:2px 7px;border-radius:6px;background:rgba(245,158,11,.16);color:#fbbf24;font-weight:700}
+.nav-item .badge.coming{background:rgba(148,163,184,.12);color:#94a3b8}
+.nav-item .badge.live{background:rgba(16,185,129,.16);color:#10b981}
+
+.sidebar-foot{padding:14px 20px;border-top:1px solid var(--line)}
+.share-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px;margin-bottom:10px}
+.share-card-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:8px}
+.share-link-input{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:11px;color:var(--text);font-family:monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:8px;width:100%}
+.share-copy-btn{background:var(--gradient);color:#fff;border:0;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;width:100%;display:flex;align-items:center;justify-content:center;gap:6px}
+.share-copy-btn:hover{filter:brightness(1.1)}
+.logout-btn{display:flex;align-items:center;gap:8px;padding:9px 12px;color:#94a3b8;font-size:13px;border:0;background:transparent;border-radius:8px;width:100%}
+.logout-btn:hover{background:rgba(239,68,68,.08);color:#ef4444}
+
+/* Main area */
+.main{padding:24px 28px;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:14px;flex-wrap:wrap}
+.topbar h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.02em}
+.topbar-sub{color:var(--muted);font-size:13px;margin-top:3px}
+.topbar-actions{display:flex;gap:8px;align-items:center}
+.icon-btn{width:38px;height:38px;background:var(--panel);border:1px solid var(--line);border-radius:10px;display:grid;place-items:center;color:var(--muted);font-size:16px;position:relative}
+.icon-btn:hover{border-color:var(--accent);color:var(--text)}
+.icon-btn .dot-badge{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--orange)}
+.date-select{background:var(--panel);border:1px solid var(--line);color:var(--text);padding:9px 14px;border-radius:10px;font-size:13px}
+
+/* Status banner */
+.status-banner{background:var(--gradient-soft);border:1px solid rgba(99,102,241,.3);border-radius:12px;padding:14px 18px;margin-bottom:24px;display:flex;align-items:center;gap:12px;font-size:13px}
+.status-banner-ico{font-size:20px}
+.status-banner b{color:#a5b4fc}
+
+/* Cards */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:24px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;position:relative;overflow:hidden;transition:.2s}
+.kpi:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:0 12px 30px rgba(99,102,241,.15)}
+.kpi-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.kpi-ico{width:36px;height:36px;border-radius:10px;background:var(--gradient-soft);display:grid;place-items:center;font-size:18px}
+.kpi-trend{font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px}
+.kpi-trend.up{background:rgba(16,185,129,.16);color:#10b981}
+.kpi-trend.down{background:rgba(239,68,68,.14);color:#ef4444}
+.kpi-trend.neu{background:rgba(148,163,184,.14);color:#94a3b8}
+.kpi-value{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.kpi-label{font-size:12px;color:var(--muted);margin-top:4px}
+.kpi-spark{height:30px;margin-top:8px;opacity:.85}
+
+/* Panels */
+.row-2{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin-bottom:16px}
+.row-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
+@media(max-width:1100px){.row-2,.row-3{grid-template-columns:1fr}}
+.panel-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.panel-title{font-weight:700;font-size:15px}
+.panel-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.tag-demo{font-size:10px;background:rgba(245,158,11,.18);color:#fbbf24;padding:3px 7px;border-radius:6px;font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+.tag-live{font-size:10px;background:rgba(16,185,129,.18);color:#10b981;padding:3px 7px;border-radius:6px;font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+.tag-soon{font-size:10px;background:rgba(148,163,184,.16);color:#94a3b8;padding:3px 7px;border-radius:6px;font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+
+/* Chart */
+.chart-wrap{position:relative;height:200px}
+.chart-svg{width:100%;height:100%}
+
+/* Donut */
+.donut-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;padding:14px 0}
+.donut{width:140px;height:140px;position:relative}
+.donut svg{transform:rotate(-90deg)}
+.donut-center{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.donut-center .num{font-size:24px;font-weight:800;letter-spacing:-.02em}
+.donut-center .lbl{font-size:11px;color:var(--muted);margin-top:2px}
+.donut-rates{width:100%;display:flex;flex-direction:column;gap:7px}
+.rate-row{display:flex;justify-content:space-between;font-size:12px;padding:8px 10px;background:var(--bg-2);border-radius:8px}
+.rate-row b{color:var(--accent-2)}
+
+/* Table */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl thead th{text-align:left;padding:10px 12px;background:var(--bg-2);color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--line)}
+.tbl tbody td{padding:12px;border-bottom:1px solid var(--line)}
+.tbl tbody tr:hover{background:rgba(99,102,241,.04)}
+.tbl tbody tr:last-child td{border-bottom:0}
+.status-pill{display:inline-flex;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.s-open{background:rgba(59,130,246,.16);color:#60a5fa}
+.s-meeting{background:rgba(168,85,247,.16);color:#c084fc}
+.s-offer{background:rgba(245,158,11,.16);color:#fbbf24}
+.s-approved{background:rgba(16,185,129,.16);color:#34d399}
+.s-rejected{background:rgba(239,68,68,.14);color:#f87171}
+.btn-ghost{background:transparent;color:var(--accent);border:1px solid var(--line);padding:5px 11px;border-radius:7px;font-size:11px;font-weight:600}
+.btn-ghost:hover{border-color:var(--accent)}
+.btn-primary{background:var(--gradient);color:#fff;border:0;padding:9px 16px;border-radius:9px;font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+.btn-primary:hover{filter:brightness(1.1)}
+.btn-disabled{background:var(--panel-2);color:#64748b;border:1px solid var(--line);padding:9px 16px;border-radius:9px;font-weight:600;font-size:13px;cursor:not-allowed;display:inline-flex;align-items:center;gap:6px}
+
+/* Activity feed */
+.activity-list{display:flex;flex-direction:column;gap:9px}
+.activity-item{display:flex;gap:11px;padding:10px;border-radius:10px;background:var(--bg-2);align-items:flex-start}
+.activity-ico{width:30px;height:30px;border-radius:8px;background:var(--gradient-soft);display:grid;place-items:center;font-size:13px;flex-shrink:0}
+.activity-text{flex:1;font-size:12px}
+.activity-time{font-size:10px;color:var(--muted);margin-top:2px}
+
+/* Achievements */
+.badges-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.badge-card{background:var(--bg-2);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center;position:relative}
+.badge-card.locked{opacity:.5}
+.badge-ico{font-size:30px;margin-bottom:8px}
+.badge-name{font-size:12px;font-weight:700}
+.badge-desc{font-size:10px;color:var(--muted);margin-top:3px}
+
+/* Tab content - hidden by default */
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* Empty state */
+.empty{text-align:center;padding:50px 20px;color:var(--muted)}
+.empty-ico{font-size:60px;margin-bottom:14px;opacity:.4}
+.empty h3{margin:0 0 8px;color:var(--text)}
+.empty p{margin:0;font-size:13px}
+
+/* Coming soon page */
+.coming-soon{text-align:center;padding:80px 20px;background:var(--panel);border:1px solid var(--line);border-radius:18px;background-image:radial-gradient(circle at 30% 20%,rgba(99,102,241,.1),transparent 50%),radial-gradient(circle at 70% 80%,rgba(168,85,247,.1),transparent 50%)}
+.coming-soon h2{font-size:32px;margin:14px 0;background:var(--gradient);-webkit-background-clip:text;background-clip:text;color:transparent}
+.coming-soon p{color:var(--muted);max-width:400px;margin:0 auto 20px}
+.coming-soon-ico{font-size:50px;margin-bottom:8px}
+
+/* Share buttons */
+.share-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:14px 0}
+.share-btn{padding:12px;background:var(--bg-2);border:1px solid var(--line);border-radius:10px;color:var(--text);display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;cursor:pointer}
+.share-btn:hover{border-color:var(--accent);background:rgba(99,102,241,.08)}
+.share-btn.disabled{opacity:.4;cursor:not-allowed}
+.share-btn img,.share-btn svg{width:18px;height:18px}
+
+/* Profile form */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px}
+@media(max-width:600px){.form-row{grid-template-columns:1fr}}
+.form-group label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:600}
+.form-group input,.form-group select{width:100%;padding:10px 12px;background:var(--bg-2);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:13px}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--accent)}
+
+/* FAQ */
+.faq-item{background:var(--bg-2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:8px}
+.faq-item summary{font-weight:600;cursor:pointer;color:var(--text)}
+.faq-item p{margin:10px 0 0;color:var(--muted);font-size:13px;line-height:1.6}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--gradient);color:#fff;padding:12px 18px;border-radius:10px;font-weight:600;box-shadow:0 10px 30px rgba(99,102,241,.4);z-index:9999;display:none}
+.toast.show{display:block;animation:slideIn .3s}
+@keyframes slideIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* Mobile */
+.mobile-toggle{display:none;background:var(--panel);border:1px solid var(--line);color:var(--text);padding:8px 12px;border-radius:8px;font-size:14px;margin-bottom:12px}
+@media(max-width:880px){
+  .app{grid-template-columns:1fr}
+  .sidebar{position:fixed;left:0;top:0;width:280px;z-index:1000;transform:translateX(-100%);transition:.3s}
+  .sidebar.open{transform:translateX(0)}
+  .mobile-toggle{display:block}
+  .topbar{flex-direction:column;align-items:flex-start}
+  .main{padding:16px}
+}
+
+/* Loading skeleton */
+.skel{background:linear-gradient(90deg,var(--panel) 25%,var(--panel-2) 50%,var(--panel) 75%);background-size:200% 100%;animation:skel 1.5s infinite;border-radius:6px}
+@keyframes skel{0%{background-position:200% 0}100%{background-position:-200% 0}}
 </style>
 </head>
 <body>
-<div class="app header-nav">
-<aside class="sidebar">
-  <div class="logo">Trust<span>AI</span></div>
-  <div class="user-chip" id="profileChip"></div>
-  <nav class="nav">
-    <a class="active" href="#dashboard">Dashboard</a>
-    <a href="#share">Del lenke</a>
-    <a href="#earn">Inntekt</a>
-    <a href="#profile">Profil</a>
-  </nav>
-  <button class="btn secondary" id="logoutBtn">Logout</button>
-</aside>
-<main class="main">
-  <header class="topbar"><h2 id="welcome">Velkommen</h2></header>
 
-  <div class="kpis" id="kpis"></div>
-
-  <section id="share" class="share-card">
-    <h3 style="margin:0 0 4px">🔗 Din referral-lenke</h3>
-    <div class="muted" id="storeDomainInfo" style="font-size:13px;margin-bottom:8px"></div>
-    <div class="share-link-box">
-      <input id="refLink" readonly>
-      <button id="copyBtn">📋 Kopier</button>
-    </div>
-
-    <div class="section-title">Del på sosiale medier</div>
-    <div class="share-icons">
-      <a href="#" class="share-btn facebook" id="shareFacebook" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-        Facebook
-      </a>
-      <a href="#" class="share-btn x" id="shareX" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        X (Twitter)
-      </a>
-      <a href="#" class="share-btn whatsapp" id="shareWhatsApp" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-        WhatsApp
-      </a>
-      <a href="#" class="share-btn telegram" id="shareTelegram" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
-        Telegram
-      </a>
-      <a href="#" class="share-btn linkedin" id="shareLinkedIn" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.063 2.063 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-        LinkedIn
-      </a>
-      <a href="#" class="share-btn email" id="shareEmail">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
-        E-post
-      </a>
-      <a href="#" class="share-btn sms" id="shareSMS">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        SMS
-      </a>
-    </div>
-
-    <div class="qr-box">
-      <img id="qrImg" alt="QR-kode" src="">
-      <div class="qr-info">
-        <strong style="color:#e2e8f0">QR-kode</strong><br>
-        Skann med mobil for å åpne lenken direkte. Perfekt til visittkort og print.
-      </div>
-    </div>
-  </section>
-
-  <section id="earn" class="card">
-    <h3>Mine ordrer & inntekt</h3>
-    <div id="ordersTable"></div>
-  </section>
-
-  <section class="card">
-    <h3>Klikk-statistikk</h3>
-    <div id="clicksTable"></div>
-  </section>
-
-  <section id="profile" class="card">
-    <h3>Min profil</h3>
-    <form class="profile-form" id="profileForm">
-      <div><label>Navn</label><input id="pName" required></div>
-      <div><label>E-post</label><input id="pEmail" type="email" required></div>
-      <div><label>Telefon</label><input id="pPhone"></div>
-      <div><label>Nytt passord <span style="opacity:.6">(la stå tom for å beholde)</span></label><input id="pPass" type="password" minlength="8" placeholder="Minst 8 tegn"></div>
-      <div><label>Bekreft nytt passord</label><input id="pPass2" type="password" minlength="8"></div>
-      <button type="submit">Lagre endringer</button>
-      <div class="profile-msg" id="profileMsg"></div>
-    </form>
-  </section>
-</main>
+<div id="guard" style="padding:60px 20px;text-align:center;color:var(--muted)">
+  <div style="font-size:50px">🔐</div>
+  <h2>Sjekker tilgang...</h2>
+  <p>Vent litt mens vi laster din ambassadør-info.</p>
 </div>
 
-<div class="copy-toast" id="copyToast">✓ Lenke kopiert!</div>
+<div class="app" id="app" style="display:none">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <div class="sidebar-brand">
+        <img src="/logo.png" alt="TrustAi">
+        <div>
+          <div class="sidebar-brand-txt">Trust<span>Ai</span></div>
+          <div class="sidebar-sub">Ambassador Engine</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-card">
+      <div class="avatar" id="profileAvatar">A</div>
+      <div style="flex:1;min-width:0">
+        <div class="profile-name" id="profileName">Ambassador</div>
+        <div class="profile-role"><span class="status-dot"></span><span id="profileStatus">Aktiv</span></div>
+      </div>
+    </div>
+
+    <nav class="nav-list">
+      <button class="nav-item active" data-tab="dashboard"><span class="ico">📊</span>Dashboard <span class="badge live">Live</span></button>
+      <button class="nav-item" data-tab="share"><span class="ico">🔗</span>Del lenke <span class="badge live">Live</span></button>
+      <button class="nav-item" data-tab="leads"><span class="ico">👥</span>Leads & Pipeline <span class="badge">Demo</span></button>
+      <button class="nav-item" data-tab="stats"><span class="ico">📈</span>Statistikk <span class="badge live">Live</span></button>
+      <button class="nav-item" data-tab="payouts"><span class="ico">💰</span>Utbetalinger <span class="badge live">Live</span></button>
+      <button class="nav-item" data-tab="profile"><span class="ico">👤</span>Min profil <span class="badge live">Live</span></button>
+      <button class="nav-item" data-tab="invite"><span class="ico">➕</span>Inviter <span class="badge coming">Q2</span></button>
+      <button class="nav-item" data-tab="faq"><span class="ico">❓</span>FAQ <span class="badge live">Live</span></button>
+      <button class="nav-item" data-tab="tickets"><span class="ico">🎫</span>Tickets <span class="badge coming">Snart</span></button>
+    </nav>
+
+    <div class="sidebar-foot">
+      <div class="share-card">
+        <div class="share-card-label">🔗 Din unike lenke</div>
+        <div class="share-link-input" id="sidebarLink">laster...</div>
+        <button class="share-copy-btn" onclick="copyLink()">📋 Kopier lenke</button>
+      </div>
+      <button class="logout-btn" onclick="logout()">🚪 Logg ut</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰ Meny</button>
+
+    <!-- DASHBOARD TAB -->
+    <div class="tab-content active" id="tab-dashboard">
+      <div class="topbar">
+        <div>
+          <h1>Hei <span id="welcomeName">der</span> 👋</h1>
+          <div class="topbar-sub">Her er din oversikt over innsats og resultater.</div>
+        </div>
+        <div class="topbar-actions">
+          <button class="icon-btn" title="Varsler">🔔<span class="dot-badge"></span></button>
+          <button class="icon-btn" title="Hjelp">❓</button>
+          <select class="date-select"><option>Siste 30 dager</option><option>Siste 7 dager</option><option>Siste 90 dager</option><option>Hele perioden</option></select>
+        </div>
+      </div>
+
+      <div class="status-banner">
+        <span class="status-banner-ico">🚀</span>
+        <span><b>Velkommen!</b> Dette er ambassadør-dashboardet. Funksjoner merket <span class="tag-live">Live</span> bruker ekte data. <span class="tag-demo">Demo</span> viser hvordan det vil se ut. <span class="tag-soon">Snart</span> kommer i neste fase.</span>
+      </div>
+
+      <div class="kpi-grid" id="kpiGrid">
+        <div class="kpi"><div class="kpi-head"><div class="kpi-ico">💰</div><div class="kpi-trend up">+12%</div></div><div class="kpi-value" id="kpiCommission">—</div><div class="kpi-label">Total provisjon (NOK)</div><svg class="kpi-spark" viewBox="0 0 100 30"><polyline fill="none" stroke="#a855f7" stroke-width="2" points="0,25 15,20 30,22 45,15 60,10 75,12 90,5 100,3"/></svg></div>
+        <div class="kpi"><div class="kpi-head"><div class="kpi-ico">👆</div><div class="kpi-trend up">+8%</div></div><div class="kpi-value" id="kpiClicks">—</div><div class="kpi-label">Klikk på lenken</div><svg class="kpi-spark" viewBox="0 0 100 30"><polyline fill="none" stroke="#3b82f6" stroke-width="2" points="0,20 15,18 30,15 45,17 60,12 75,8 90,10 100,5"/></svg></div>
+        <div class="kpi"><div class="kpi-head"><div class="kpi-ico">🛒</div><div class="kpi-trend up">+5%</div></div><div class="kpi-value" id="kpiOrders">—</div><div class="kpi-label">Ordrer / godkjent</div><svg class="kpi-spark" viewBox="0 0 100 30"><polyline fill="none" stroke="#10b981" stroke-width="2" points="0,28 15,25 30,20 45,18 60,15 75,12 90,8 100,5"/></svg></div>
+        <div class="kpi"><div class="kpi-head"><div class="kpi-ico">📊</div><div class="kpi-trend neu">—</div></div><div class="kpi-value" id="kpiConv">—</div><div class="kpi-label">Konverteringsrate</div><svg class="kpi-spark" viewBox="0 0 100 30"><polyline fill="none" stroke="#f97316" stroke-width="2" points="0,15 15,18 30,12 45,15 60,10 75,8 90,12 100,7"/></svg></div>
+        <div class="kpi"><div class="kpi-head"><div class="kpi-ico">💎</div><div class="kpi-trend up">+22%</div></div><div class="kpi-value" id="kpiSales">—</div><div class="kpi-label">Total omsetning</div><svg class="kpi-spark" viewBox="0 0 100 30"><polyline fill="none" stroke="#6366f1" stroke-width="2" points="0,25 15,22 30,18 45,15 60,10 75,8 90,4 100,2"/></svg></div>
+        <div class="kpi"><div class="kpi-head"><div class="kpi-ico">💸</div><div class="kpi-trend neu">Tilgjengelig</div></div><div class="kpi-value" id="kpiAvail">—</div><div class="kpi-label">Til utbetaling (NOK)</div><svg class="kpi-spark" viewBox="0 0 100 30"><polyline fill="none" stroke="#10b981" stroke-width="2" points="0,15 25,12 50,10 75,8 100,5"/></svg></div>
+      </div>
+
+      <div class="row-2">
+        <div class="panel-card">
+          <div class="panel-head">
+            <div><div class="panel-title">📈 Opptjening over tid</div><div class="panel-sub">Provisjon de siste 30 dagene</div></div>
+            <span class="tag-live">Live</span>
+          </div>
+          <div class="chart-wrap"><svg class="chart-svg" id="earningsChart" viewBox="0 0 800 200" preserveAspectRatio="none"></svg></div>
+        </div>
+        <div class="panel-card">
+          <div class="panel-head">
+            <div><div class="panel-title">🎯 Provisjon</div><div class="panel-sub">Din nåværende sats</div></div>
+            <span class="tag-live">Live</span>
+          </div>
+          <div class="donut-wrap">
+            <div class="donut">
+              <svg width="140" height="140"><circle cx="70" cy="70" r="60" fill="none" stroke="var(--line)" stroke-width="14"/><circle cx="70" cy="70" r="60" fill="none" stroke="url(#gradDonut)" stroke-width="14" stroke-dasharray="377" stroke-dashoffset="113" stroke-linecap="round"/><defs><linearGradient id="gradDonut"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#a855f7"/></linearGradient></defs></svg>
+              <div class="donut-center"><div><div class="num" id="commPct">—</div><div class="lbl">Standard sats</div></div></div>
+            </div>
+            <div class="donut-rates" style="width:100%">
+              <div class="rate-row"><span>Standard</span><b id="commPct2">—</b></div>
+              <div class="rate-row"><span>Spesial</span><b>+2%</b></div>
+              <div class="rate-row"><span>Periode</span><b>Måned</b></div>
+            </div>
+          </div>
+          <div style="background:var(--gradient-soft);padding:11px;border-radius:10px;font-size:12px;text-align:center;margin-top:6px">⭐ Du er blant våre topp ambassadører</div>
+          <button class="btn-disabled" style="width:100%;justify-content:center;margin-top:8px" disabled>🏆 Se leaderboard <span class="tag-soon" style="margin-left:auto">Snart</span></button>
+        </div>
+      </div>
+
+      <div class="row-2">
+        <div class="panel-card">
+          <div class="panel-head">
+            <div><div class="panel-title">📋 Siste leads & ordrer</div><div class="panel-sub">Aktivitet fra din lenke</div></div>
+            <span class="tag-live">Live</span>
+          </div>
+          <div style="overflow-x:auto"><table class="tbl" id="leadsTable"><thead><tr><th>Kontakt</th><th>Kilde</th><th>Status</th><th>Verdi</th><th>Provisjon</th><th></th></tr></thead><tbody><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:30px">Laster...</td></tr></tbody></table></div>
+        </div>
+        <div class="panel-card">
+          <div class="panel-head">
+            <div><div class="panel-title">🏆 Prestasjoner</div><div class="panel-sub">Dine badges</div></div>
+            <span class="tag-demo">Demo</span>
+          </div>
+          <div class="badges-grid">
+            <div class="badge-card"><div class="badge-ico">🚀</div><div class="badge-name">Top Performer</div><div class="badge-desc">Topp 10% denne måneden</div></div>
+            <div class="badge-card"><div class="badge-ico">🔗</div><div class="badge-name">Link Master</div><div class="badge-desc">Over 100 klikk</div></div>
+            <div class="badge-card locked"><div class="badge-ico">💎</div><div class="badge-name">Sales Champion</div><div class="badge-desc">10+ salg på 30d</div></div>
+            <div class="badge-card locked"><div class="badge-ico">🌐</div><div class="badge-name">Network Builder</div><div class="badge-desc">Inviter 5 ambassadører</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEL LENKE TAB -->
+    <div class="tab-content" id="tab-share">
+      <div class="topbar"><div><h1>🔗 Del lenken din</h1><div class="topbar-sub">Del med ditt nettverk og tjen provisjon</div></div></div>
+
+      <div class="row-2">
+        <div class="panel-card">
+          <div class="panel-head"><div class="panel-title">Din lenke</div><span class="tag-live">Live</span></div>
+          <div class="share-link-input" id="shareMainLink" style="font-size:14px;padding:14px;margin-bottom:14px">laster...</div>
+          <button class="btn-primary" onclick="copyLink()" style="width:100%;justify-content:center">📋 Kopier lenke</button>
+          <div style="margin-top:18px"><div class="panel-sub" style="margin-bottom:10px">Del direkte til:</div>
+            <div class="share-grid">
+              <button class="share-btn" onclick="shareTo('whatsapp')">💬 WhatsApp</button>
+              <button class="share-btn" onclick="shareTo('facebook')">📘 Facebook</button>
+              <button class="share-btn" onclick="shareTo('twitter')">🐦 X / Twitter</button>
+              <button class="share-btn" onclick="shareTo('linkedin')">💼 LinkedIn</button>
+              <button class="share-btn" onclick="shareTo('telegram')">✈️ Telegram</button>
+              <button class="share-btn" onclick="shareTo('email')">📧 E-post</button>
+              <button class="share-btn" onclick="shareTo('sms')">📱 SMS</button>
+              <button class="share-btn disabled">📷 Instagram <span class="tag-soon">Snart</span></button>
+            </div>
+          </div>
+        </div>
+        <div class="panel-card">
+          <div class="panel-head"><div class="panel-title">QR-kode</div><span class="tag-live">Live</span></div>
+          <div style="text-align:center;padding:14px">
+            <div id="qrBox" style="background:#fff;padding:16px;border-radius:14px;display:inline-block"></div>
+            <div class="panel-sub" style="margin-top:12px">Scan for å åpne lenken på telefon</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <div class="panel-head">
+          <div><div class="panel-title">✍️ Ferdig-tekster</div><div class="panel-sub">Forhåndslagde tekster du kan kopiere og dele</div></div>
+          <span class="tag-demo">Demo</span>
+        </div>
+        <div style="display:grid;gap:10px">
+          <div style="background:var(--bg-2);padding:14px;border-radius:10px;border:1px solid var(--line)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><b style="font-size:13px">📘 LinkedIn-post</b><span style="font-size:11px;color:var(--muted)">Konvertering: 4.2%</span></div>
+            <div style="font-size:13px;color:var(--muted);line-height:1.5">"Jeg har funnet en plattform jeg virkelig anbefaler — sjekk ut [butikk] via min lenke: [LINK]"</div>
+            <button class="btn-ghost" style="margin-top:8px">📋 Kopier</button>
+          </div>
+          <div style="background:var(--bg-2);padding:14px;border-radius:10px;border:1px solid var(--line)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><b style="font-size:13px">📧 E-post</b><span style="font-size:11px;color:var(--muted)">Konvertering: 6.8%</span></div>
+            <div style="font-size:13px;color:var(--muted);line-height:1.5">"Hei! Jeg vil dele en plattform jeg har gode erfaringer med. Klikk her: [LINK]"</div>
+            <button class="btn-ghost" style="margin-top:8px">📋 Kopier</button>
+          </div>
+          <div style="background:var(--bg-2);padding:14px;border-radius:10px;border:1px solid var(--line)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><b style="font-size:13px">💬 WhatsApp</b><span style="font-size:11px;color:var(--muted)">Konvertering: 8.1%</span></div>
+            <div style="font-size:13px;color:var(--muted);line-height:1.5">"Hei! 👋 Du må sjekke dette: [LINK]"</div>
+            <button class="btn-ghost" style="margin-top:8px">📋 Kopier</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEADS TAB -->
+    <div class="tab-content" id="tab-leads">
+      <div class="topbar"><div><h1>👥 Leads & Pipeline</h1><div class="topbar-sub">Følg leads fra første kontakt til godkjent salg</div></div><div class="topbar-actions"><span class="tag-demo">Demo data — Lead-system bygges</span></div></div>
+
+      <div class="row-3" style="grid-template-columns:repeat(5,1fr);gap:10px">
+        <div class="panel-card" style="text-align:center;padding:14px"><div style="font-size:11px;color:#60a5fa;text-transform:uppercase;font-weight:700">Åpne</div><div style="font-size:22px;font-weight:800;margin-top:4px">7</div><div style="font-size:10px;color:var(--muted)">kr 245.000</div></div>
+        <div class="panel-card" style="text-align:center;padding:14px"><div style="font-size:11px;color:#c084fc;text-transform:uppercase;font-weight:700">Møte</div><div style="font-size:22px;font-weight:800;margin-top:4px">3</div><div style="font-size:10px;color:var(--muted)">kr 180.000</div></div>
+        <div class="panel-card" style="text-align:center;padding:14px"><div style="font-size:11px;color:#fbbf24;text-transform:uppercase;font-weight:700">Tilbud</div><div style="font-size:22px;font-weight:800;margin-top:4px">2</div><div style="font-size:10px;color:var(--muted)">kr 120.000</div></div>
+        <div class="panel-card" style="text-align:center;padding:14px"><div style="font-size:11px;color:#34d399;text-transform:uppercase;font-weight:700">Godkjent</div><div style="font-size:22px;font-weight:800;margin-top:4px">1</div><div style="font-size:10px;color:var(--muted)">kr 80.000</div></div>
+        <div class="panel-card" style="text-align:center;padding:14px"><div style="font-size:11px;color:#f87171;text-transform:uppercase;font-weight:700">Avslag</div><div style="font-size:22px;font-weight:800;margin-top:4px">1</div><div style="font-size:10px;color:var(--muted)">—</div></div>
+      </div>
+
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">Alle leads</div><span class="tag-demo">Demo</span></div>
+        <div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Firma</th><th>Kontakt</th><th>Status</th><th>Verdi</th><th>Provisjon</th><th>Dato</th><th></th></tr></thead><tbody>
+          <tr><td><b>Animer AS</b></td><td>Ola Nordmann</td><td><span class="status-pill s-approved">Godkjent</span></td><td>kr 80.000</td><td>kr 8.000</td><td>2026-04-28</td><td><button class="btn-ghost">Se</button></td></tr>
+          <tr><td><b>Tech Solutions AS</b></td><td>Marte Olsen</td><td><span class="status-pill s-offer">Tilbud sendt</span></td><td>kr 65.000</td><td>kr 6.500</td><td>2026-04-25</td><td><button class="btn-ghost">Se</button></td></tr>
+          <tr><td><b>Nordic Brands</b></td><td>Erik Hansen</td><td><span class="status-pill s-meeting">Møte booket</span></td><td>kr 95.000</td><td>kr 9.500</td><td>2026-04-22</td><td><button class="btn-ghost">Se</button></td></tr>
+          <tr><td><b>StartupX</b></td><td>Lisa Berg</td><td><span class="status-pill s-open">Åpen</span></td><td>kr 35.000</td><td>kr 3.500</td><td>2026-04-20</td><td><button class="btn-ghost">Se</button></td></tr>
+          <tr><td><b>Build & Grow</b></td><td>Knut Larsen</td><td><span class="status-pill s-rejected">Avslag</span></td><td>—</td><td>—</td><td>2026-04-18</td><td><button class="btn-ghost">Se</button></td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <!-- STATS TAB -->
+    <div class="tab-content" id="tab-stats">
+      <div class="topbar"><div><h1>📈 Statistikk</h1><div class="topbar-sub">Detaljerte tall fra din aktivitet</div></div></div>
+      <div class="row-2">
+        <div class="panel-card">
+          <div class="panel-head"><div class="panel-title">Klikk vs. ordrer over tid</div><span class="tag-live">Live</span></div>
+          <div class="chart-wrap"><svg class="chart-svg" id="statsChart" viewBox="0 0 800 200" preserveAspectRatio="none"></svg></div>
+        </div>
+        <div class="panel-card">
+          <div class="panel-head"><div class="panel-title">Topp kilder</div><span class="tag-live">Live</span></div>
+          <div id="topSources" style="padding:6px 0">Laster...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYOUTS TAB -->
+    <div class="tab-content" id="tab-payouts">
+      <div class="topbar"><div><h1>💰 Utbetalinger</h1><div class="topbar-sub">Oversikt over opptjent og utbetalt provisjon</div></div></div>
+      <div class="row-3">
+        <div class="panel-card"><div style="font-size:11px;color:var(--muted);text-transform:uppercase">Total opptjent</div><div style="font-size:28px;font-weight:800;margin:6px 0" id="payTotal">—</div><div style="color:#10b981;font-size:12px">+ alt tid</div></div>
+        <div class="panel-card"><div style="font-size:11px;color:var(--muted);text-transform:uppercase">Utbetalt</div><div style="font-size:28px;font-weight:800;margin:6px 0" id="payPaid">kr 0</div><div style="color:var(--muted);font-size:12px">så langt</div></div>
+        <div class="panel-card" style="background:var(--gradient-soft);border-color:rgba(99,102,241,.3)"><div style="font-size:11px;color:#a5b4fc;text-transform:uppercase">Tilgjengelig nå</div><div style="font-size:28px;font-weight:800;margin:6px 0" id="payAvail">—</div><button class="btn-disabled" disabled style="width:100%;justify-content:center">💸 Be om utbetaling <span class="tag-soon" style="margin-left:auto">Snart</span></button></div>
+      </div>
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">Historikk</div><span class="tag-live">Live</span></div>
+        <div style="overflow-x:auto"><table class="tbl" id="payoutsTable"><thead><tr><th>Dato</th><th>Beløp</th><th>Status</th><th>Faktura</th></tr></thead><tbody><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:30px">Laster...</td></tr></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- PROFILE TAB -->
+    <div class="tab-content" id="tab-profile">
+      <div class="topbar"><div><h1>👤 Min profil</h1><div class="topbar-sub">Oppdater dine kontaktopplysninger</div></div></div>
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">Personlig info</div><span class="tag-live">Live</span></div>
+        <div class="form-row">
+          <div class="form-group"><label>Navn</label><input type="text" id="pfName"></div>
+          <div class="form-group"><label>E-post</label><input type="email" id="pfEmail"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Telefon</label><input type="tel" id="pfPhone"></div>
+          <div class="form-group"><label>Status</label><input type="text" id="pfStatusLbl" disabled></div>
+        </div>
+        <button class="btn-primary" onclick="saveProfile()">💾 Lagre endringer</button>
+      </div>
+      <div class="panel-card" style="margin-top:16px">
+        <div class="panel-head"><div class="panel-title">Sikkerhet</div><span class="tag-live">Live</span></div>
+        <div class="form-row">
+          <div class="form-group"><label>Nytt passord</label><input type="password" id="pfPw1" placeholder="Minst 8 tegn"></div>
+          <div class="form-group"><label>Bekreft passord</label><input type="password" id="pfPw2"></div>
+        </div>
+        <button class="btn-primary" onclick="changePassword()">🔒 Bytt passord</button>
+      </div>
+      <div class="panel-card" style="margin-top:16px">
+        <div class="panel-head"><div class="panel-title">Varsler & innstillinger</div><span class="tag-soon">Snart</span></div>
+        <div class="form-row">
+          <div class="form-group"><label>Varsler på e-post</label><select disabled><option>Ja, viktige</option></select></div>
+          <div class="form-group"><label>Språk</label><select disabled><option>Norsk</option></select></div>
+        </div>
+        <div style="color:var(--muted);font-size:12px">Disse innstillingene blir tilgjengelige i neste oppdatering.</div>
+      </div>
+    </div>
+
+    <!-- INVITE TAB -->
+    <div class="tab-content" id="tab-invite">
+      <div class="topbar"><div><h1>➕ Inviter ambassadør</h1><div class="topbar-sub">Bygg ditt eget nettverk og tjen second-tier provisjon</div></div></div>
+      <div class="coming-soon">
+        <div class="coming-soon-ico">🚀</div>
+        <h2>Multi-level Referrals</h2>
+        <p>Snart kan du invitere andre ambassadører til programmet og tjene provisjon på deres salg. Bygg ditt eget nettverk av tillit.</p>
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:14px">
+          <span class="tag-soon">Lansering: Q2 2026</span>
+        </div>
+        <button class="btn-disabled" disabled>📩 Bli varslet ved lansering</button>
+      </div>
+    </div>
+
+    <!-- FAQ TAB -->
+    <div class="tab-content" id="tab-faq">
+      <div class="topbar"><div><h1>❓ FAQ</h1><div class="topbar-sub">Vanlige spørsmål</div></div></div>
+      <details class="faq-item"><summary>Hvordan tjener jeg provisjon?</summary><p>Når noen klikker på din unike lenke og fullfører et kjøp, får du automatisk provisjon i henhold til din sats. Du kan se all aktivitet under "Statistikk".</p></details>
+      <details class="faq-item"><summary>Når får jeg utbetalt?</summary><p>Provisjonen blir tilgjengelig for utbetaling når den er bekreftet (typisk 14 dager etter ordren for å ta hensyn til evt. returer). Du kan be om utbetaling når du har minst 500 kr tilgjengelig.</p></details>
+      <details class="faq-item"><summary>Kan jeg dele lenken hvor som helst?</summary><p>Ja, du kan dele lenken på sosiale medier, via e-post, SMS, blogg, etc. Vi anbefaler å dele med ditt nettverk på en autentisk måte.</p></details>
+      <details class="faq-item"><summary>Hva er konverteringsrate?</summary><p>Konverteringsrate er prosentandelen av klikk som blir til faktiske ordrer. F.eks. hvis 100 klikker og 5 kjøper, har du 5% konverteringsrate.</p></details>
+      <details class="faq-item"><summary>Hvor mye provisjon får jeg?</summary><p>Din standard provisjonssats vises på dashbordet. Aktive ambassadører kan kvalifisere for høyere satser basert på resultater.</p></details>
+      <details class="faq-item"><summary>Hva hvis jeg trenger hjelp?</summary><p>Send en ticket via "Tickets"-fanen, eller kontakt oss direkte på WhatsApp: <a href="https://wa.me/4741227175" style="color:var(--accent)">+47 412 27 175</a>.</p></details>
+    </div>
+
+    <!-- TICKETS TAB -->
+    <div class="tab-content" id="tab-tickets">
+      <div class="topbar"><div><h1>🎫 Support tickets</h1><div class="topbar-sub">Få hjelp fra teamet</div></div><div class="topbar-actions"><button class="btn-disabled" disabled>+ Ny ticket <span class="tag-soon">Snart</span></button></div></div>
+      <div class="status-banner"><span class="status-banner-ico">💬</span><span><b>Ticket-system bygges nå.</b> I mellomtiden — kontakt oss på <a href="https://wa.me/4741227175" style="color:#a5b4fc">WhatsApp +47 412 27 175</a> eller <a href="mailto:hello@trustai.no" style="color:#a5b4fc">hello@trustai.no</a></span></div>
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">Demo: dine tickets</div><span class="tag-demo">Demo</span></div>
+        <div style="overflow-x:auto"><table class="tbl"><thead><tr><th>ID</th><th>Emne</th><th>Status</th><th>Sist oppdatert</th></tr></thead><tbody>
+          <tr><td>#TK-001</td><td>Spørsmål om utbetaling</td><td><span class="status-pill s-approved">Besvart</span></td><td>2026-04-20</td></tr>
+          <tr><td>#TK-002</td><td>Hvordan dele på Instagram?</td><td><span class="status-pill s-meeting">Ubesvart</span></td><td>2026-04-22</td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast">✓ Lenke kopiert!</div>
 
 <script>
-const ui=DashboardUI, app=TrustAIDashboard;
-let currentLink='';
+let DATA = null;
+const TAB_BTNS = document.querySelectorAll('.nav-item');
+const TABS = document.querySelectorAll('.tab-content');
 
-async function load(){
-  const res=await fetch('/api/ambassador/dashboard.php',{credentials:'include'});
-  const json=await res.json();
-  if(!json.ok){alert(json.message||'Kunne ikke laste dashboard');return;}
-  const d=json.data||json;
-  render(d);
-}
-
-function render(d){
-  document.getElementById('welcome').textContent='Velkommen, '+(d.ambassador?.name||'ambassadør');
-  document.getElementById('profileChip').textContent=d.ambassador?.email||'';
-
-  // KPIs
-  const m=d.metrics||{};
-  document.getElementById('kpis').innerHTML=[
-    ['Klikk',m.clicks||0],
-    ['Ordrer',m.orders||0],
-    ['Salg',ui.formatCurrency(m.total_sales||0)],
-    ['Provisjon',ui.formatCurrency(m.total_commission||0)]
-  ].map(([k,v])=>`<div class='card'><div class='muted'>${k}</div><div class='kpi'>${v}</div></div>`).join('');
-
-  // Referral link (full URL)
-  currentLink=d.referral_link||'';
-  document.getElementById('refLink').value=currentLink;
-  document.getElementById('storeDomainInfo').textContent='Tilknyttet butikk: '+(d.store?.name||'-')+' ('+(d.store?.domain||'-')+')';
-
-  // Sosiale media-lenker
-  const enc=encodeURIComponent(currentLink);
-  const text=encodeURIComponent('Sjekk ut '+(d.store?.name||'denne butikken')+'! ');
-  document.getElementById('shareFacebook').href=`https://www.facebook.com/sharer/sharer.php?u=${enc}`;
-  document.getElementById('shareX').href=`https://twitter.com/intent/tweet?text=${text}&url=${enc}`;
-  document.getElementById('shareWhatsApp').href=`https://wa.me/?text=${text}${enc}`;
-  document.getElementById('shareTelegram').href=`https://t.me/share/url?url=${enc}&text=${text}`;
-  document.getElementById('shareLinkedIn').href=`https://www.linkedin.com/sharing/share-offsite/?url=${enc}`;
-  document.getElementById('shareEmail').href=`mailto:?subject=${text}&body=${text}%0A%0A${enc}`;
-  document.getElementById('shareSMS').href=`sms:?body=${text}${enc}`;
-
-  // QR-kode (gratis API fra QR Server)
-  document.getElementById('qrImg').src=`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${enc}`;
-
-  // Profil
-  document.getElementById('pName').value=d.ambassador?.name||'';
-  document.getElementById('pEmail').value=d.ambassador?.email||'';
-  document.getElementById('pPhone').value=d.ambassador?.phone||'';
-
-  // Tabeller
-  ui.renderTable(document.getElementById('ordersTable'),d.orders||[],[
-    {key:'created_at',label:'Dato',render:v=>ui.formatDate(v)},
-    {key:'platform_order_id',label:'Ordre'},
-    {key:'amount',label:'Beløp',render:v=>ui.formatCurrency(v)},
-    {key:'commission_amount',label:'Provisjon',render:v=>ui.formatCurrency(v)},
-    {key:'payout_status',label:'Status',render:v=>ui.renderBadge(v)}
-  ]);
-  ui.renderTable(document.getElementById('clicksTable'),d.clicks||[],[
-    {key:'source',label:'Kilde'},
-    {key:'referral_code',label:'Kode'},
-    {key:'created_at',label:'Dato',render:v=>ui.formatDate(v)}
-  ]);
-}
-
-// Kopier-knapp
-document.getElementById('copyBtn').onclick=async()=>{
-  try{await navigator.clipboard.writeText(currentLink);}
-  catch{document.getElementById('refLink').select();document.execCommand('copy');}
-  const t=document.getElementById('copyToast');
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),1800);
-};
-
-// Profil-skjema
-document.getElementById('profileForm').onsubmit=async(e)=>{
-  e.preventDefault();
-  const msg=document.getElementById('profileMsg');
-  const pw=document.getElementById('pPass').value;
-  const pw2=document.getElementById('pPass2').value;
-  if(pw && pw!==pw2){msg.className='profile-msg show error';msg.textContent='Passordene er ikke like.';return;}
-  if(pw && pw.length<8){msg.className='profile-msg show error';msg.textContent='Passord må være minst 8 tegn.';return;}
-  const payload={
-    name:document.getElementById('pName').value.trim(),
-    email:document.getElementById('pEmail').value.trim(),
-    phone:document.getElementById('pPhone').value.trim()
+TAB_BTNS.forEach(btn => {
+  btn.onclick = () => {
+    const tab = btn.dataset.tab;
+    TAB_BTNS.forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    TABS.forEach(t => t.classList.toggle('active', t.id === 'tab-' + tab));
+    document.getElementById('sidebar').classList.remove('open');
+    if (tab === 'stats' && DATA) renderStatsChart();
   };
-  if(pw)payload.password=pw;
+});
+
+function fmt(n){return new Intl.NumberFormat('nb-NO',{style:'currency',currency:'NOK',maximumFractionDigits:0}).format(n||0).replace('NOK','kr')}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+
+async function loadData(){
   try{
-    const res=await fetch('/api/ambassador/update-profile.php',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    const data=await res.json();
-    if(data.ok){msg.className='profile-msg show ok';msg.textContent=data.message||'Profil oppdatert.';document.getElementById('pPass').value='';document.getElementById('pPass2').value='';}
-    else{msg.className='profile-msg show error';msg.textContent=data.message||'Kunne ikke oppdatere profil.';}
-  }catch(err){msg.className='profile-msg show error';msg.textContent='Feil: '+err.message;}
-};
+    const r = await fetch('/api/ambassador/dashboard.php',{credentials:'include'});
+    if(r.status === 401){location.href = '/login.html';return}
+    DATA = await r.json();
+    if(!DATA.ok){document.getElementById('guard').innerHTML='<div style="padding:40px;text-align:center"><h2>Kunne ikke laste data</h2><p style="color:#94a3b8">'+(DATA.error||'Ukjent feil')+'</p></div>';return}
+    render();
+  }catch(e){document.getElementById('guard').innerHTML='<div style="padding:40px;text-align:center"><h2>Nettverksfeil</h2><p>'+e.message+'</p></div>'}
+}
 
-// Logout
-document.getElementById('logoutBtn').onclick=async()=>{
-  await fetch('/api/auth/logout.php',{method:'POST',credentials:'include'});
-  location.href='/login.html';
-};
+function render(){
+  document.getElementById('guard').style.display='none';
+  document.getElementById('app').style.display='grid';
 
-load();
-</script>
-  /* TrustAI AI Coach widget
- * - Insights-kort på toppen av dashboards (sett <div data-tai-insights></div>)
- * - Floating chat-knapp nederst til høyre (auto-injisert)
- * Krever: bruker er innlogget, /api/ai/insights.php og /api/ai/chat.php
- */
-(function () {
-  'use strict';
-  if (window.__trustaiAiLoaded) return;
-  window.__trustaiAiLoaded = true;
+  const a = DATA.ambassador, m = DATA.metrics;
+  const name = a.name || 'Ambassador';
+  document.getElementById('profileName').textContent = name;
+  document.getElementById('profileAvatar').textContent = name.charAt(0).toUpperCase();
+  document.getElementById('profileStatus').textContent = (a.status||'aktiv').charAt(0).toUpperCase() + (a.status||'aktiv').slice(1);
+  document.getElementById('welcomeName').textContent = name.split(' ')[0];
 
-  const STYLE = `
-.tai-insights{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin:0 0 18px}
-.tai-insight{background:linear-gradient(135deg,#0b1220,#111827);border:1px solid #334155;border-radius:14px;padding:14px 16px;color:#e2e8f0;position:relative;overflow:hidden}
-.tai-insight.high{border-color:#f97316}
-.tai-insight.high::before{content:"";position:absolute;top:0;left:0;width:4px;height:100%;background:#f97316}
-.tai-insight.medium{border-color:#3b82f6}
-.tai-insight.medium::before{content:"";position:absolute;top:0;left:0;width:4px;height:100%;background:#3b82f6}
-.tai-insight.low{border-color:#475569}
-.tai-insight-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.tai-insight-icon{font-size:20px}
-.tai-insight-title{font-weight:600;font-size:14px}
-.tai-insight-msg{font-size:13px;color:#cbd5e1;line-height:1.5;margin:6px 0}
-.tai-insight-action{margin-top:10px;font-size:12px;color:#94a3b8;border-top:1px solid #1e293b;padding-top:8px}
-.tai-insight-action b{color:#60a5fa}
-.tai-insights-loading{padding:14px;background:#0b1220;border:1px solid #334155;border-radius:14px;color:#94a3b8;text-align:center;font-size:13px}
-.tai-insights-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.tai-insights-title{color:#94a3b8;font-size:12px;text-transform:uppercase;letter-spacing:.8px;font-weight:600;display:flex;align-items:center;gap:6px}
-.tai-refresh-btn{background:transparent;border:0;color:#60a5fa;font-size:12px;cursor:pointer;padding:4px 8px;border-radius:6px}
-.tai-refresh-btn:hover{background:#1e293b}
+  document.getElementById('kpiCommission').textContent = fmt(m.total_commission);
+  document.getElementById('kpiClicks').textContent = m.clicks||0;
+  document.getElementById('kpiOrders').textContent = m.orders||0;
+  document.getElementById('kpiSales').textContent = fmt(m.total_sales);
+  document.getElementById('kpiAvail').textContent = fmt(m.total_commission);
+  const conv = m.clicks > 0 ? ((m.orders/m.clicks)*100).toFixed(1)+'%' : '0%';
+  document.getElementById('kpiConv').textContent = conv;
 
-.tai-fab{position:fixed;bottom:24px;right:24px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:0;cursor:pointer;box-shadow:0 8px 24px rgba(37,99,235,.4);display:flex;align-items:center;justify-content:center;z-index:9998;transition:transform .15s}
-.tai-fab:hover{transform:scale(1.05)}
-.tai-fab svg{width:26px;height:26px}
-.tai-fab-pulse{position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:#10b981;border:2px solid #0f172a;border-radius:50%}
+  const pct = parseFloat(a.commission_percent||0).toFixed(0)+'%';
+  document.getElementById('commPct').textContent = pct;
+  document.getElementById('commPct2').textContent = pct;
 
-.tai-chat{position:fixed;bottom:96px;right:24px;width:380px;max-width:calc(100vw - 32px);height:540px;max-height:calc(100vh - 120px);background:#0b1220;border:1px solid #334155;border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.5);z-index:9999;display:none;flex-direction:column;overflow:hidden}
-.tai-chat.open{display:flex}
-.tai-chat-head{padding:14px 16px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;display:flex;justify-content:space-between;align-items:center}
-.tai-chat-head h4{margin:0;font-size:15px;font-weight:600}
-.tai-chat-head .sub{font-size:12px;opacity:.85;margin-top:2px}
-.tai-chat-close{background:transparent;border:0;color:#fff;cursor:pointer;font-size:22px;line-height:1;padding:4px 8px}
-.tai-chat-body{flex:1;overflow-y:auto;padding:14px;background:#0f172a}
-.tai-msg{margin-bottom:12px;max-width:85%;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.5;white-space:pre-wrap}
-.tai-msg.user{margin-left:auto;background:#2563eb;color:#fff;border-bottom-right-radius:4px}
-.tai-msg.bot{background:#1e293b;color:#e2e8f0;border-bottom-left-radius:4px}
-.tai-msg.bot.loading{opacity:.7;font-style:italic}
-.tai-chat-foot{padding:12px;border-top:1px solid #1e293b;background:#0b1220;display:flex;gap:8px}
-.tai-chat-foot input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;font-size:13px}
-.tai-chat-foot input:focus{outline:none;border-color:#2563eb}
-.tai-chat-foot button{padding:10px 16px;border-radius:10px;border:0;background:#2563eb;color:#fff;font-weight:600;cursor:pointer;font-size:13px}
-.tai-chat-foot button:disabled{opacity:.5;cursor:not-allowed}
-.tai-chat-suggest{padding:8px 14px;display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid #1e293b;background:#0b1220}
-.tai-chat-suggest button{font-size:11px;padding:6px 10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#cbd5e1;cursor:pointer}
-.tai-chat-suggest button:hover{background:#1e293b;border-color:#475569}
-@media(max-width:560px){.tai-chat{right:8px;left:8px;width:auto;bottom:90px}.tai-fab{bottom:16px;right:16px}}
-`;
+  const link = DATA.referral_link||'';
+  document.getElementById('sidebarLink').textContent = link;
+  document.getElementById('shareMainLink').textContent = link;
 
-  function injectStyle() {
-    const s = document.createElement('style');
-    s.textContent = STYLE;
-    document.head.appendChild(s);
+  if(link){
+    document.getElementById('qrBox').innerHTML = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data='+encodeURIComponent(link)+'" alt="QR" style="display:block">';
   }
 
-  function escapeHtml(t) {
-    return String(t || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
-  }
+  // Profile form
+  document.getElementById('pfName').value = a.name||'';
+  document.getElementById('pfEmail').value = a.email||'';
+  document.getElementById('pfPhone').value = a.phone||'';
+  document.getElementById('pfStatusLbl').value = a.status||'';
 
-  /* INSIGHTS CARDS */
-  async function loadInsights(container, refresh = false) {
-    container.innerHTML = '<div class="tai-insights-loading">🤖 AI tenker...</div>';
-    try {
-      const res = await fetch('/api/ai/insights.php' + (refresh ? '?refresh=1' : ''), { credentials: 'include' });
-      const data = await res.json();
-      if (!data.ok || !Array.isArray(data.insights) || data.insights.length === 0) {
-        container.innerHTML = '<div class="tai-insights-loading">Ingen insikter tilgjengelig akkurat nå.</div>';
-        return;
-      }
-      container.innerHTML = data.insights.map(i => `
-        <div class="tai-insight ${escapeHtml(i.priority || 'medium')}">
-          <div class="tai-insight-head">
-            <span class="tai-insight-icon">${escapeHtml(i.icon || '💡')}</span>
-            <span class="tai-insight-title">${escapeHtml(i.title || 'Innsikt')}</span>
-          </div>
-          <div class="tai-insight-msg">${escapeHtml(i.message || '')}</div>
-          ${i.action ? `<div class="tai-insight-action"><b>Neste steg:</b> ${escapeHtml(i.action)}</div>` : ''}
-        </div>
-      `).join('');
-    } catch (e) {
-      container.innerHTML = '<div class="tai-insights-loading">Kunne ikke laste insikter.</div>';
-    }
-  }
-
-  function mountInsights() {
-    const target = document.querySelector('[data-tai-insights]');
-    if (!target) return;
-    target.innerHTML = `
-      <div class="tai-insights-header">
-        <div class="tai-insights-title">🤖 AI Coach — Innsikt for deg</div>
-        <button class="tai-refresh-btn" id="taiRefreshBtn">↻ Oppdater</button>
-      </div>
-      <div class="tai-insights" id="taiInsightsBox"></div>
-    `;
-    const box = target.querySelector('#taiInsightsBox');
-    loadInsights(box);
-    target.querySelector('#taiRefreshBtn').onclick = () => loadInsights(box, true);
-  }
-
-  /* CHAT WIDGET */
-  const history = [];
-
-  function buildChat() {
-    const fab = document.createElement('button');
-    fab.className = 'tai-fab';
-    fab.title = 'Spør AI Coach';
-    fab.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="tai-fab-pulse"></span>`;
-    document.body.appendChild(fab);
-
-    const chat = document.createElement('div');
-    chat.className = 'tai-chat';
-    chat.innerHTML = `
-      <div class="tai-chat-head">
-        <div>
-          <h4>🤖 TrustAI Coach</h4>
-          <div class="sub">Din personlige rådgiver</div>
-        </div>
-        <button class="tai-chat-close">×</button>
-      </div>
-      <div class="tai-chat-body" id="taiChatBody">
-        <div class="tai-msg bot">Hei! Jeg er din AI Coach. Spør meg om alt — fra delingstips til hvordan optimere ambassadør-programmet ditt. Hva lurer du på?</div>
-      </div>
-      <div class="tai-chat-suggest" id="taiSuggest"></div>
-      <div class="tai-chat-foot">
-        <input id="taiInput" placeholder="Skriv ditt spørsmål...">
-        <button id="taiSend">Send</button>
-      </div>
-    `;
-    document.body.appendChild(chat);
-
-    const input = chat.querySelector('#taiInput');
-    const sendBtn = chat.querySelector('#taiSend');
-    const body = chat.querySelector('#taiChatBody');
-    const suggest = chat.querySelector('#taiSuggest');
-
-    fab.onclick = () => {
-      chat.classList.toggle('open');
-      if (chat.classList.contains('open')) input.focus();
-    };
-    chat.querySelector('.tai-chat-close').onclick = () => chat.classList.remove('open');
-
-    // Forslag basert på rolle (synkron - vi vet ikke rolle her, så generelle)
-    const suggestions = [
-      'Hvordan tjener jeg mer?',
-      'Beste delingstekst?',
-      'Hvilken kanal konverterer best?',
-      'Anbefal neste handling',
-    ];
-    suggest.innerHTML = suggestions.map(s => `<button>${escapeHtml(s)}</button>`).join('');
-    suggest.querySelectorAll('button').forEach(b => {
-      b.onclick = () => { input.value = b.textContent; send(); };
-    });
-
-    async function send() {
-      const text = input.value.trim();
-      if (!text) return;
-      input.value = '';
-      sendBtn.disabled = true;
-
-      const userMsg = document.createElement('div');
-      userMsg.className = 'tai-msg user';
-      userMsg.textContent = text;
-      body.appendChild(userMsg);
-
-      const loadingMsg = document.createElement('div');
-      loadingMsg.className = 'tai-msg bot loading';
-      loadingMsg.textContent = '🤔 tenker...';
-      body.appendChild(loadingMsg);
-      body.scrollTop = body.scrollHeight;
-
-      try {
-        const res = await fetch('/api/ai/chat.php', {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text, history: history.slice(-8) }),
-        });
-        const data = await res.json();
-        loadingMsg.remove();
-
-        const botMsg = document.createElement('div');
-        botMsg.className = 'tai-msg bot';
-        botMsg.textContent = data.ok ? data.reply : ('Beklager, fikk ikke svar: ' + (data.error || 'ukjent'));
-        body.appendChild(botMsg);
-        body.scrollTop = body.scrollHeight;
-
-        if (data.ok) {
-          history.push({ role: 'user', content: text });
-          history.push({ role: 'assistant', content: data.reply });
-        }
-      } catch (e) {
-        loadingMsg.remove();
-        const errMsg = document.createElement('div');
-        errMsg.className = 'tai-msg bot';
-        errMsg.textContent = 'Nettverksfeil. Prøv igjen.';
-        body.appendChild(errMsg);
-      } finally {
-        sendBtn.disabled = false;
-        input.focus();
-      }
-    }
-
-    sendBtn.onclick = send;
-    input.addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
-    });
-  }
-
-  function init() {
-    injectStyle();
-    mountInsights();
-    buildChat();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+  // Leads/orders table
+  const orders = DATA.orders||[];
+  const tbody = document.querySelector('#leadsTable tbody');
+  if(orders.length === 0){
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:30px">Ingen ordrer enda. Del lenken din for å starte!</td></tr>';
   } else {
-    init();
+    tbody.innerHTML = orders.slice(0,5).map(o => `<tr>
+      <td><b>${o.customer_name||'Anonym'}</b><div style="font-size:11px;color:#94a3b8">${o.customer_email||''}</div></td>
+      <td>Web</td>
+      <td><span class="status-pill s-approved">Godkjent</span></td>
+      <td>${fmt(o.amount)}</td>
+      <td>${fmt(o.commission_amount)}</td>
+      <td><button class="btn-ghost">Se</button></td>
+    </tr>`).join('');
   }
-})();
 
+  // Earnings chart
+  renderEarningsChart();
+
+  // Stats
+  renderTopSources();
+
+  // Payouts
+  const totalPaid = (DATA.payouts||[]).filter(p=>p.status==='paid').reduce((s,p)=>s+parseFloat(p.amount||0),0);
+  document.getElementById('payTotal').textContent = fmt(m.total_commission);
+  document.getElementById('payPaid').textContent = fmt(totalPaid);
+  document.getElementById('payAvail').textContent = fmt(m.total_commission - totalPaid);
+
+  const payTbody = document.querySelector('#payoutsTable tbody');
+  if((DATA.payouts||[]).length === 0){
+    payTbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:30px">Ingen utbetalinger registrert.</td></tr>';
+  } else {
+    payTbody.innerHTML = DATA.payouts.map(p => `<tr><td>${p.created_at?p.created_at.split(' ')[0]:''}</td><td>${fmt(p.amount)}</td><td><span class="status-pill ${p.status==='paid'?'s-approved':'s-open'}">${p.status}</span></td><td>${p.invoice_url?'<a href="'+p.invoice_url+'" class="btn-ghost">PDF</a>':'—'}</td></tr>`).join('');
+  }
+}
+
+function renderEarningsChart(){
+  // Generate sparkline from orders by day (last 30 days)
+  const svg = document.getElementById('earningsChart');
+  const orders = DATA.orders||[];
+  const today = new Date();
+  const days = [];
+  for(let i=29;i>=0;i--){
+    const d = new Date(today);d.setDate(d.getDate()-i);
+    const ds = d.toISOString().split('T')[0];
+    const sum = orders.filter(o => (o.created_at||'').startsWith(ds)).reduce((s,o)=>s+parseFloat(o.commission_amount||0),0);
+    days.push({date:ds,val:sum});
+  }
+  const max = Math.max(...days.map(d=>d.val),100);
+  const w = 800, h = 200, p = 20;
+  const points = days.map((d,i) => {
+    const x = p + (i/(days.length-1))*(w-p*2);
+    const y = h - p - (d.val/max)*(h-p*2);
+    return [x,y];
+  });
+  const path = 'M'+points.map(([x,y])=>x+','+y).join(' L');
+  const area = path + ` L${points[points.length-1][0]},${h-p} L${points[0][0]},${h-p} Z`;
+  svg.innerHTML = `
+    <defs><linearGradient id="grad1" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#a855f7" stop-opacity=".4"/><stop offset="100%" stop-color="#a855f7" stop-opacity="0"/></linearGradient></defs>
+    <path d="${area}" fill="url(#grad1)"/>
+    <path d="${path}" stroke="#a855f7" stroke-width="2" fill="none"/>
+    ${points.map(([x,y])=>`<circle cx="${x}" cy="${y}" r="2.5" fill="#a855f7"/>`).join('')}
+  `;
+}
+
+function renderStatsChart(){
+  const svg = document.getElementById('statsChart');
+  if(!svg) return;
+  const orders = DATA.orders||[], clicks = DATA.clicks||[];
+  const today = new Date();
+  const days = [];
+  for(let i=29;i>=0;i--){
+    const d = new Date(today);d.setDate(d.getDate()-i);
+    const ds = d.toISOString().split('T')[0];
+    days.push({
+      date:ds,
+      orders: orders.filter(o => (o.created_at||'').startsWith(ds)).length,
+      clicks: clicks.filter(c => (c.created_at||'').startsWith(ds)).length
+    });
+  }
+  const max = Math.max(...days.map(d=>Math.max(d.orders,d.clicks)),5);
+  const w = 800, h = 200, p = 20;
+  const oPath = 'M'+days.map((d,i) => {
+    const x = p + (i/(days.length-1))*(w-p*2);
+    const y = h - p - (d.orders/max)*(h-p*2);
+    return x+','+y;
+  }).join(' L');
+  const cPath = 'M'+days.map((d,i) => {
+    const x = p + (i/(days.length-1))*(w-p*2);
+    const y = h - p - (d.clicks/max)*(h-p*2);
+    return x+','+y;
+  }).join(' L');
+  svg.innerHTML = `
+    <path d="${cPath}" stroke="#3b82f6" stroke-width="2" fill="none"/>
+    <path d="${oPath}" stroke="#10b981" stroke-width="2" fill="none"/>
+    <text x="20" y="20" fill="#3b82f6" font-size="11">— Klikk</text>
+    <text x="80" y="20" fill="#10b981" font-size="11">— Ordrer</text>
+  `;
+}
+
+function renderTopSources(){
+  const clicks = DATA.clicks||[];
+  const sources = {};
+  clicks.forEach(c => { const s = c.source||'Direkte'; sources[s] = (sources[s]||0) + 1; });
+  const sorted = Object.entries(sources).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  if(sorted.length === 0){
+    document.getElementById('topSources').innerHTML = '<div style="text-align:center;color:#94a3b8;padding:30px">Ingen klikk enda</div>';
+    return;
+  }
+  const max = sorted[0][1];
+  document.getElementById('topSources').innerHTML = sorted.map(([s,n]) => `
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>${s}</span><b>${n}</b></div>
+      <div style="background:var(--bg-2);height:8px;border-radius:4px;overflow:hidden"><div style="background:var(--gradient);height:100%;width:${(n/max*100).toFixed(0)}%"></div></div>
+    </div>
+  `).join('');
+}
+
+function copyLink(){
+  const link = DATA?.referral_link;
+  if(!link) return;
+  navigator.clipboard.writeText(link).then(()=>showToast('✓ Lenke kopiert!'));
+}
+
+function shareTo(channel){
+  const link = DATA?.referral_link;
+  if(!link) return;
+  const text = encodeURIComponent('Sjekk dette ut:');
+  const url = encodeURIComponent(link);
+  let target = '';
+  switch(channel){
+    case 'whatsapp': target = 'https://wa.me/?text='+text+'%20'+url; break;
+    case 'facebook': target = 'https://www.facebook.com/sharer/sharer.php?u='+url; break;
+    case 'twitter': target = 'https://twitter.com/intent/tweet?text='+text+'&url='+url; break;
+    case 'linkedin': target = 'https://www.linkedin.com/sharing/share-offsite/?url='+url; break;
+    case 'telegram': target = 'https://t.me/share/url?url='+url+'&text='+text; break;
+    case 'email': target = 'mailto:?subject='+text+'&body='+url; break;
+    case 'sms': target = 'sms:?body='+text+'%20'+url; break;
+  }
+  if(target) window.open(target,'_blank');
+}
+
+async function saveProfile(){
+  const payload = {
+    name: document.getElementById('pfName').value.trim(),
+    email: document.getElementById('pfEmail').value.trim(),
+    phone: document.getElementById('pfPhone').value.trim(),
+  };
+  try{
+    const r = await fetch('/api/ambassador/update-profile.php',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const d = await r.json();
+    showToast(d.ok?'✓ Profil oppdatert!':'Feil: '+(d.error||'ukjent'));
+    if(d.ok) loadData();
+  }catch(e){showToast('Nettverksfeil')}
+}
+
+async function changePassword(){
+  const p1 = document.getElementById('pfPw1').value;
+  const p2 = document.getElementById('pfPw2').value;
+  if(p1.length < 8) return showToast('Passord må være minst 8 tegn');
+  if(p1 !== p2) return showToast('Passordene stemmer ikke');
+  try{
+    const r = await fetch('/api/ambassador/update-profile.php',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:p1})});
+    const d = await r.json();
+    showToast(d.ok?'✓ Passord oppdatert!':'Feil: '+(d.error||'ukjent'));
+    if(d.ok){document.getElementById('pfPw1').value='';document.getElementById('pfPw2').value=''}
+  }catch(e){showToast('Nettverksfeil')}
+}
+
+async function logout(){
+  await fetch('/api/auth/logout.php',{method:'POST',credentials:'include'});
+  location.href = '/login.html';
+}
+
+loadData();
+</script>
 </body>
 </html>

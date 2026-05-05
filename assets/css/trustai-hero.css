@@ -1,0 +1,49 @@
+/* TrustAI Hero Orbit - gjenbrukbar animert hero-visualisering */
+/* Bruk på alle landing-sider (recruitment, sales, ecommerce, real-estate) */
+
+.hero-visual{position:relative;height:520px;display:grid;place-items:center}
+.orbit-system{position:relative;width:100%;height:100%;max-width:520px;max-height:520px}
+
+/* Pulsing radar rings */
+.orbit-system .ring{position:absolute;top:50%;left:50%;border-radius:50%;border:1.5px solid #38bdf8;transform:translate(-50%,-50%);animation:ring-pulse 4s ease-out infinite;opacity:0;pointer-events:none}
+.orbit-system .ring-1{width:160px;height:160px;animation-delay:0s}
+.orbit-system .ring-2{width:280px;height:280px;animation-delay:1s}
+.orbit-system .ring-3{width:400px;height:400px;animation-delay:2s}
+.orbit-system .ring-4{width:500px;height:500px;animation-delay:3s}
+@keyframes ring-pulse{0%{opacity:.45;transform:translate(-50%,-50%) scale(.6)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.15)}}
+
+/* Center hub with logo */
+.orbit-system .center-hub{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:130px;height:130px;border-radius:50%;background:linear-gradient(135deg,#fff,#f0f6ff);box-shadow:0 24px 60px rgba(37,99,235,.25),0 0 0 8px rgba(255,255,255,.8),0 0 0 9px rgba(56,189,248,.4);display:grid;place-items:center;z-index:5;animation:hub-float 4s ease-in-out infinite}
+.orbit-system .center-hub img{width:78px;height:auto;filter:drop-shadow(0 4px 12px rgba(37,99,235,.3))}
+@keyframes hub-float{0%,100%{transform:translate(-50%,-50%) translateY(0)}50%{transform:translate(-50%,-50%) translateY(-6px)}}
+
+/* Connection lines */
+.orbit-system .connections{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.orbit-system .conn-line{stroke:url(#orbitGrad);stroke-width:1.5;fill:none;stroke-dasharray:4 6;animation:orbit-flow 3s linear infinite;opacity:.4}
+@keyframes orbit-flow{to{stroke-dashoffset:-30}}
+
+/* Floating nodes */
+.orbit-system .node{position:absolute;width:88px;height:88px;border-radius:50%;background:#fff;border:2px solid;display:grid;place-items:center;box-shadow:0 12px 30px rgba(16,32,51,.08);z-index:3;animation:node-float 5s ease-in-out infinite;cursor:pointer;transition:all .25s}
+.orbit-system .node:hover{transform:scale(1.08);box-shadow:0 18px 40px rgba(16,32,51,.18)}
+.orbit-system .node svg{width:28px;height:28px;stroke-width:2}
+.orbit-system .node-label{position:absolute;top:96px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:650;color:#5d6b7c;white-space:nowrap;text-align:center;letter-spacing:.2px}
+@keyframes node-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* Position 6 nodes around center */
+.orbit-system .node-1{top:5%;left:50%;margin-left:-44px;border-color:#38bdf8;color:#38bdf8;animation-delay:0s}
+.orbit-system .node-2{top:22%;right:5%;border-color:#7c3aed;color:#7c3aed;animation-delay:.5s}
+.orbit-system .node-3{bottom:22%;right:5%;border-color:#12b981;color:#12b981;animation-delay:1s}
+.orbit-system .node-4{bottom:5%;left:50%;margin-left:-44px;border-color:#2563eb;color:#2563eb;animation-delay:1.5s}
+.orbit-system .node-5{bottom:22%;left:5%;border-color:#f59e0b;color:#f59e0b;animation-delay:2s}
+.orbit-system .node-6{top:22%;left:5%;border-color:#ef4444;color:#ef4444;animation-delay:2.5s}
+
+/* Mobile */
+@media(max-width:920px){
+  .hero-visual{height:420px}
+  .orbit-system{transform:scale(.85)}
+}
+@media(max-width:640px){
+  .hero-visual{height:380px}
+  .orbit-system{transform:scale(.7)}
+}
+

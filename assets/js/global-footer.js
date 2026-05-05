@@ -1,127 +1,163 @@
 (function () {
+  if (document.querySelector('footer.ta-global-footer')) return;
   const style = document.createElement('style');
   style.textContent = `
-    html, body { min-height: 100vh; }
-    body.no-footer-flex { display: block !important; }
-    body:not(.no-footer-flex) { display: flex !important; flex-direction: column !important; }
-    body:not(.no-footer-flex) > main,
-    body:not(.no-footer-flex) > .app,
-    body:not(.no-footer-flex) > .container,
-    body:not(.no-footer-flex) > .card { flex: 1; }
-    body:not(.no-footer-flex) > .ta-global-footer { margin-top: auto; }
-
-    .ta-global-footer{background:#0b1020;color:#cbd5e1;flex-shrink:0}
-    .ta-footer-wrap{max-width:1200px;margin:0 auto;padding:48px 20px 24px}
-    .ta-footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:32px}
+    .ta-global-footer{background:#0b1020;color:#cbd5e1;margin-top:60px}
+    .ta-footer-wrap{max-width:1200px;margin:0 auto;padding:56px 20px 28px}
+    .ta-footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:36px}
     .ta-footer-brand-wrap{display:flex;flex-direction:column;gap:14px}
     .ta-footer-brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:800;font-size:24px;letter-spacing:-.02em;text-decoration:none}
     .ta-footer-brand img{height:34px;width:auto}
-    .ta-footer-tagline{color:#94a3b8;font-size:13px;line-height:1.6;max-width:280px}
-    .ta-footer-lang{display:flex;gap:8px;margin-top:6px}
-    .ta-footer-lang button{background:#1e293b;border:1px solid #334155;color:#cbd5e1;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:13px}
-    .ta-footer-lang button:hover{background:#334155;color:#fff}
-    .ta-footer-lang button.active{background:#2563eb;border-color:#2563eb;color:#fff}
-    .ta-footer-col h4{color:#fff;font-size:13px;margin:0 0 14px;font-weight:700;letter-spacing:.4px;text-transform:uppercase}
-    .ta-footer-col a{display:block;color:#cbd5e1;text-decoration:none;margin:9px 0;font-size:14px}
+    .ta-footer-mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#7c3aed);display:grid;place-items:center;color:#fff;font-weight:900}
+    .ta-footer-brand span{color:#60a5fa}
+    .ta-footer-tagline{color:#94a3b8;font-size:13px;line-height:1.6;max-width:300px}
+    .ta-footer-company{font-size:12px;color:#64748b;line-height:1.7;margin-top:6px}
+    .ta-footer-company b{color:#cbd5e1;display:block;margin-bottom:2px;font-weight:600}
+    .ta-footer-contact{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+    .ta-footer-contact a{display:inline-flex;align-items:center;gap:6px;color:#cbd5e1;font-size:13px;text-decoration:none;padding:6px 0}
+    .ta-footer-contact a:hover{color:#60a5fa}
+    .ta-footer-contact svg{width:14px;height:14px;flex-shrink:0}
+    .ta-footer-col h4{color:#fff;font-size:12px;margin:0 0 16px;font-weight:700;letter-spacing:.6px;text-transform:uppercase}
+    .ta-footer-col a{display:block;color:#94a3b8;text-decoration:none;margin:10px 0;font-size:13px;transition:color .15s}
     .ta-footer-col a:hover{color:#fff}
-    .ta-footer-bottom{border-top:1px solid rgba(148,163,184,.15);margin-top:36px;padding-top:18px;font-size:13px;color:#94a3b8;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-    .ta-footer-bottom a{color:#cbd5e1;text-decoration:none}
+    .ta-footer-bottom{border-top:1px solid rgba(148,163,184,.12);margin-top:42px;padding-top:22px;font-size:13px;color:#64748b;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
+    .ta-footer-bottom a{color:#94a3b8;text-decoration:none}
     .ta-footer-bottom a:hover{color:#fff}
-    @media (max-width:980px){.ta-footer-top{grid-template-columns:1fr 1fr}.ta-footer-brand-wrap{grid-column:1/-1}}
+    .ta-footer-credit{font-size:12px;color:#64748b}
+    .ta-footer-credit a{color:#94a3b8}
+    @media (max-width:980px){.ta-footer-top{grid-template-columns:1fr 1fr;gap:30px}.ta-footer-brand-wrap{grid-column:1/-1}}
     @media (max-width:560px){.ta-footer-top{grid-template-columns:1fr 1fr;gap:24px}.ta-footer-bottom{flex-direction:column;align-items:flex-start}}
   `;
   document.head.appendChild(style);
 
   const T = {
-    en: {
-      tagline: 'Referral infrastructure for every network. Track recommendations, reward results.',
-      useCases: 'Use cases', ecommerce: 'Ecommerce & stores', recruitment: 'Recruitment & HR', sales: 'Sales & lead generation',
-      product: 'Product', home: 'Home', howItWorks: 'How it works',
-      company: 'Company', contact: 'Contact', terms: 'Terms', privacy: 'Privacy',
-      account: 'Account', login: 'Log in', signup: 'Become ambassador',
-      copyright: '© 2026', rights: 'All rights reserved.', builtBy: 'Built by',
-    },
     no: {
       tagline: 'Referral-infrastruktur for alle nettverk. Spor anbefalinger, beløn resultater.',
-      useCases: 'Bruksområder', ecommerce: 'E-handel & butikker', recruitment: 'Rekruttering & HR', sales: 'Salg & leads',
-      product: 'Produkt', home: 'Hjem', howItWorks: 'Slik virker det',
-      company: 'Selskap', contact: 'Kontakt', terms: 'Vilkår', privacy: 'Personvern',
-      account: 'Konto', login: 'Logg inn', signup: 'Bli ambassadør',
-      copyright: '© 2026', rights: 'Alle rettigheter forbeholdt.', builtBy: 'Bygget av',
+      solutions: 'Løsninger',
+      recruitment: 'Rekruttering',
+      realestate: 'Eiendom',
+      sales: 'Salg & Leads',
+      ecommerce: 'E-handel',
+      ambassadors: 'For ambassadører',
+      becomeAmb: 'Bli ambassadør',
+      login: 'Logg inn',
+      faq: 'FAQ',
+      howItWorks: 'Hvordan det fungerer',
+      company: 'Selskap',
+      about: 'Om TrustAI',
+      contact: 'Kontakt',
+      pricing: 'Priser',
+      legal: 'Juridisk',
+      terms: 'Vilkår',
+      privacy: 'Personvern',
+      cookies: 'Cookies',
+      rights: 'Alle rettigheter forbeholdt.',
+      builtBy: 'Bygget av',
+    },
+    en: {
+      tagline: 'Referral infrastructure for every network. Track recommendations, reward results.',
+      solutions: 'Solutions',
+      recruitment: 'Recruitment',
+      realestate: 'Real Estate',
+      sales: 'Sales & Leads',
+      ecommerce: 'Ecommerce',
+      ambassadors: 'For ambassadors',
+      becomeAmb: 'Become ambassador',
+      login: 'Log in',
+      faq: 'FAQ',
+      howItWorks: 'How it works',
+      company: 'Company',
+      about: 'About TrustAI',
+      contact: 'Contact',
+      pricing: 'Pricing',
+      legal: 'Legal',
+      terms: 'Terms',
+      privacy: 'Privacy',
+      cookies: 'Cookies',
+      rights: 'All rights reserved.',
+      builtBy: 'Built by',
     }
   };
 
-  function getLang(){ return localStorage.getItem('trustai_lang') || 'en'; }
-  function setLang(lang) {
-    localStorage.setItem('trustai_lang', lang);
-    document.documentElement.lang = lang;
-    render();
-    document.dispatchEvent(new CustomEvent('trustai:langchange', { detail: { lang } }));
+  function getLang() {
+    return localStorage.getItem('trustai_lang') || 'no';
   }
 
   function render() {
     const lang = getLang();
-    const t = T[lang] || T.en;
+    const t = T[lang] || T.no;
+    const year = new Date().getFullYear();
+
     let footer = document.querySelector('.ta-global-footer');
     if (!footer) {
       footer = document.createElement('footer');
       footer.className = 'ta-global-footer';
       document.body.appendChild(footer);
     }
+
     footer.innerHTML = `
       <div class="ta-footer-wrap">
         <div class="ta-footer-top">
           <div class="ta-footer-brand-wrap">
             <a href="/" class="ta-footer-brand">
               <img src="/logo.png" alt="TrustAi">
-              <span>Trust<span style="color:#60a5fa">Ai</span></span>
+              <span>Trust<span>Ai</span></span>
             </a>
-            <div class="ta-footer-tagline">${t.tagline}</div>
-            <div class="ta-footer-lang">
-              <button data-lang="en" class="${lang==='en'?'active':''}" type="button">🇬🇧 EN</button>
-              <button data-lang="no" class="${lang==='no'?'active':''}" type="button">🇳🇴 NO</button>
+            <p class="ta-footer-tagline">${t.tagline}</p>
+            <div class="ta-footer-contact">
+              <a href="https://wa.me/4741227175">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                +47 412 27 175
+              </a>
+              <a href="mailto:ks@trustai.no">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                ks@trustai.no
+              </a>
+            </div>
+            <div class="ta-footer-company">
+              <b>SETAEI</b>
+              Org.nr 920 645 178<br>
+              Grevlingvegen 1, 2014 Blystadlia
             </div>
           </div>
+
           <div class="ta-footer-col">
-            <h4>${t.useCases}</h4>
-            <a href="/ecommerce.html">${t.ecommerce}</a>
+            <h4>${t.solutions}</h4>
             <a href="/trustai_recruitment.html">${t.recruitment}</a>
+            <a href="/trustai-real-estate.html">${t.realestate}</a>
             <a href="/sales-lead.html">${t.sales}</a>
+            <a href="/ecommerce.html">${t.ecommerce}</a>
           </div>
+
           <div class="ta-footer-col">
-            <h4>${t.product}</h4>
-            <a href="/">${t.home}</a>
-            <a href="/how-it-works.html">${t.howItWorks}</a>
+            <h4>${t.ambassadors}</h4>
+            <a href="/ambassador-signup.html">${t.becomeAmb}</a>
             <a href="/login.html">${t.login}</a>
+            <a href="/how-it-works.html">${t.howItWorks}</a>
           </div>
+
           <div class="ta-footer-col">
             <h4>${t.company}</h4>
-            <a href="https://setaei.com" target="_blank" rel="noopener">${t.contact}</a>
+            <a href="/">${t.about}</a>
+            <a href="mailto:ks@trustai.no">${t.contact}</a>
+            <a href="/how-it-works.html">${t.howItWorks}</a>
+          </div>
+
+          <div class="ta-footer-col">
+            <h4>${t.legal}</h4>
             <a href="/vilkar.html">${t.terms}</a>
             <a href="/personvern.html">${t.privacy}</a>
           </div>
-          <div class="ta-footer-col">
-            <h4>${t.account}</h4>
-            <a href="/login.html">${t.login}</a>
-            <a href="/ambassador-signup.html">${t.signup}</a>
-          </div>
         </div>
+
         <div class="ta-footer-bottom">
-          <div>${t.copyright} <a href="https://setaei.com" target="_blank" rel="noopener">SETAEI</a>. ${t.rights}</div>
-          <div>${t.builtBy} <a href="https://setaei.com" target="_blank" rel="noopener">Khabat Setaei</a></div>
+          <div>© ${year} SETAEI · ${t.rights}</div>
+          <div class="ta-footer-credit">${t.builtBy} <a href="https://wa.me/4741227175">Khabat Setaei</a></div>
         </div>
-      </div>`;
-    footer.querySelectorAll('.ta-footer-lang button').forEach(b => {
-      b.onclick = () => setLang(b.dataset.lang);
-    });
+      </div>
+    `;
   }
 
-  if (!localStorage.getItem('trustai_lang')) {
-    const browserLang = (navigator.language || '').toLowerCase();
-    localStorage.setItem('trustai_lang', browserLang.startsWith('no') ? 'no' : 'en');
-  }
-
+  render();
   document.addEventListener('trustai:langchange', render);
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render);
-  else render();
 })();

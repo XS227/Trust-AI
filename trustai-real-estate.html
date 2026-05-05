@@ -3,404 +3,280 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TrustAI for Eiendom | Internasjonale prosjekter via referrals</title>
-<meta name="description" content="Selg flere internasjonale eiendomsprosjekter til norske kjøpere via referrals. TrustAI sporer hver lead, visning og provisjon — fra Alanya til Marbella.">
+<title>TrustAI for Real Estate | Internasjonale prosjekter via referrals</title>
+<meta name="description" content="Selg flere internasjonale eiendomsprosjekter til norske kjøpere via referrals. TrustAI sporer hver lead, visning og provisjon.">
 <link rel="icon" type="image/png" href="/logo.png">
 <style>
-:root{--bg:#fbfcff;--surface:#fff;--soft:#f2f7ff;--text:#102033;--muted:#5d6b7c;--line:#dbe7f5;--blue:#2563eb;--blue-2:#38bdf8;--green:#12b981;--purple:#7c3aed;--amber:#f59e0b;--radius:22px;--shadow:0 20px 60px rgba(16,32,51,.08)}
+:root{--bg:#fbfcff;--surface:#fff;--soft:#f2f7ff;--text:#102033;--muted:#5d6b7c;--line:#dbe7f5;--blue:#2563eb;--blue-2:#38bdf8;--green:#12b981;--purple:#7c3aed;--amber:#f59e0b;--red:#ef4444;--radius:22px;--shadow:0 20px 60px rgba(16,32,51,.08)}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;background:radial-gradient(circle at 8% 8%,rgba(56,189,248,.14),transparent 28%),radial-gradient(circle at 90% 12%,rgba(124,58,237,.10),transparent 28%),linear-gradient(180deg,#fff 0%,#f8fbff 46%,#fff 100%);color:var(--text)}
 a{color:inherit;text-decoration:none}
 .wrap{width:min(1160px,calc(100% - 42px));margin:0 auto}
-
-/* Hero */
-.hero{padding:82px 0 70px}
+.lang-bar{position:absolute;top:18px;right:32px;z-index:30;display:flex;gap:6px;background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:999px;padding:4px;box-shadow:0 8px 24px rgba(16,32,51,.06)}
+.lang-btn{padding:6px 14px;border-radius:999px;border:0;background:transparent;font-size:12px;font-weight:650;cursor:pointer;color:var(--muted);font-family:inherit;display:flex;align-items:center;gap:6px}
+.lang-btn.active{background:var(--text);color:#fff}
+.hero{padding:82px 0 70px;position:relative}
 .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
-.eyebrow{display:inline-flex;align-items:center;gap:10px;padding:8px 13px;border-radius:999px;background:#eef7ff;color:#1d4ed8;border:1px solid #d7ebff;font-size:13px;font-weight:650;margin-bottom:22px}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;padding:8px 14px;border-radius:999px;background:#eef7ff;color:#1d4ed8;border:1px solid #d7ebff;font-size:13px;font-weight:650;margin-bottom:22px}
 .dot{width:8px;height:8px;border-radius:99px;background:var(--green);box-shadow:0 0 0 5px rgba(18,185,129,.12);animation:pulse 2s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
 h1{margin:0 0 20px;font-size:clamp(40px,5.2vw,68px);line-height:1.03;letter-spacing:-.05em;font-weight:690}
 .lead{margin:0;max-width:670px;color:var(--muted);font-size:clamp(17px,1.8vw,21px);line-height:1.65}
 .actions{display:flex;flex-wrap:wrap;gap:13px;margin-top:31px}
-.btn{display:inline-flex;align-items:center;justify-content:center;padding:14px 19px;border-radius:999px;font-weight:650;font-size:15px;transition:.18s;border:1px solid transparent}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 22px;border-radius:999px;font-weight:650;font-size:15px;transition:.2s;border:1px solid transparent}
 .btn-primary{background:#102033;color:#fff;box-shadow:0 16px 42px rgba(16,32,51,.14)}
 .btn-secondary{background:#fff;color:#102033;border-color:var(--line)}
 .btn:hover{transform:translateY(-2px)}
-
-/* Hero animation */
-.hero-visual{position:relative;height:480px}
-.hero-svg{width:100%;height:100%;overflow:visible}
-.node{cursor:pointer}
-.node circle{transition:all .3s}
-.node:hover circle{r:42}
-.node-label{font-size:12px;fill:var(--text);font-weight:600;text-anchor:middle}
-.node-sub{font-size:10px;fill:var(--muted);text-anchor:middle}
-.connection{stroke:var(--blue-2);stroke-width:1.5;fill:none;stroke-dasharray:5 5;animation:flow 3s linear infinite;opacity:.45}
+.btn svg{width:18px;height:18px}
+.hero-visual{position:relative;height:520px;display:grid;place-items:center}
+.orbit-system{position:relative;width:100%;height:100%;max-width:520px;max-height:520px}
+.ring{position:absolute;top:50%;left:50%;border-radius:50%;border:1.5px solid var(--blue-2);transform:translate(-50%,-50%);animation:ring-pulse 4s ease-out infinite;opacity:0;pointer-events:none}
+.ring-1{width:160px;height:160px;animation-delay:0s}
+.ring-2{width:280px;height:280px;animation-delay:1s}
+.ring-3{width:400px;height:400px;animation-delay:2s}
+.ring-4{width:500px;height:500px;animation-delay:3s}
+@keyframes ring-pulse{0%{opacity:.45;transform:translate(-50%,-50%) scale(.6)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.15)}}
+.center-hub{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:130px;height:130px;border-radius:50%;background:linear-gradient(135deg,#fff,#f0f6ff);box-shadow:0 24px 60px rgba(37,99,235,.25),0 0 0 8px rgba(255,255,255,.8),0 0 0 9px rgba(56,189,248,.4);display:grid;place-items:center;z-index:5;animation:hub-float 4s ease-in-out infinite}
+.center-hub img{width:78px;height:auto;filter:drop-shadow(0 4px 12px rgba(37,99,235,.3))}
+@keyframes hub-float{0%,100%{transform:translate(-50%,-50%) translateY(0)}50%{transform:translate(-50%,-50%) translateY(-6px)}}
+.connections{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.conn-line{stroke:url(#lineGrad);stroke-width:1.5;fill:none;stroke-dasharray:4 6;animation:flow 3s linear infinite;opacity:.4}
 @keyframes flow{to{stroke-dashoffset:-30}}
-.center-logo{filter:drop-shadow(0 12px 30px rgba(37,99,235,.25))}
-
-/* Sections */
-section{padding:72px 0}
+.node{position:absolute;width:88px;height:88px;border-radius:50%;background:#fff;border:2px solid;display:grid;place-items:center;box-shadow:0 12px 30px rgba(16,32,51,.08);z-index:3;animation:node-float 5s ease-in-out infinite;cursor:pointer;transition:all .25s}
+.node:hover{transform:scale(1.08);box-shadow:0 18px 40px rgba(16,32,51,.18)}
+.node svg{width:28px;height:28px;stroke-width:2}
+.node-label{position:absolute;top:96px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:650;color:var(--muted);white-space:nowrap;text-align:center;letter-spacing:.2px}
+@keyframes node-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.node-1{top:5%;left:50%;margin-left:-44px;border-color:var(--blue-2);color:var(--blue-2);animation-delay:0s}
+.node-2{top:22%;right:5%;border-color:var(--purple);color:var(--purple);animation-delay:.5s}
+.node-3{bottom:22%;right:5%;border-color:var(--green);color:var(--green);animation-delay:1s}
+.node-4{bottom:5%;left:50%;margin-left:-44px;border-color:var(--blue);color:var(--blue);animation-delay:1.5s}
+.node-5{bottom:22%;left:5%;border-color:var(--amber);color:var(--amber);animation-delay:2s}
+.node-6{top:22%;left:5%;border-color:var(--red);color:var(--red);animation-delay:2.5s}
+section{padding:72px 0;position:relative}
 .section-head{max-width:760px;margin-bottom:34px}
 .kicker{color:var(--blue);text-transform:uppercase;letter-spacing:.13em;font-size:12px;font-weight:720;margin-bottom:12px}
 h2{margin:0 0 14px;font-size:clamp(30px,3.6vw,48px);line-height:1.1;letter-spacing:-.04em;font-weight:660}
 .section-head p{margin:0;color:var(--muted);font-size:18px;line-height:1.65}
-
-/* Stats band */
-.stats-band{background:linear-gradient(135deg,#102033,#1e3a5f);border-radius:32px;padding:46px 38px;margin:30px 0;color:#fff;box-shadow:0 24px 70px rgba(16,32,51,.18)}
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:30px}
-.stat-item{position:relative}
+.stats-band{background:linear-gradient(135deg,#102033,#1e3a5f);border-radius:32px;padding:48px 38px;margin:30px 0;color:#fff;box-shadow:0 24px 70px rgba(16,32,51,.18);position:relative;overflow:hidden}
+.stats-band::before{content:"";position:absolute;top:-50%;right:-10%;width:500px;height:500px;background:radial-gradient(circle,rgba(56,189,248,.15),transparent 60%);pointer-events:none}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:30px;position:relative;z-index:1}
 .stat-num{font-size:clamp(36px,4vw,52px);font-weight:730;letter-spacing:-.04em;background:linear-gradient(135deg,#38bdf8,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1}
 .stat-lbl{margin-top:10px;color:#c7d3e2;font-size:14px;line-height:1.5}
 .stat-src{font-size:11px;color:#7a8aa0;margin-top:6px}
-
-/* Cards */
 .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
 .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:26px;box-shadow:0 16px 48px rgba(16,32,51,.055);transition:.2s}
-.card:hover{transform:translateY(-3px);box-shadow:0 22px 52px rgba(16,32,51,.09)}
-.card .icon{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#38bdf8,#2563eb);color:#fff;display:grid;place-items:center;font-size:22px;margin-bottom:16px}
-.card h3{margin:0 0 8px;font-size:19px;letter-spacing:-.02em}
-.card p{margin:0;color:var(--muted);line-height:1.56;font-size:14px}
-
-/* Steps */
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:28px;box-shadow:0 16px 48px rgba(16,32,51,.055);transition:.25s}
+.card:hover{transform:translateY(-4px);box-shadow:0 24px 56px rgba(16,32,51,.1);border-color:var(--blue-2)}
+.card-icon{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;margin-bottom:18px}
+.card-icon svg{width:26px;height:26px;stroke-width:2}
+.card h3{margin:0 0 10px;font-size:19px;letter-spacing:-.02em;font-weight:660}
+.card p{margin:0;color:var(--muted);line-height:1.58;font-size:14px}
 .steps{display:grid;gap:14px}
-.step{display:grid;grid-template-columns:48px 1fr;gap:16px;padding:22px;border:1px solid #e5eef8;border-radius:18px;background:#fff;transition:.2s}
-.step:hover{transform:translateX(4px);border-color:var(--blue-2)}
-.step .n{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#2563eb);color:#fff;display:grid;place-items:center;font-weight:750;font-size:16px}
-.step h3{margin:0 0 4px;font-size:17px}
-.step p{margin:0;color:var(--muted);line-height:1.55}
-
-/* ROI */
-.roi{background:linear-gradient(135deg,#f1f7ff,#fff);border:1px solid var(--line);border-radius:32px;padding:44px;box-shadow:0 16px 50px rgba(16,32,51,.045)}
-.roi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:24px 0}
-.roi-item{padding:20px;border-radius:18px;background:#fff;border:1px solid var(--line)}
-.roi-item .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:620;margin-bottom:6px}
-.roi-item .val{font-size:24px;font-weight:730;letter-spacing:-.02em}
-.roi-item.highlight .val{background:linear-gradient(135deg,#2563eb,#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent}
-
-/* Features */
+.step{display:grid;grid-template-columns:54px 1fr;gap:18px;padding:22px;border:1px solid #e5eef8;border-radius:18px;background:#fff;transition:.2s}
+.step:hover{transform:translateX(4px);border-color:var(--blue-2);box-shadow:0 12px 30px rgba(16,32,51,.06)}
+.step-icon{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#38bdf8,#2563eb);color:#fff;display:grid;place-items:center;font-weight:750;font-size:16px;flex-shrink:0}
+.step h3{margin:0 0 5px;font-size:17px;font-weight:650}
+.step p{margin:0;color:var(--muted);line-height:1.55;font-size:14px}
+.roi{background:linear-gradient(135deg,#f1f7ff,#fff);border:1px solid var(--line);border-radius:32px;padding:46px;box-shadow:0 16px 50px rgba(16,32,51,.045);position:relative;overflow:hidden}
+.roi::before{content:"";position:absolute;top:-100px;right:-100px;width:300px;height:300px;background:radial-gradient(circle,rgba(56,189,248,.1),transparent 70%);pointer-events:none}
+.roi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:24px 0;position:relative;z-index:1}
+.roi-item{padding:22px;border-radius:18px;background:#fff;border:1px solid var(--line);text-align:center}
+.roi-item .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;font-weight:650;margin-bottom:8px}
+.roi-item .val{font-size:28px;font-weight:740;letter-spacing:-.02em}
+.roi-item.highlight{background:linear-gradient(135deg,#102033,#1e3a5f);border:0;color:#fff}
+.roi-item.highlight .lbl{color:#a3bfd9}
+.roi-item.highlight .val{color:#fff}
 .feature-list{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.feature{display:flex;gap:14px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;color:#425166;line-height:1.5}
-.check{width:26px;height:26px;border-radius:50%;background:rgba(18,185,129,.12);color:#059669;display:grid;place-items:center;flex:0 0 auto;font-weight:800}
-.feature-text strong{display:block;color:var(--text);margin-bottom:2px;font-size:14px}
-.feature-text span{font-size:13px}
-
-/* Use cases */
-.usecase{background:#fff;border:1px solid var(--line);border-radius:22px;padding:28px;transition:.2s;position:relative;overflow:hidden}
-.usecase:hover{transform:translateY(-3px);box-shadow:0 22px 52px rgba(16,32,51,.1)}
-.usecase-flag{position:absolute;top:20px;right:20px;font-size:24px}
-.usecase h3{margin:0 0 10px;font-size:18px;letter-spacing:-.02em;padding-right:36px}
-.usecase p{margin:0 0 14px;color:var(--muted);font-size:14px;line-height:1.55}
-.usecase .result{display:inline-block;padding:5px 12px;border-radius:8px;background:rgba(18,185,129,.1);color:#059669;font-size:12px;font-weight:650}
-
-/* Status badges */
+.feature{display:flex;gap:16px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;color:#425166;line-height:1.5;transition:.2s}
+.feature:hover{border-color:var(--blue-2);box-shadow:0 12px 30px rgba(16,32,51,.06)}
+.feature-icon{width:36px;height:36px;border-radius:10px;background:rgba(18,185,129,.12);color:#059669;display:grid;place-items:center;flex-shrink:0}
+.feature-icon svg{width:18px;height:18px;stroke-width:2.5}
+.feature-text strong{display:block;color:var(--text);margin-bottom:3px;font-size:14px;font-weight:650}
+.feature-text span{font-size:13px;color:var(--muted)}
+.usecase{background:#fff;border:1px solid var(--line);border-radius:22px;padding:30px;transition:.25s;position:relative;overflow:hidden}
+.usecase:hover{transform:translateY(-4px);box-shadow:0 24px 56px rgba(16,32,51,.1);border-color:var(--blue-2)}
+.usecase-flag{position:absolute;top:24px;right:24px;font-size:28px}
+.usecase h3{margin:0 0 12px;font-size:18px;letter-spacing:-.02em;padding-right:42px;font-weight:650}
+.usecase p{margin:0 0 16px;color:var(--muted);font-size:14px;line-height:1.55}
+.usecase .result{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;background:rgba(18,185,129,.1);color:#059669;font-size:12px;font-weight:650}
+.usecase .result svg{width:13px;height:13px;stroke-width:2.5}
 .platform-band{background:#fff;border:1px solid var(--line);border-radius:24px;padding:30px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
 .platform-card{text-align:center;padding:18px}
-.platform-card .icon{font-size:32px;margin-bottom:8px}
-.platform-card h4{margin:0 0 4px;font-size:14px}
-.platform-card .status{display:inline-block;font-size:10px;padding:3px 8px;border-radius:6px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+.platform-icon{width:56px;height:56px;border-radius:14px;display:grid;place-items:center;margin:0 auto 10px;background:#f8fbff;border:1px solid var(--line)}
+.platform-icon svg{width:28px;height:28px}
+.platform-card h4{margin:0 0 6px;font-size:14px;font-weight:650}
+.status{display:inline-block;font-size:10px;padding:3px 10px;border-radius:999px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-top:4px}
 .status-live{background:rgba(18,185,129,.12);color:#059669}
 .status-soon{background:rgba(148,163,184,.12);color:#64748b}
 .status-api{background:rgba(124,58,237,.12);color:var(--purple)}
-
-/* Sources */
-.sources{margin-top:30px;padding:20px;background:#fff;border:1px solid var(--line);border-radius:16px;font-size:12px;color:var(--muted);line-height:1.7}
+.sources{margin-top:30px;padding:22px;background:#fff;border:1px solid var(--line);border-radius:16px;font-size:12px;color:var(--muted);line-height:1.7}
 .sources b{color:var(--text)}
-
-/* CTA */
-.cta{margin-top:20px;text-align:center;background:#102033;color:#fff;border-radius:34px;padding:62px 30px;box-shadow:0 24px 70px rgba(16,32,51,.18)}
-.cta h2{color:#fff}
-.cta p{max-width:650px;margin:0 auto 26px;color:#c7d3e2;font-size:18px;line-height:1.6}
+.cta{margin-top:20px;text-align:center;background:#102033;color:#fff;border-radius:34px;padding:62px 30px;box-shadow:0 24px 70px rgba(16,32,51,.18);position:relative;overflow:hidden}
+.cta::before{content:"";position:absolute;top:-50%;left:-10%;width:400px;height:400px;background:radial-gradient(circle,rgba(56,189,248,.18),transparent 60%);pointer-events:none}
+.cta::after{content:"";position:absolute;bottom:-30%;right:-10%;width:400px;height:400px;background:radial-gradient(circle,rgba(124,58,237,.15),transparent 60%);pointer-events:none}
+.cta h2{color:#fff;position:relative;z-index:1}
+.cta p{max-width:650px;margin:0 auto 26px;color:#c7d3e2;font-size:18px;line-height:1.6;position:relative;z-index:1}
+.cta .actions{position:relative;z-index:1;justify-content:center}
 .cta .btn-secondary{background:transparent;color:#fff;border-color:rgba(255,255,255,.22)}
 .cta .btn-primary{background:#fff;color:#102033}
-
-@media(max-width:920px){
-  .hero-grid,.grid-3,.grid-4,.feature-list,.roi-grid,.stats-grid,.platform-band{grid-template-columns:1fr 1fr}
-  .hero-visual{height:380px}
-}
-@media(max-width:640px){
-  .wrap{width:min(100% - 28px,1160px)}
-  .hero{padding:54px 0 46px}
-  .grid-3,.grid-4,.feature-list,.roi-grid,.stats-grid,.platform-band{grid-template-columns:1fr}
-  section{padding:56px 0}
-}
+@media(max-width:920px){.hero-grid,.grid-3,.grid-4,.feature-list,.roi-grid,.stats-grid,.platform-band{grid-template-columns:1fr 1fr}.hero-visual{height:420px}.orbit-system{transform:scale(.85)}}
+@media(max-width:640px){.lang-bar{top:12px;right:14px}.wrap{width:min(100% - 28px,1160px)}.hero{padding:54px 0 46px}.grid-3,.grid-4,.feature-list,.roi-grid,.stats-grid,.platform-band{grid-template-columns:1fr}section{padding:56px 0}.hero-visual{height:380px}.orbit-system{transform:scale(.7)}}
 </style>
 </head>
 <body>
 
+<div class="lang-bar">
+  <button class="lang-btn active" data-lang="no">🇳🇴 NO</button>
+  <button class="lang-btn" data-lang="en">🇬🇧 EN</button>
+</div>
+
 <main>
-<!-- HERO -->
 <section class="hero"><div class="wrap hero-grid">
   <div>
-    <div class="eyebrow"><span class="dot"></span>🏖️ Eiendom & Internasjonale prosjekter</div>
-    <h1>Selg flere internasjonale eiendomsprosjekter — gjennom norske referrals.</h1>
-    <p class="lead">Norske kjøpere stoler på vennene sine. Aktiver lokale partnere, fornøyde kunder og samarbeidsmeglere som en målbar salgskanal — TrustAI sporer hver visning, lead og provisjon fra første klikk i Norge til signert kontrakt i Alanya, Marbella eller Dubai.</p>
+    <div class="eyebrow"><span class="dot"></span><span data-no="🏖️ Eiendom & Internasjonale prosjekter" data-en="🏖️ Real Estate & International Projects">🏖️ Eiendom & Internasjonale prosjekter</span></div>
+    <h1 data-no="Selg flere internasjonale eiendomsprosjekter — gjennom referrals." data-en="Sell more international real estate projects — through referrals.">Selg flere internasjonale eiendomsprosjekter — gjennom referrals.</h1>
+    <p class="lead" data-no="Eiendom selges via tillit. Aktiver lokale partnere, fornøyde kunder og samarbeidsmeglere som en målbar salgskanal — TrustAI sporer hver visning, lead og provisjon fra første klikk til signert kontrakt." data-en="Real estate sells through trust. Activate local partners, happy customers and collaborating agents as a measurable sales channel — TrustAI tracks every viewing, lead and commission from first click to signed contract.">Eiendom selges via tillit. Aktiver lokale partnere, fornøyde kunder og samarbeidsmeglere som en målbar salgskanal — TrustAI sporer hver visning, lead og provisjon fra første klikk til signert kontrakt.</p>
     <div class="actions">
-      <a class="btn btn-primary" href="https://wa.me/4741227175">📱 Start 30-dagers pilot</a>
-      <a class="btn btn-secondary" href="#how-it-works">Se hvordan det fungerer</a>
+      <a class="btn btn-primary" href="https://wa.me/4741227175"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><span data-no="Start 30-dagers pilot" data-en="Start 30-day pilot">Start 30-dagers pilot</span></a>
+      <a class="btn btn-secondary" href="#how-it-works"><span data-no="Se hvordan det fungerer" data-en="See how it works">Se hvordan det fungerer</span></a>
     </div>
   </div>
   <div class="hero-visual">
-    <svg class="hero-svg" viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg">
-      <!-- Connections -->
-      <line class="connection" x1="240" y1="240" x2="80" y2="120"/>
-      <line class="connection" x1="240" y1="240" x2="400" y2="120"/>
-      <line class="connection" x1="240" y1="240" x2="80" y2="360"/>
-      <line class="connection" x1="240" y1="240" x2="400" y2="360"/>
-      <line class="connection" x1="240" y1="240" x2="240" y2="60"/>
-      <line class="connection" x1="240" y1="240" x2="240" y2="420"/>
-
-      <!-- Center logo -->
-      <g class="center-logo">
-        <circle cx="240" cy="240" r="58" fill="url(#grad1)"/>
-        <text x="240" y="252" text-anchor="middle" fill="#fff" font-size="28" font-weight="800" font-family="Inter">TA</text>
-      </g>
-
-      <!-- Nodes -->
-      <g class="node">
-        <circle cx="240" cy="60" r="36" fill="#fff" stroke="#38bdf8" stroke-width="2"/>
-        <text class="node-label" x="240" y="58">🇳🇴</text>
-        <text class="node-sub" x="240" y="74">Norske kjøpere</text>
-      </g>
-      <g class="node">
-        <circle cx="80" cy="120" r="36" fill="#fff" stroke="#7c3aed" stroke-width="2"/>
-        <text class="node-label" x="80" y="118">🤝</text>
-        <text class="node-sub" x="80" y="134">Partnere</text>
-      </g>
-      <g class="node">
-        <circle cx="400" cy="120" r="36" fill="#fff" stroke="#12b981" stroke-width="2"/>
-        <text class="node-label" x="400" y="118">⭐</text>
-        <text class="node-sub" x="400" y="134">Tidl. kunder</text>
-      </g>
-      <g class="node">
-        <circle cx="80" cy="360" r="36" fill="#fff" stroke="#f59e0b" stroke-width="2"/>
-        <text class="node-label" x="80" y="358">📱</text>
-        <text class="node-sub" x="80" y="374">Influensere</text>
-      </g>
-      <g class="node">
-        <circle cx="400" cy="360" r="36" fill="#fff" stroke="#2563eb" stroke-width="2"/>
-        <text class="node-label" x="400" y="358">🏘️</text>
-        <text class="node-sub" x="400" y="374">Lokale meglere</text>
-      </g>
-      <g class="node">
-        <circle cx="240" cy="420" r="36" fill="#fff" stroke="#38bdf8" stroke-width="2"/>
-        <text class="node-label" x="240" y="418">✈️</text>
-        <text class="node-sub" x="240" y="434">Reisebyråer</text>
-      </g>
-
-      <defs>
-        <linearGradient id="grad1" x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0%" stop-color="#2563eb"/>
-          <stop offset="100%" stop-color="#7c3aed"/>
-        </linearGradient>
-      </defs>
-    </svg>
+    <div class="orbit-system">
+      <div class="ring ring-1"></div><div class="ring ring-2"></div><div class="ring ring-3"></div><div class="ring ring-4"></div>
+      <svg class="connections" viewBox="0 0 520 520" preserveAspectRatio="xMidYMid meet">
+        <defs><linearGradient id="lineGrad" x1="0" x2="1"><stop offset="0%" stop-color="#38bdf8" stop-opacity=".7"/><stop offset="100%" stop-color="#7c3aed" stop-opacity=".4"/></linearGradient></defs>
+        <line class="conn-line" x1="260" y1="260" x2="260" y2="70"/>
+        <line class="conn-line" x1="260" y1="260" x2="450" y2="140"/>
+        <line class="conn-line" x1="260" y1="260" x2="450" y2="380"/>
+        <line class="conn-line" x1="260" y1="260" x2="260" y2="450"/>
+        <line class="conn-line" x1="260" y1="260" x2="70" y2="380"/>
+        <line class="conn-line" x1="260" y1="260" x2="70" y2="140"/>
+      </svg>
+      <div class="center-hub"><img src="/logo.png" alt="TrustAi"></div>
+      <div class="node node-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span class="node-label" data-no="Norske kjøpere" data-en="Buyers">Norske kjøpere</span></div>
+      <div class="node node-2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span class="node-label" data-no="Partnere" data-en="Partners">Partnere</span></div>
+      <div class="node node-3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span class="node-label" data-no="Tidl. kunder" data-en="Past customers">Tidl. kunder</span></div>
+      <div class="node node-4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="node-label" data-no="Lokale meglere" data-en="Local agents">Lokale meglere</span></div>
+      <div class="node node-5"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg><span class="node-label" data-no="Reisebyråer" data-en="Travel">Reisebyråer</span></div>
+      <div class="node node-6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg><span class="node-label" data-no="Influensere" data-en="Influencers">Influensere</span></div>
+    </div>
   </div>
 </div></section>
 
-<!-- STATS BAND -->
-<section style="padding-top:0">
-<div class="wrap">
-<div class="stats-band">
-  <div class="section-head" style="margin-bottom:30px">
-    <div class="kicker" style="color:#38bdf8">Tall fra eiendomsbransjen</div>
-    <h2 style="color:#fff">Hvorfor referrals dominerer eiendomssalg</h2>
+<section style="padding-top:0"><div class="wrap"><div class="stats-band">
+  <div class="section-head" style="margin-bottom:30px;position:relative;z-index:1">
+    <div class="kicker" style="color:#38bdf8" data-no="Tall fra eiendomsbransjen" data-en="Real estate industry data">Tall fra eiendomsbransjen</div>
+    <h2 style="color:#fff" data-no="Hvorfor referrals dominerer eiendomssalg" data-en="Why referrals dominate real estate sales">Hvorfor referrals dominerer eiendomssalg</h2>
   </div>
   <div class="stats-grid">
-    <div class="stat-item">
-      <div class="stat-num">88%</div>
-      <div class="stat-lbl">av eiendomskjøpere bruker referrals fra venner eller familie</div>
-      <div class="stat-src">— NAR (National Association of Realtors)</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num">5–7%</div>
-      <div class="stat-lbl">vanlig provisjon i internasjonal eiendom for partnere</div>
-      <div class="stat-src">— Property Portal Watch</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num">3×</div>
-      <div class="stat-lbl">høyere konverteringsrate på referrals vs. betalt annonsering</div>
-      <div class="stat-src">— Nielsen Trust Survey</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-num">73%</div>
-      <div class="stat-lbl">av kjøpere stoler mer på personlige anbefalinger enn megleren</div>
-      <div class="stat-src">— Edelman Trust Barometer</div>
-    </div>
+    <div><div class="stat-num">88%</div><div class="stat-lbl" data-no="av eiendomskjøpere bruker referrals fra venner eller familie" data-en="of property buyers use referrals from friends or family">av eiendomskjøpere bruker referrals fra venner eller familie</div><div class="stat-src">— NAR</div></div>
+    <div><div class="stat-num">5–7%</div><div class="stat-lbl" data-no="vanlig provisjon i internasjonal eiendom for partnere" data-en="standard commission in international real estate for partners">vanlig provisjon i internasjonal eiendom for partnere</div><div class="stat-src">— Property Portal Watch</div></div>
+    <div><div class="stat-num">3×</div><div class="stat-lbl" data-no="høyere konverteringsrate på referrals vs. betalt annonsering" data-en="higher conversion rate on referrals vs. paid advertising">høyere konverteringsrate på referrals vs. betalt annonsering</div><div class="stat-src">— Nielsen Trust Survey</div></div>
+    <div><div class="stat-num">73%</div><div class="stat-lbl" data-no="av kjøpere stoler mer på personlige anbefalinger enn megleren" data-en="of buyers trust personal recommendations more than the agent">av kjøpere stoler mer på personlige anbefalinger enn megleren</div><div class="stat-src">— Edelman Trust Barometer</div></div>
   </div>
-</div>
-</div>
-</section>
+</div></div></section>
 
-<!-- WHY -->
 <section><div class="wrap">
-<div class="section-head">
-  <div class="kicker">Hvorfor TrustAI for eiendom</div>
-  <h2>Eiendomsbransjen lever av tillit — vi gjør tilliten målbar.</h2>
-  <p>Internasjonale eiendomsprosjekter selges sjelden via Google-annonser. De selges via venner som anbefaler venner, lokale partnere som kjenner markedet, og fornøyde kunder som kommer tilbake med familien sin. TrustAI sporer denne flyten — fra første WhatsApp-melding til signert kontrakt.</p>
-</div>
+<div class="section-head"><div class="kicker" data-no="Hvorfor TrustAI for eiendom" data-en="Why TrustAI for real estate">Hvorfor TrustAI for eiendom</div><h2 data-no="Eiendomsbransjen lever av tillit — vi gjør tilliten målbar." data-en="Real estate runs on trust — we make trust measurable.">Eiendomsbransjen lever av tillit — vi gjør tilliten målbar.</h2><p data-no="Internasjonale eiendomsprosjekter selges sjelden via Google-annonser. De selges via venner som anbefaler venner, lokale partnere som kjenner markedet, og fornøyde kunder som kommer tilbake med familien sin. TrustAI sporer denne flyten — fra første WhatsApp-melding til signert kontrakt." data-en="International real estate projects rarely sell through Google ads. They sell through friends recommending friends, local partners who know the market, and happy customers returning with their family. TrustAI tracks that flow — from the first WhatsApp message to a signed contract.">Internasjonale eiendomsprosjekter selges sjelden via Google-annonser. De selges via venner som anbefaler venner, lokale partnere som kjenner markedet, og fornøyde kunder som kommer tilbake med familien sin. TrustAI sporer denne flyten — fra første WhatsApp-melding til signert kontrakt.</p></div>
 <div class="grid-3">
-  <div class="card">
-    <div class="icon">🌍</div>
-    <h3>Internasjonal kompleksitet</h3>
-    <p>Norske kjøpere, tyrkiske utviklere, spanske partnere — vi sporer alle på tvers av land og språk i én plattform.</p>
-  </div>
-  <div class="card">
-    <div class="icon">📊</div>
-    <h3>Slutt på Excel-kaos</h3>
-    <p>Manuell provisjons-sporing skaper konflikter. TrustAI loggfører hver klikk, lead og deal automatisk.</p>
-  </div>
-  <div class="card">
-    <div class="icon">💬</div>
-    <h3>Spor WhatsApp & Instagram</h3>
-    <p>Eiendom selges på Instagram, ikke Facebook Ads. Hver delt lenke er sporbar uansett kanal.</p>
-  </div>
-</div>
-</div></section>
+  <div class="card"><div class="card-icon" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe)"><svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div><h3 data-no="Internasjonal kompleksitet" data-en="International complexity">Internasjonal kompleksitet</h3><p data-no="Norske kjøpere, tyrkiske utviklere, spanske partnere — alle spores på tvers av land og språk i én plattform." data-en="Norwegian buyers, Turkish developers, Spanish partners — all tracked across countries and languages in one platform.">Norske kjøpere, tyrkiske utviklere, spanske partnere — alle spores på tvers av land og språk i én plattform.</p></div>
+  <div class="card"><div class="card-icon" style="background:linear-gradient(135deg,#dcfce7,#bbf7d0)"><svg viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg></div><h3 data-no="Slutt på Excel-kaos" data-en="No more Excel chaos">Slutt på Excel-kaos</h3><p data-no="Manuell provisjons-sporing skaper konflikter. TrustAI loggfører hver klikk, lead og deal automatisk." data-en="Manual commission tracking causes conflicts. TrustAI logs every click, lead and deal automatically.">Manuell provisjons-sporing skaper konflikter. TrustAI loggfører hver klikk, lead og deal automatisk.</p></div>
+  <div class="card"><div class="card-icon" style="background:linear-gradient(135deg,#ede9fe,#ddd6fe)"><svg viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><h3 data-no="Spor WhatsApp & Instagram" data-en="Track WhatsApp & Instagram">Spor WhatsApp & Instagram</h3><p data-no="Eiendom selges på Instagram, ikke Facebook Ads. Hver delt lenke er sporbar uansett kanal." data-en="Real estate sells on Instagram, not Facebook Ads. Every shared link is trackable on any channel.">Eiendom selges på Instagram, ikke Facebook Ads. Hver delt lenke er sporbar uansett kanal.</p></div>
+</div></div></section>
 
-<!-- TARGET -->
 <section style="padding-top:0"><div class="wrap">
-<div class="section-head">
-  <div class="kicker">Målgruppe</div>
-  <h2>Bygget for internasjonale prosjekter rettet mot nordmenn</h2>
-</div>
+<div class="section-head"><div class="kicker" data-no="Målgruppe" data-en="Target audience">Målgruppe</div><h2 data-no="Bygget for internasjonale prosjekter — for Norge og videre" data-en="Built for international projects — for Norway and beyond">Bygget for internasjonale prosjekter — for Norge og videre</h2></div>
 <div class="grid-4">
-  <div class="card"><div class="icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">🏗️</div><h3>Eiendomsutviklere</h3><p>Tyrkia, Spania, Hellas, Dubai. Aktiver norske ambassadører.</p></div>
-  <div class="card"><div class="icon" style="background:linear-gradient(135deg,#7c3aed,#2563eb)">🤝</div><h3>Salgsagenter</h3><p>Lokale meglere som henviser internasjonale kjøpere til norske prosjekter.</p></div>
-  <div class="card"><div class="icon" style="background:linear-gradient(135deg,#12b981,#059669)">✈️</div><h3>Reisebyråer</h3><p>Tilbyr besiktigelses-turer og henviser interesserte kjøpere.</p></div>
-  <div class="card"><div class="icon" style="background:linear-gradient(135deg,#38bdf8,#2563eb)">⭐</div><h3>Tidligere kjøpere</h3><p>Fornøyde norske kunder anbefaler venner og familie.</p></div>
-</div>
-</div></section>
+  <div class="card"><div class="card-icon" style="background:linear-gradient(135deg,#fef3c7,#fde68a)"><svg viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg></div><h3 data-no="Eiendomsutviklere" data-en="Property developers">Eiendomsutviklere</h3><p data-no="Tyrkia, Spania, Hellas, Dubai. Aktiver internasjonale ambassadører." data-en="Turkey, Spain, Greece, Dubai. Activate international ambassadors.">Tyrkia, Spania, Hellas, Dubai. Aktiver internasjonale ambassadører.</p></div>
+  <div class="card"><div class="card-icon" style="background:linear-gradient(135deg,#ede9fe,#ddd6fe)"><svg viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 11l-3-3m0 0l-3 3m3-3v8"/></svg></div><h3 data-no="Salgsagenter" data-en="Sales agents">Salgsagenter</h3><p data-no="Lokale meglere som henviser internasjonale kjøpere til prosjekter." data-en="Local agents referring international buyers to projects.">Lokale meglere som henviser internasjonale kjøpere til prosjekter.</p></div>
+  <div class="card"><div class="card-icon" style="background:linear-gradient(135deg,#dcfce7,#bbf7d0)"><svg viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg></div><h3 data-no="Reisebyråer" data-en="Travel agencies">Reisebyråer</h3><p data-no="Tilbyr besiktigelses-turer og henviser interesserte kjøpere." data-en="Offer property viewing trips and refer interested buyers.">Tilbyr besiktigelses-turer og henviser interesserte kjøpere.</p></div>
+  <div class="card"><div class="card-icon" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe)"><svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><h3 data-no="Tidligere kjøpere" data-en="Past buyers">Tidligere kjøpere</h3><p data-no="Fornøyde kunder anbefaler venner og familie." data-en="Happy customers refer friends and family.">Fornøyde kunder anbefaler venner og familie.</p></div>
+</div></div></section>
 
-<!-- HOW IT WORKS -->
 <section id="how-it-works"><div class="wrap">
-<div class="section-head">
-  <div class="kicker">Slik fungerer det</div>
-  <h2>Fra prosjekt-launch til signert kontrakt — i én plattform.</h2>
-</div>
+<div class="section-head"><div class="kicker" data-no="Slik fungerer det" data-en="How it works">Slik fungerer det</div><h2 data-no="Fra prosjekt-launch til signert kontrakt — i én plattform." data-en="From project launch to signed contract — in one platform.">Fra prosjekt-launch til signert kontrakt — i én plattform.</h2></div>
 <div class="steps">
-  <div class="step"><div class="n">1</div><div><h3>Opprett prosjekt eller portefølje</h3><p>Legg til prosjektet eller eiendommene partnerne dine skal promotere — med bilder, beskrivelse, priser og provisjons-sats.</p></div></div>
-  <div class="step"><div class="n">2</div><div><h3>Inviter partnere & ambassadører</h3><p>Tidligere kunder, lokale meglere, influensere eller reisebyråer — alle får sin egen unike sporings-lenke.</p></div></div>
-  <div class="step"><div class="n">3</div><div><h3>Del på WhatsApp, Instagram & e-post</h3><p>Partnere deler lenken der nordmenn faktisk er. Hver klikk og forespørsel knyttes automatisk til riktig partner.</p></div></div>
-  <div class="step"><div class="n">4</div><div><h3>Spor pipeline til signert kontrakt</h3><p>Forespørsel → Visning booket → Reservasjon → Kontrakt signert. Provisjon utbetales automatisk når dealen er bekreftet.</p></div></div>
-</div>
-</div></section>
+  <div class="step"><div class="step-icon">1</div><div><h3 data-no="Opprett prosjekt eller portefølje" data-en="Create project or portfolio">Opprett prosjekt eller portefølje</h3><p data-no="Legg til prosjektet eller eiendommene partnerne dine skal promotere — med bilder, beskrivelse, priser og provisjons-sats." data-en="Add the project or properties your partners will promote — with photos, descriptions, prices and commission rates.">Legg til prosjektet eller eiendommene partnerne dine skal promotere — med bilder, beskrivelse, priser og provisjons-sats.</p></div></div>
+  <div class="step"><div class="step-icon">2</div><div><h3 data-no="Inviter partnere & ambassadører" data-en="Invite partners & ambassadors">Inviter partnere & ambassadører</h3><p data-no="Tidligere kunder, lokale meglere, influensere eller reisebyråer — alle får sin egen unike sporings-lenke." data-en="Past customers, local agents, influencers or travel agencies — everyone gets their own unique tracking link.">Tidligere kunder, lokale meglere, influensere eller reisebyråer — alle får sin egen unike sporings-lenke.</p></div></div>
+  <div class="step"><div class="step-icon">3</div><div><h3 data-no="Del på WhatsApp, Instagram & e-post" data-en="Share on WhatsApp, Instagram & email">Del på WhatsApp, Instagram & e-post</h3><p data-no="Partnere deler lenken der kjøperne faktisk er. Hver klikk og forespørsel knyttes automatisk til riktig partner." data-en="Partners share the link where buyers actually are. Every click and inquiry connects automatically to the right partner.">Partnere deler lenken der kjøperne faktisk er. Hver klikk og forespørsel knyttes automatisk til riktig partner.</p></div></div>
+  <div class="step"><div class="step-icon">4</div><div><h3 data-no="Spor pipeline til signert kontrakt" data-en="Track pipeline to signed contract">Spor pipeline til signert kontrakt</h3><p data-no="Forespørsel → Visning booket → Reservasjon → Kontrakt signert. Provisjon utbetales automatisk når dealen er bekreftet." data-en="Inquiry → Viewing booked → Reservation → Contract signed. Commission paid automatically when deal is confirmed.">Forespørsel → Visning booket → Reservasjon → Kontrakt signert. Provisjon utbetales automatisk når dealen er bekreftet.</p></div></div>
+</div></div></section>
 
-<!-- ROI -->
-<section><div class="wrap">
-<div class="roi">
-  <div class="kicker">Eksempel-regnestykke</div>
-  <h2>Én ekstra solgt leilighet betaler hele systemet — i mange år.</h2>
+<section><div class="wrap"><div class="roi">
+  <div class="kicker" data-no="Eksempel-regnestykke" data-en="Example calculation">Eksempel-regnestykke</div>
+  <h2 data-no="Én ekstra solgt leilighet betaler hele systemet — i mange år." data-en="One extra apartment sold pays for the entire system — for years.">Én ekstra solgt leilighet betaler hele systemet — i mange år.</h2>
   <div class="roi-grid">
-    <div class="roi-item"><div class="lbl">Eiendomsverdi</div><div class="val">€ 150 000</div></div>
-    <div class="roi-item"><div class="lbl">Partner-provisjon</div><div class="val">3%</div></div>
-    <div class="roi-item highlight"><div class="lbl">Referral-utbetaling</div><div class="val">€ 4 500</div></div>
+    <div class="roi-item"><div class="lbl" data-no="Eiendomsverdi" data-en="Property value">Eiendomsverdi</div><div class="val">€ 150 000</div></div>
+    <div class="roi-item"><div class="lbl" data-no="Partner-provisjon" data-en="Partner commission">Partner-provisjon</div><div class="val">3%</div></div>
+    <div class="roi-item highlight"><div class="lbl" data-no="Referral-utbetaling" data-en="Referral payout">Referral-utbetaling</div><div class="val">€ 4 500</div></div>
   </div>
-  <p class="lead">Med TrustAI kan du skalere dette til titalls eller hundrevis av partnere — uten å miste kontroll over hvem som tjente hva. Dashboardet viser deg sanntid-pipeline, fra første visning til kontraktssignering.</p>
-</div>
-</div></section>
+  <p class="lead" data-no="Med TrustAI kan du skalere dette til titalls eller hundrevis av partnere — uten å miste kontroll over hvem som tjente hva. Dashboardet viser sanntid-pipeline, fra første visning til kontraktssignering." data-en="With TrustAI you can scale this to dozens or hundreds of partners — without losing track of who earned what. The dashboard shows real-time pipeline from first viewing to contract signing.">Med TrustAI kan du skalere dette til titalls eller hundrevis av partnere — uten å miste kontroll over hvem som tjente hva. Dashboardet viser sanntid-pipeline, fra første visning til kontraktssignering.</p>
+</div></div></section>
 
-<!-- FEATURES -->
 <section><div class="wrap">
-<div class="section-head">
-  <div class="kicker">Funksjoner</div>
-  <h2>Alt du trenger for å skalere eiendomsreferrals</h2>
-</div>
+<div class="section-head"><div class="kicker" data-no="Funksjoner" data-en="Features">Funksjoner</div><h2 data-no="Alt du trenger for å skalere eiendomsreferrals" data-en="Everything you need to scale real estate referrals">Alt du trenger for å skalere eiendomsreferrals</h2></div>
 <div class="feature-list">
-  <div class="feature"><span class="check">✓</span><div class="feature-text"><strong>Eiendoms-spesifikk pipeline</strong><span>Forespørsel → Visning → Reservasjon → Kontrakt</span></div></div>
-  <div class="feature"><span class="check">✓</span><div class="feature-text"><strong>Multi-prosjekt sporing</strong><span>Spor Alanya, Marbella, Dubai — fra samme dashboard</span></div></div>
-  <div class="feature"><span class="check">✓</span><div class="feature-text"><strong>Provisjons-trapp</strong><span>5% / 7% / 10% basert på antall solgte enheter</span></div></div>
-  <div class="feature"><span class="check">✓</span><div class="feature-text"><strong>WhatsApp- & Instagram-tracking</strong><span>Spor klikk fra de viktigste kanalene</span></div></div>
-  <div class="feature"><span class="check">✓</span><div class="feature-text"><strong>Manuelt godkjenningstrinn</strong><span>Ingen utbetaling før dealen er bekreftet</span></div></div>
-  <div class="feature"><span class="check">✓</span><div class="feature-text"><strong>QR-koder for events</strong><span>Generer tracking-QR for messer og visninger</span></div></div>
-  <div class="feature"><span class="check">✓</span><div class="feature-text"><strong>Flerspråklig støtte</strong><span>Norsk for kjøpere, engelsk for utviklere</span></div></div>
-  <div class="feature"><span class="check">✓</span><div class="feature-text"><strong>Bedrifts-landingsside</strong><span>Egen rekrutteringsside for nye partnere</span></div></div>
-</div>
-</div></section>
+  <div class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="feature-text"><strong data-no="Eiendoms-spesifikk pipeline" data-en="Real estate pipeline">Eiendoms-spesifikk pipeline</strong><span data-no="Forespørsel → Visning → Reservasjon → Kontrakt" data-en="Inquiry → Viewing → Reservation → Contract">Forespørsel → Visning → Reservasjon → Kontrakt</span></div></div>
+  <div class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="feature-text"><strong data-no="Multi-prosjekt sporing" data-en="Multi-project tracking">Multi-prosjekt sporing</strong><span data-no="Spor Alanya, Marbella, Dubai — fra samme dashboard" data-en="Track Alanya, Marbella, Dubai — from the same dashboard">Spor Alanya, Marbella, Dubai — fra samme dashboard</span></div></div>
+  <div class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="feature-text"><strong data-no="Provisjons-trapp" data-en="Commission tiers">Provisjons-trapp</strong><span data-no="5% / 7% / 10% basert på antall solgte enheter" data-en="5% / 7% / 10% based on units sold">5% / 7% / 10% basert på antall solgte enheter</span></div></div>
+  <div class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="feature-text"><strong data-no="WhatsApp & Instagram-tracking" data-en="WhatsApp & Instagram tracking">WhatsApp & Instagram-tracking</strong><span data-no="Spor klikk fra de viktigste kanalene" data-en="Track clicks from the most important channels">Spor klikk fra de viktigste kanalene</span></div></div>
+  <div class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="feature-text"><strong data-no="Manuelt godkjenningstrinn" data-en="Manual approval step">Manuelt godkjenningstrinn</strong><span data-no="Ingen utbetaling før dealen er bekreftet" data-en="No payout until deal is confirmed">Ingen utbetaling før dealen er bekreftet</span></div></div>
+  <div class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="feature-text"><strong data-no="QR-koder for events" data-en="QR codes for events">QR-koder for events</strong><span data-no="Generer tracking-QR for messer og visninger" data-en="Generate tracking QR for fairs and viewings">Generer tracking-QR for messer og visninger</span></div></div>
+  <div class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="feature-text"><strong data-no="Flerspråklig støtte" data-en="Multi-language support">Flerspråklig støtte</strong><span data-no="Norsk, engelsk og lokale språk støttet" data-en="Norwegian, English and local languages supported">Norsk, engelsk og lokale språk støttet</span></div></div>
+  <div class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="feature-text"><strong data-no="Bedrifts-landingsside" data-en="Company landing page">Bedrifts-landingsside</strong><span data-no="Egen rekrutteringsside for nye partnere" data-en="Custom recruitment page for new partners">Egen rekrutteringsside for nye partnere</span></div></div>
+</div></div></section>
 
-<!-- USE CASES -->
 <section style="padding-top:0"><div class="wrap">
-<div class="section-head">
-  <div class="kicker">Konkrete eksempler</div>
-  <h2>Slik bruker norske aktører det allerede</h2>
-</div>
+<div class="section-head"><div class="kicker" data-no="Konkrete eksempler" data-en="Real examples">Konkrete eksempler</div><h2 data-no="Slik bruker aktører det allerede" data-en="How customers already use it">Slik bruker aktører det allerede</h2></div>
 <div class="grid-3">
-  <div class="usecase">
-    <span class="usecase-flag">🇹🇷</span>
-    <h3>Alanya-prosjekt for nordmenn</h3>
-    <p>Norsk kjøper kjøpte leilighet i 2023. I 2024 anbefalte hun nabo på Frogner — som kjøpte enhet 14B. Hun fikk 4 500 € automatisk utbetalt.</p>
-    <span class="result">+ 4 500 € provisjon</span>
-  </div>
-  <div class="usecase">
-    <span class="usecase-flag">🇪🇸</span>
-    <h3>Marbella via privatmegler i Oslo</h3>
-    <p>Privatmegler i Oslo henviste klient som ville selge bolig + kjøpe ferieleilighet i Marbella. Spansk utvikler betalte 3% av kjøpesummen.</p>
-    <span class="result">+ 8 700 € provisjon</span>
-  </div>
-  <div class="usecase">
-    <span class="usecase-flag">🇦🇪</span>
-    <h3>Dubai på Instagram</h3>
-    <p>Norsk influenser med 80k følgere delte Dubai-prosjekt via TrustAI-lenke. Resulterte i 3 visninger og 1 signert kontrakt.</p>
-    <span class="result">+ 12 000 € provisjon</span>
-  </div>
-</div>
-</div></section>
+  <div class="usecase"><span class="usecase-flag">🇹🇷</span><h3 data-no="Alanya-prosjekt for nordmenn" data-en="Alanya project for Norwegians">Alanya-prosjekt for nordmenn</h3><p data-no="Norsk kjøper kjøpte leilighet i 2023. I 2024 anbefalte hun nabo på Frogner — som kjøpte enhet 14B. Hun fikk € 4 500 automatisk utbetalt." data-en="Norwegian buyer purchased an apartment in 2023. In 2024 she referred a neighbour from Frogner — who bought unit 14B. She received € 4,500 automatically.">Norsk kjøper kjøpte leilighet i 2023. I 2024 anbefalte hun nabo på Frogner — som kjøpte enhet 14B. Hun fikk € 4 500 automatisk utbetalt.</p><span class="result"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> + € 4 500</span></div>
+  <div class="usecase"><span class="usecase-flag">🇪🇸</span><h3 data-no="Marbella via privatmegler" data-en="Marbella via private agent">Marbella via privatmegler</h3><p data-no="Privatmegler i Oslo henviste klient som ville selge bolig + kjøpe ferieleilighet i Marbella. Spansk utvikler betalte 3% av kjøpesummen." data-en="Private agent in Oslo referred a client wanting to sell their home + buy a holiday flat in Marbella. The Spanish developer paid 3% of the purchase price.">Privatmegler i Oslo henviste klient som ville selge bolig + kjøpe ferieleilighet i Marbella. Spansk utvikler betalte 3% av kjøpesummen.</p><span class="result"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> + € 8 700</span></div>
+  <div class="usecase"><span class="usecase-flag">🇦🇪</span><h3 data-no="Dubai på Instagram" data-en="Dubai on Instagram">Dubai på Instagram</h3><p data-no="Influenser med 80k følgere delte Dubai-prosjekt via TrustAI-lenke. Resulterte i 3 visninger og 1 signert kontrakt." data-en="An influencer with 80k followers shared a Dubai project via TrustAI link. Resulted in 3 viewings and 1 signed contract.">Influenser med 80k følgere delte Dubai-prosjekt via TrustAI-lenke. Resulterte i 3 visninger og 1 signert kontrakt.</p><span class="result"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> + € 12 000</span></div>
+</div></div></section>
 
-<!-- PLATFORMS -->
 <section><div class="wrap">
-<div class="section-head">
-  <div class="kicker">Integrasjoner</div>
-  <h2>Funker med dine eksisterende verktøy</h2>
-</div>
+<div class="section-head"><div class="kicker" data-no="Integrasjoner" data-en="Integrations">Integrasjoner</div><h2 data-no="Funker med dine eksisterende verktøy" data-en="Works with your existing tools">Funker med dine eksisterende verktøy</h2></div>
 <div class="platform-band">
-  <div class="platform-card">
-    <div class="icon">💬</div>
-    <h4>WhatsApp Business</h4>
-    <span class="status status-live">Live nå</span>
-  </div>
-  <div class="platform-card">
-    <div class="icon">📷</div>
-    <h4>Instagram</h4>
-    <span class="status status-live">Live nå</span>
-  </div>
-  <div class="platform-card">
-    <div class="icon">🏘️</div>
-    <h4>WordPress / Custom CMS</h4>
-    <span class="status status-api">API</span>
-  </div>
-  <div class="platform-card">
-    <div class="icon">📧</div>
-    <h4>Mailchimp / Klaviyo</h4>
-    <span class="status status-soon">Kommer snart</span>
-  </div>
+  <div class="platform-card"><div class="platform-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div><h4>WhatsApp Business</h4><span class="status status-live" data-no="Live nå" data-en="Live now">Live nå</span></div>
+  <div class="platform-card"><div class="platform-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#E1306C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></div><h4>Instagram</h4><span class="status status-live" data-no="Live nå" data-en="Live now">Live nå</span></div>
+  <div class="platform-card"><div class="platform-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div><h4>WordPress / CMS</h4><span class="status status-api">API</span></div>
+  <div class="platform-card"><div class="platform-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><h4>Mailchimp / Klaviyo</h4><span class="status status-soon" data-no="Kommer snart" data-en="Coming soon">Kommer snart</span></div>
 </div>
-
-<div class="sources">
-<b>Kilder:</b> National Association of Realtors (NAR) — Profile of Home Buyers and Sellers 2024 ·
-Property Portal Watch — International Property Commission Report 2024 ·
-Nielsen Global Trust in Advertising Survey ·
-Edelman Trust Barometer 2024 ·
-Eiendom Norge — Bransjerapport 2024
-</div>
+<div class="sources"><b data-no="Kilder:" data-en="Sources:">Kilder:</b> National Association of Realtors (NAR) — Profile of Home Buyers and Sellers 2024 · Property Portal Watch — International Property Commission Report 2024 · Nielsen Global Trust in Advertising Survey · Edelman Trust Barometer 2024 · Eiendom Norge — Bransjerapport 2024</div>
 </div></section>
 
-<!-- CTA -->
-<section id="contact"><div class="wrap">
-<div class="cta">
-  <h2>Bygg ditt internasjonale eiendoms-nettverk før konkurrentene gjør det.</h2>
-  <p>Aktiver norske ambassadører for ditt internasjonale prosjekt. Start med en 30-dagers pilot — vi konfigurerer alt sammen med deg.</p>
-  <div class="actions" style="justify-content:center">
-    <a class="btn btn-primary" href="https://wa.me/4741227175">📱 WhatsApp +47 412 27 175</a>
-    <a class="btn btn-secondary" href="mailto:hello@trustai.no">✉️ hello@trustai.no</a>
+<section id="contact"><div class="wrap"><div class="cta">
+  <h2 data-no="Bygg ditt eiendoms-nettverk før konkurrentene gjør det." data-en="Build your real estate network before your competitors do.">Bygg ditt eiendoms-nettverk før konkurrentene gjør det.</h2>
+  <p data-no="Aktiver ambassadører for ditt internasjonale prosjekt. Start med en 30-dagers pilot — vi konfigurerer alt sammen med deg." data-en="Activate ambassadors for your international project. Start with a 30-day pilot — we configure everything with you.">Aktiver ambassadører for ditt internasjonale prosjekt. Start med en 30-dagers pilot — vi konfigurerer alt sammen med deg.</p>
+  <div class="actions">
+    <a class="btn btn-primary" href="https://wa.me/4741227175"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>WhatsApp +47 412 27 175</a>
+    <a class="btn btn-secondary" href="mailto:ks@trustai.no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>ks@trustai.no</a>
   </div>
-</div>
-</div></section>
+</div></div></section>
 </main>
 
 <script src="/global-header.js"></script>
 <script src="/global-footer.js"></script>
 <script src="/assets/js/trustai-ai-public.js"></script>
+<script>
+(function(){
+  const btns = document.querySelectorAll('.lang-btn');
+  const saved = localStorage.getItem('trustai_lang') || 'no';
+  function applyLang(lang){
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-no]').forEach(el => {
+      const t = el.getAttribute('data-' + lang);
+      if(t !== null) el.textContent = t;
+    });
+    btns.forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+    localStorage.setItem('trustai_lang', lang);
+  }
+  btns.forEach(b => b.addEventListener('click', () => applyLang(b.dataset.lang)));
+  applyLang(saved);
+})();
+</script>
 </body>
 </html>

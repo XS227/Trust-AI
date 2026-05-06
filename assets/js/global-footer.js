@@ -8,8 +8,7 @@
     .ta-footer-brand-wrap{display:flex;flex-direction:column;gap:14px}
     .ta-footer-brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:800;font-size:24px;letter-spacing:-.02em;text-decoration:none}
     .ta-footer-brand img{height:34px;width:auto}
-    .ta-footer-mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#7c3aed);display:grid;place-items:center;color:#fff;font-weight:900}
-    .ta-footer-brand span{color:#60a5fa}
+    .ta-footer-brand span span{color:#60a5fa}
     .ta-footer-tagline{color:#94a3b8;font-size:13px;line-height:1.6;max-width:300px}
     .ta-footer-company{font-size:12px;color:#64748b;line-height:1.7;margin-top:6px}
     .ta-footer-company b{color:#cbd5e1;display:block;margin-bottom:2px;font-weight:600}
@@ -29,72 +28,21 @@
     @media (max-width:560px){.ta-footer-top{grid-template-columns:1fr 1fr;gap:24px}.ta-footer-bottom{flex-direction:column;align-items:flex-start}}
   `;
   document.head.appendChild(style);
-
   const T = {
-    no: {
-      tagline: 'Referral-infrastruktur for alle nettverk. Spor anbefalinger, beløn resultater.',
-      solutions: 'Løsninger',
-      recruitment: 'Rekruttering',
-      realestate: 'Eiendom',
-      sales: 'Salg & Leads',
-      ecommerce: 'E-handel',
-      ambassadors: 'For ambassadører',
-      becomeAmb: 'Bli ambassadør',
-      login: 'Logg inn',
-      faq: 'FAQ',
-      howItWorks: 'Hvordan det fungerer',
-      company: 'Selskap',
-      about: 'Om TrustAI',
-      contact: 'Kontakt',
-      pricing: 'Priser',
-      legal: 'Juridisk',
-      terms: 'Vilkår',
-      privacy: 'Personvern',
-      cookies: 'Cookies',
-      rights: 'Alle rettigheter forbeholdt.',
-      builtBy: 'Bygget av',
-    },
-    en: {
-      tagline: 'Referral infrastructure for every network. Track recommendations, reward results.',
-      solutions: 'Solutions',
-      recruitment: 'Recruitment',
-      realestate: 'Real Estate',
-      sales: 'Sales & Leads',
-      ecommerce: 'Ecommerce',
-      ambassadors: 'For ambassadors',
-      becomeAmb: 'Become ambassador',
-      login: 'Log in',
-      faq: 'FAQ',
-      howItWorks: 'How it works',
-      company: 'Company',
-      about: 'About TrustAI',
-      contact: 'Contact',
-      pricing: 'Pricing',
-      legal: 'Legal',
-      terms: 'Terms',
-      privacy: 'Privacy',
-      cookies: 'Cookies',
-      rights: 'All rights reserved.',
-      builtBy: 'Built by',
-    }
+    no: { tagline:'Referral-infrastruktur for alle nettverk. Spor anbefalinger, beløn resultater.', solutions:'Løsninger', recruitment:'Rekruttering', realestate:'Eiendom', sales:'Salg & Leads', ecommerce:'E-handel', ambassadors:'For ambassadører', becomeAmb:'Bli ambassadør', login:'Logg inn', faq:'FAQ', howItWorks:'Hvordan det fungerer', company:'Selskap', about:'Om TrustAI', contact:'Kontakt', legal:'Juridisk', terms:'Vilkår', privacy:'Personvern', rights:'Alle rettigheter forbeholdt.', builtBy:'Bygget av' },
+    en: { tagline:'Referral infrastructure for every network. Track recommendations, reward results.', solutions:'Solutions', recruitment:'Recruitment', realestate:'Real Estate', sales:'Sales & Leads', ecommerce:'Ecommerce', ambassadors:'For ambassadors', becomeAmb:'Become ambassador', login:'Log in', faq:'FAQ', howItWorks:'How it works', company:'Company', about:'About TrustAI', contact:'Contact', legal:'Legal', terms:'Terms', privacy:'Privacy', rights:'All rights reserved.', builtBy:'Built by' }
   };
-
-  function getLang() {
-    return localStorage.getItem('trustai_lang') || 'no';
-  }
-
+  function getLang() { return localStorage.getItem('trustai_lang') || 'no'; }
   function render() {
     const lang = getLang();
     const t = T[lang] || T.no;
     const year = new Date().getFullYear();
-
     let footer = document.querySelector('.ta-global-footer');
     if (!footer) {
       footer = document.createElement('footer');
       footer.className = 'ta-global-footer';
       document.body.appendChild(footer);
     }
-
     footer.innerHTML = `
       <div class="ta-footer-wrap">
         <div class="ta-footer-top">
@@ -119,7 +67,6 @@
               Org.nr 920 645 178
             </div>
           </div>
-
           <div class="ta-footer-col">
             <h4>${t.solutions}</h4>
             <a href="/trustai_recruitment.html">${t.recruitment}</a>
@@ -127,28 +74,24 @@
             <a href="/sales-lead.html">${t.sales}</a>
             <a href="/ecommerce.html">${t.ecommerce}</a>
           </div>
-
           <div class="ta-footer-col">
             <h4>${t.ambassadors}</h4>
             <a href="/ambassador-signup.html">${t.becomeAmb}</a>
             <a href="/login.html">${t.login}</a>
             <a href="/how-it-works.html">${t.howItWorks}</a>
           </div>
-
           <div class="ta-footer-col">
             <h4>${t.company}</h4>
             <a href="/">${t.about}</a>
             <a href="mailto:ks@trustai.no">${t.contact}</a>
             <a href="/how-it-works.html">${t.howItWorks}</a>
           </div>
-
           <div class="ta-footer-col">
             <h4>${t.legal}</h4>
             <a href="/vilkar.html">${t.terms}</a>
             <a href="/personvern.html">${t.privacy}</a>
           </div>
         </div>
-
         <div class="ta-footer-bottom">
           <div>© ${year} SETAEI · ${t.rights}</div>
           <div class="ta-footer-credit">${t.builtBy} <a href="https://wa.me/4741227175">SETAEI</a></div>
@@ -156,7 +99,6 @@
       </div>
     `;
   }
-
   render();
   document.addEventListener('trustai:langchange', render);
 })();

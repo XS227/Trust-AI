@@ -24,8 +24,9 @@
     .ta-footer-bottom a:hover{color:#fff}
     .ta-footer-credit{font-size:12px;color:#64748b}
     .ta-footer-credit a{color:#94a3b8}
-    @media (max-width:980px){.ta-footer-top{grid-template-columns:1fr 1fr;gap:30px}.ta-footer-brand-wrap{grid-column:1/-1}}
-    @media (max-width:560px){.ta-footer-top{grid-template-columns:1fr 1fr;gap:24px}.ta-footer-bottom{flex-direction:column;align-items:flex-start}}
+    @media (max-width:980px){.ta-footer-top{grid-template-columns:1.2fr repeat(4,minmax(120px,1fr));gap:20px}}
+    @media (max-width:760px){.ta-footer-top{grid-template-columns:1fr 1fr;gap:24px}.ta-footer-brand-wrap{grid-column:1/-1}}
+    @media (max-width:560px){.ta-footer-bottom{flex-direction:column;align-items:flex-start}}
   `;
   document.head.appendChild(style);
   const T = {

@@ -4,7 +4,7 @@
   style.textContent = `
     .ta-global-footer{background:#0b1020;color:#cbd5e1;margin-top:60px}
     .ta-footer-wrap{max-width:1200px;margin:0 auto;padding:56px 20px 28px}
-    .ta-footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:36px}
+    .ta-footer-top{display:grid;grid-template-columns:minmax(240px,1.4fr) repeat(4,minmax(140px,1fr));gap:36px}
     .ta-footer-brand-wrap{display:flex;flex-direction:column;gap:14px}
     .ta-footer-brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:800;font-size:24px;letter-spacing:-.02em;text-decoration:none}
     .ta-footer-brand img{height:34px;width:auto}
@@ -25,7 +25,7 @@
     .ta-footer-bottom a:hover{color:#fff}
     .ta-footer-credit{font-size:12px;color:#64748b}
     .ta-footer-credit a{color:#94a3b8}
-    @media (max-width:980px){.ta-footer-top{grid-template-columns:1fr 1fr;gap:30px}.ta-footer-brand-wrap{grid-column:1/-1}}
+    @media (max-width:1100px){.ta-footer-top{grid-template-columns:1fr 1fr 1fr;gap:26px}.ta-footer-brand-wrap{grid-column:1/-1}}
     @media (max-width:560px){.ta-footer-top{grid-template-columns:1fr 1fr;gap:24px}.ta-footer-bottom{flex-direction:column;align-items:flex-start}}
   `;
   document.head.appendChild(style);
@@ -116,8 +116,7 @@
             </div>
             <div class="ta-footer-company">
               <b>SETAEI</b>
-              Org.nr 920 645 178<br>
-              Grevlingvegen 1, 2014 Blystadlia
+              Org.nr 920 645 178
             </div>
           </div>
 
@@ -152,7 +151,7 @@
 
         <div class="ta-footer-bottom">
           <div>© ${year} SETAEI · ${t.rights}</div>
-          <div class="ta-footer-credit">${t.builtBy} <a href="https://wa.me/4741227175">Khabat Setaei</a></div>
+          <div class="ta-footer-credit">${t.builtBy} <a href="https://wa.me/4741227175">SETAEI</a></div>
         </div>
       </div>
     `;

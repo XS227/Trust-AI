@@ -13,9 +13,6 @@ html{scroll-behavior:smooth}
 body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;background:radial-gradient(circle at 8% 8%,rgba(56,189,248,.14),transparent 28%),radial-gradient(circle at 90% 12%,rgba(124,58,237,.10),transparent 28%),linear-gradient(180deg,#fff 0%,#f8fbff 46%,#fff 100%);color:var(--text)}
 a{color:inherit;text-decoration:none}
 .wrap{width:min(1160px,calc(100% - 42px));margin:0 auto}
-.lang-bar{position:absolute;top:18px;right:32px;z-index:30;display:flex;gap:6px;background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:999px;padding:4px;box-shadow:0 8px 24px rgba(16,32,51,.06)}
-.lang-btn{padding:6px 14px;border-radius:999px;border:0;background:transparent;font-size:12px;font-weight:650;cursor:pointer;color:var(--muted);font-family:inherit;display:flex;align-items:center;gap:6px}
-.lang-btn.active{background:var(--text);color:#fff}
 .hero{padding:82px 0 70px;position:relative}
 .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
 .eyebrow{display:inline-flex;align-items:center;gap:10px;padding:8px 14px;border-radius:999px;background:#eef7ff;color:#1d4ed8;border:1px solid #d7ebff;font-size:13px;font-weight:650;margin-bottom:22px}
@@ -122,15 +119,11 @@ h2{margin:0 0 14px;font-size:clamp(30px,3.6vw,48px);line-height:1.1;letter-spaci
 .cta .btn-secondary{background:transparent;color:#fff;border-color:rgba(255,255,255,.22)}
 .cta .btn-primary{background:#fff;color:#102033}
 @media(max-width:920px){.hero-grid,.grid-3,.grid-4,.feature-list,.roi-grid,.stats-grid,.platform-band{grid-template-columns:1fr 1fr}.hero-visual{height:420px}.orbit-system{transform:scale(.85)}}
-@media(max-width:640px){.lang-bar{top:12px;right:14px}.wrap{width:min(100% - 28px,1160px)}.hero{padding:54px 0 46px}.grid-3,.grid-4,.feature-list,.roi-grid,.stats-grid,.platform-band{grid-template-columns:1fr}section{padding:56px 0}.hero-visual{height:380px}.orbit-system{transform:scale(.7)}}
+@media(max-width:640px){.wrap{width:min(100% - 28px,1160px)}.hero{padding:54px 0 46px}.grid-3,.grid-4,.feature-list,.roi-grid,.stats-grid,.platform-band{grid-template-columns:1fr}section{padding:56px 0}.hero-visual{height:380px}.orbit-system{transform:scale(.7)}}
 </style>
 </head>
 <body>
 
-<div class="lang-bar">
-  <button class="lang-btn active" data-lang="no">🇳🇴 NO</button>
-  <button class="lang-btn" data-lang="en">🇬🇧 EN</button>
-</div>
 
 <main>
 <section class="hero"><div class="wrap hero-grid">
@@ -258,25 +251,10 @@ h2{margin:0 0 14px;font-size:clamp(30px,3.6vw,48px);line-height:1.1;letter-spaci
 </div></div></section>
 </main>
 
-<script src="/global-header.js"></script>
-<script src="/global-footer.js"></script>
-<script src="/assets/js/trustai-ai-public.js"></script>
+<script src="/global-header.js?v=1778027386"></script>
+<script src="/global-footer.js?v=1778026816"></script>
+<script src="/assets/js/trustai-ai-public.js?v=1778026154"></script>
 <script>
-(function(){
-  const btns = document.querySelectorAll('.lang-btn');
-  const saved = localStorage.getItem('trustai_lang') || 'no';
-  function applyLang(lang){
-    document.documentElement.lang = lang;
-    document.querySelectorAll('[data-no]').forEach(el => {
-      const t = el.getAttribute('data-' + lang);
-      if(t !== null) el.textContent = t;
-    });
-    btns.forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
-    localStorage.setItem('trustai_lang', lang);
-  }
-  btns.forEach(b => b.addEventListener('click', () => applyLang(b.dataset.lang)));
-  applyLang(saved);
-})();
 </script>
 </body>
 </html>

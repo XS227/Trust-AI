@@ -28,31 +28,31 @@
 .tai-refresh-btn{background:transparent;border:0;color:#60a5fa;font-size:12px;cursor:pointer;padding:4px 8px;border-radius:6px}
 .tai-refresh-btn:hover{background:#1e293b}
 
-.tai-fab{position:fixed;bottom:24px;right:24px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:0;cursor:pointer;box-shadow:0 8px 24px rgba(37,99,235,.4);display:flex;align-items:center;justify-content:center;z-index:9998;transition:transform .15s}
+ .tai-fab{position:fixed;bottom:20px;right:20px;width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:0;cursor:pointer;box-shadow:0 8px 24px rgba(37,99,235,.4);display:flex;align-items:center;justify-content:center;z-index:9998;transition:transform .15s}
 .tai-fab:hover{transform:scale(1.05)}
 .tai-fab svg{width:26px;height:26px}
 .tai-fab-pulse{position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:#10b981;border:2px solid #0f172a;border-radius:50%}
 
-.tai-chat{position:fixed;bottom:96px;right:24px;width:380px;max-width:calc(100vw - 32px);height:540px;max-height:calc(100vh - 120px);background:#0b1220;border:1px solid #334155;border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.5);z-index:9999;display:none;flex-direction:column;overflow:hidden}
+.tai-chat{position:fixed;bottom:86px;right:20px;width:min(340px,calc(100vw - 24px));height:min(500px,calc(100vh - 120px));background:#ffffff;border:1px solid #dbe4f0;border-radius:14px;box-shadow:0 16px 42px rgba(15,23,42,.18);z-index:1200;display:none;flex-direction:column;overflow:hidden}
 .tai-chat.open{display:flex}
 .tai-chat-head{padding:14px 16px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;display:flex;justify-content:space-between;align-items:center}
 .tai-chat-head h4{margin:0;font-size:15px;font-weight:600}
 .tai-chat-head .sub{font-size:12px;opacity:.85;margin-top:2px}
 .tai-chat-close{background:transparent;border:0;color:#fff;cursor:pointer;font-size:22px;line-height:1;padding:4px 8px}
-.tai-chat-body{flex:1;overflow-y:auto;padding:14px;background:#0f172a}
+.tai-chat-body{flex:1;overflow-y:auto;padding:14px;background:#f8fafc}
 .tai-msg{margin-bottom:12px;max-width:85%;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.5;white-space:pre-wrap}
 .tai-msg.user{margin-left:auto;background:#2563eb;color:#fff;border-bottom-right-radius:4px}
-.tai-msg.bot{background:#1e293b;color:#e2e8f0;border-bottom-left-radius:4px}
+.tai-msg.bot{background:#e2e8f0;color:#0f172a;border-bottom-left-radius:4px}
 .tai-msg.bot.loading{opacity:.7;font-style:italic}
-.tai-chat-foot{padding:12px;border-top:1px solid #1e293b;background:#0b1220;display:flex;gap:8px}
+.tai-chat-foot{padding:12px;border-top:1px solid #e2e8f0;background:#fff;display:flex;gap:8px}
 .tai-chat-foot input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;font-size:13px}
 .tai-chat-foot input:focus{outline:none;border-color:#2563eb}
 .tai-chat-foot button{padding:10px 16px;border-radius:10px;border:0;background:#2563eb;color:#fff;font-weight:600;cursor:pointer;font-size:13px}
 .tai-chat-foot button:disabled{opacity:.5;cursor:not-allowed}
-.tai-chat-suggest{padding:8px 14px;display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid #1e293b;background:#0b1220}
+.tai-chat-suggest{padding:8px 14px;display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid #e2e8f0;background:#fff}
 .tai-chat-suggest button{font-size:11px;padding:6px 10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#cbd5e1;cursor:pointer}
 .tai-chat-suggest button:hover{background:#1e293b;border-color:#475569}
-@media(max-width:560px){.tai-chat{right:8px;left:8px;width:auto;bottom:90px}.tai-fab{bottom:16px;right:16px}}
+@media(max-width:860px){.tai-chat{position:static;width:100%;height:420px;margin-top:14px;display:flex}.tai-fab{display:none}}
 `;
 
   function injectStyle() {
@@ -116,11 +116,11 @@
     const chat = document.createElement('div');
     chat.className = 'tai-chat';
     chat.innerHTML = '<div class="tai-chat-head">' +
-        '<div><h4>🤖 TrustAI Coach</h4><div class="sub">Din personlige rådgiver</div></div>' +
+        '<div><h4>🤖 TrustAI Coach</h4><div class="sub">Coming soon / demo</div></div>' +
         '<button class="tai-chat-close">×</button>' +
       '</div>' +
       '<div class="tai-chat-body" id="taiChatBody">' +
-        '<div class="tai-msg bot">Hei! Jeg er din AI Coach. Spør meg om alt — fra delingstips til hvordan optimere ambassadør-programmet ditt. Hva lurer du på?</div>' +
+        '<div class="tai-msg bot">AI Coach er i demo-modus nå. Snart får du personlige anbefalinger her.</div>' +
       '</div>' +
       '<div class="tai-chat-suggest" id="taiSuggest"></div>' +
       '<div class="tai-chat-foot">' +

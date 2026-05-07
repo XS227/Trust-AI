@@ -1,13 +1,14 @@
 (function () {
-  if (document.querySelector('footer.ta-global-footer')) return;
+  const appPaths=['/ambassador-dashboard.html','/store-admin.html','/super-admin.html','/trustai-dashboard.html','/dashboard.html','/app.html','/admin-ambassador-applications.html'];
+  if (appPaths.includes(location.pathname) || document.querySelector('footer.ta-global-footer')) return;
   const style = document.createElement('style');
   style.textContent = `
     .ta-global-footer{background:#0b1020;color:#cbd5e1;margin-top:60px}
     .ta-footer-wrap{max-width:1200px;margin:0 auto;padding:56px 20px 28px}
     .ta-footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:36px}
     .ta-footer-brand-wrap{display:flex;flex-direction:column;gap:14px}
-    .ta-footer-brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:800;font-size:24px;letter-spacing:-.02em;text-decoration:none}
-    .ta-footer-brand img{height:34px;width:auto}
+    .ta-footer-brand{display:flex;align-items:center;gap:12px;color:#fff;font-weight:800;font-size:30px;letter-spacing:-.02em;text-decoration:none}
+    .ta-footer-brand img{height:48px;width:auto}
     .ta-footer-brand span span{color:#60a5fa}
     .ta-footer-tagline{color:#94a3b8;font-size:13px;line-height:1.6;max-width:300px}
     .ta-footer-company{font-size:12px;color:#64748b;line-height:1.7;margin-top:6px}
@@ -63,11 +64,6 @@
                 ks@trustai.no
               </a>
             </div>
-            <div class="ta-footer-company">
-              <b>SETAEI</b>
-              Org.nr 920 645 178<br>
-              Grevlingvegen 1, 2014 Blystadlia
-            </div>
           </div>
           <div class="ta-footer-col">
             <h4>${t.solutions}</h4>
@@ -96,7 +92,7 @@
         </div>
         <div class="ta-footer-bottom">
           <div>© ${year} SETAEI · ${t.rights}</div>
-          <div class="ta-footer-credit">${t.builtBy} <a href="https://wa.me/4741227175">Khabat Setaei</a></div>
+          
         </div>
       </div>
     `;

@@ -14,18 +14,18 @@
 const ui=DashboardUI, app=TrustAIDashboard; let state={ambassadors:[],orders:[],payouts:[],dashboard:{}};
 const normalizeStatus=(v)=>ui.normalizeStatus(v);
 const renderStatusDot=(v)=>ui.renderStatusDot(v);
-function getAmbassadorActions(a){const st=normalizeStatus(a.status);if(st==='pending')return `<button class='btn' onclick='ambAction(${a.id},"approve")'>Godkjenn</button><button class='btn danger' onclick='ambAction(${a.id},"reject")'>Avvis</button>`;if(st==='approved')return `<button class='btn secondary' onclick='ambAction(${a.id},"pause")'>Pause</button>`;if(st==='paused'||st==='rejected')return `<button class='btn' onclick='ambAction(${a.id},"activate")'>Aktiver</button>`;return '';}
-async function logout(){await fetch('/api/auth/logout.php',{method:'POST',credentials:'include'});location.href='/login.html';}
-async function auth(){const d=await fetch('/api/auth/route.php',{credentials:'include'}).then(r=>r.json());if(!d.ok||d.role!=='store_admin'){guard.innerHTML='Ingen tilgang';return false;}content.style.display='block';guard.style.display='none';return true;}
-function bySearch(rows,q){q=q.trim().toLowerCase();if(!q) return rows;return rows.filter(r=>JSON.stringify(r).toLowerCase().includes(q));}
-function render(){const d=state.dashboard; const m=[['Ambassadører',d.metrics?.ambassadors],['Pending',d.metrics?.pending_ambassadors],['Salg',ui.formatCurrency(d.metrics?.total_sales)],['Commission',ui.formatCurrency(d.metrics?.total_commission)],['Pending payouts',ui.formatCurrency(d.metrics?.payouts_pending)]];kpis.innerHTML=m.map(([k,v])=>`<div class='card'><div class='muted'>${k}</div><div class='kpi'>${ui.escapeHtml(v??0)}</div></div>`).join('');
+const st=normalizeStatus(a.status);if(st==='pending')return `<button class='btn' onclick='ambAction(${a.id},"approve")'>Godkjenn</button><button class='btn danger' onclick='ambAction(${a.id},"reject")'>Avvis</button>`;if(st==='approved')return `<button class='btn secondary' onclick='ambAction(${a.id},"pause")'>Pause</button>`;if(st==='paused'||st==='rejected')return `<button class='btn' onclick='ambAction(${a.id},"activate")'>Aktiver</button>`;return '';}
+async await fetch('/api/auth/logout.php',{method:'POST',credentials:'include'});location.href='/login.html';}
+async const d=await fetch('/api/auth/route.php',{credentials:'include'}).then(r=>r.json());if(!d.ok||d.role!=='store_admin'){guard.innerHTML='Ingen tilgang';return false;}content.style.display='block';guard.style.display='none';return true;}
+q=q.trim().toLowerCase();if(!q) return rows;return rows.filter(r=>JSON.stringify(r).toLowerCase().includes(q));}
+const d=state.dashboard; const m=[['Ambassadører',d.metrics?.ambassadors],['Pending',d.metrics?.pending_ambassadors],['Salg',ui.formatCurrency(d.metrics?.total_sales)],['Commission',ui.formatCurrency(d.metrics?.total_commission)],['Pending payouts',ui.formatCurrency(d.metrics?.payouts_pending)]];kpis.innerHTML=m.map(([k,v])=>`<div class='card'><div class='muted'>${k}</div><div class='kpi'>${ui.escapeHtml(v??0)}</div></div>`).join('');
 storeInfo.innerHTML=`${ui.escapeHtml(d.store?.name||'')}<br><span class='muted'>${ui.escapeHtml(d.store?.domain||'')}</span>`;
 defaultCommission.value=d.store?.default_commission_percent??20;
 const pending=state.ambassadors.filter(a=>normalizeStatus(a.status)==='pending');pendingList.innerHTML=pending.length?pending.map(a=>`<div class='pending-card'><strong>${ui.escapeHtml(a.name)}</strong><div class='muted'>${ui.escapeHtml(a.email||'')}</div><div class='toolbar'>${getAmbassadorActions(a)}</div></div>`).join(''):'<div class="empty">Ingen pending søknader.</div>';
 const amb=bySearch(state.ambassadors,ambSearch.value);ui.renderTable(ambTable,amb,[{key:'id',label:'ID'},{key:'name',label:'Navn',render:(_,r)=>`${ui.escapeHtml(r.name||'')} ${renderStatusDot(r.status)}`},{key:'email',label:'E-post'},{key:'status',label:'Status',render:v=>ui.renderBadge(v)},{key:'commission_percent',label:'Comm %'},{key:'id',label:'Actions',render:(_,r)=>`<button class='btn secondary' onclick='editAmb(${r.id})'>Edit</button>${getAmbassadorActions(r)}`}]);
 const orders=bySearch(state.orders,orderSearch.value);ui.renderTable(ordersTable,orders,[{key:'id',label:'ID'},{key:'customer_name',label:'Kunde'},{key:'amount',label:'Beløp',render:v=>ui.formatCurrency(v)},{key:'commission_amount',label:'Kommisjon',render:v=>ui.formatCurrency(v)},{key:'payout_status',label:'Payout',render:v=>ui.renderBadge(v)},{key:'created_at',label:'Dato',render:v=>ui.formatDate(v)}]);
 ui.renderTable(payoutsTable,state.payouts,[{key:'id',label:'ID'},{key:'ambassador_id',label:'Amb.'},{key:'amount',label:'Beløp',render:v=>ui.formatCurrency(v)},{key:'status',label:'Status',render:v=>ui.renderBadge(v)},{key:'id',label:'Actions',render:(_,r)=>`<button class='btn' onclick='setPayout(${r.id},"paid")'>Paid</button><button class='btn danger' onclick='setPayout(${r.id},"rejected")'>Reject</button>`}]);}
-async function load(){
+async 
     const [d, a, o, p] = await Promise.all([
         fetch('/api/store-admin/dashboard.php', { credentials: 'include' }).then(r => r.json()),
         fetch('/api/store-admin/ambassadors.php', { credentials: 'include' }).then(r => r.json()),
@@ -73,33 +73,32 @@ saveSettings.onclick=async()=>{const r=await app.post('/api/store-admin/update-s
 logoutBtn.onclick=logout;ambSearch.oninput=render;orderSearch.oninput=render;auth().then(ok=>ok&&load());
 changePasswordBtn.onclick=async()=>{const body={current_password:currentPassword.value,new_password:newPassword.value,confirm_password:confirmPassword.value};changePasswordBtn.disabled=true;const r=await app.post('/api/auth/change-password.php',body);changePasswordBtn.disabled=false;app.toast(r.ok?'Passord oppdatert':(r.error||'Feil'));if(r.ok){currentPassword.value='';newPassword.value='';confirmPassword.value='';}};
 </script>    {flex:1;overflow-y:auto;padding:14px;background:#0f172a}
-.tai-msg{margin-bottom:12px;max-width:85%;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.5;white-space:pre-wrap}
-.tai-msg.user{margin-left:auto;background:#2563eb;color:#fff;border-bottom-right-radius:4px}
-.tai-msg.bot{background:#1e293b;color:#e2e8f0;border-bottom-left-radius:4px}
-.tai-msg.bot.loading{opacity:.7;font-style:italic}
-.tai-chat-foot{padding:12px;border-top:1px solid #1e293b;background:#0b1220;display:flex;gap:8px}
-.tai-chat-foot input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;font-size:13px}
-.tai-chat-foot input:focus{outline:none;border-color:#2563eb}
-.tai-chat-foot button{padding:10px 16px;border-radius:10px;border:0;background:#2563eb;color:#fff;font-weight:600;cursor:pointer;font-size:13px}
-.tai-chat-foot button:disabled{opacity:.5;cursor:not-allowed}
-.tai-chat-suggest{padding:8px 14px;display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid #1e293b;background:#0b1220}
-.tai-chat-suggest button{font-size:11px;padding:6px 10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#cbd5e1;cursor:pointer}
-.tai-chat-suggest button:hover{background:#1e293b;border-color:#475569}
-@media(max-width:560px){.tai-chat{right:8px;left:8px;width:auto;bottom:90px}.tai-fab{bottom:16px;right:16px}}
+
+
+
+
+
+
+
+
+
+
+
+
+@media(max-width:560px){}
 `;
 
-  function injectStyle() {
+  
     const s = document.createElement('style');
     s.textContent = STYLE;
     document.head.appendChild(s);
   }
 
-  function escapeHtml(t) {
+  
     return String(t || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
   }
 
-  /* INSIGHTS CARDS */
-  async function loadInsights(container, refresh = false) {
+  container, refresh = false) {
     container.innerHTML = '<div class="tai-insights-loading">🤖 AI tenker...</div>';
     try {
       const res = await fetch('/api/ai/insights.php' + (refresh ? '?refresh=1' : ''), { credentials: 'include' });
@@ -123,7 +122,7 @@ changePasswordBtn.onclick=async()=>{const body={current_password:currentPassword
     }
   }
 
-  function mountInsights() {
+  
     const target = document.querySelector('[data-tai-insights]');
     if (!target) return;
     target.innerHTML = `
@@ -141,7 +140,7 @@ changePasswordBtn.onclick=async()=>{const body={current_password:currentPassword
   /* CHAT WIDGET */
   const history = [];
 
-  function buildChat() {
+  
     const fab = document.createElement('button');
     fab.className = 'tai-fab';
     fab.title = 'Spør AI Coach';
@@ -192,7 +191,7 @@ changePasswordBtn.onclick=async()=>{const body={current_password:currentPassword
       b.onclick = () => { input.value = b.textContent; send(); };
     });
 
-    async function send() {
+    async 
       const text = input.value.trim();
       if (!text) return;
       input.value = '';
@@ -247,7 +246,7 @@ changePasswordBtn.onclick=async()=>{const body={current_password:currentPassword
     });
   }
 
-  function init() {
+  
     injectStyle();
     mountInsights();
     buildChat();

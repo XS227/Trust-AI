@@ -97,33 +97,33 @@ const authCard = document.getElementById('authCard');
 const appContainer = document.getElementById('app');
 const authError = document.getElementById('authError');
 
-
+function getFilterFromURL() {
   const params = new URLSearchParams(window.location.search);
   return { code: (params.get('code') || '').trim(), email: (params.get('email') || '').trim() };
 }
 
-
+function ensureAbsoluteUrl(url) {
   const trimmed = (url || '').trim();
   if (!trimmed) return '';
   if (/^https?:\/\//i.test(trimmed)) return trimmed;
   return 'https://' + trimmed;
 }
 
-
+function generateReferralLink(url, ref) {
   const u = new URL(url);
   if (u.searchParams.has('ref')) u.searchParams.set('ref', ref);
   else u.searchParams.append('ref', ref);
   return u.toString();
 }
 
-
+function buildDefaultLink(shopUrl, ref) {
   const absoluteShopUrl = ensureAbsoluteUrl(shopUrl);
   if (!absoluteShopUrl || !ref) return '';
   try { return generateReferralLink(absoluteShopUrl, ref); }
   catch (e) { return absoluteShopUrl + '?ref=' + encodeURIComponent(ref); }
 }
 
-async 
+async function copyText(value) {
   if (!value) return;
   try { await navigator.clipboard.writeText(value); }
   catch (error) {
@@ -136,18 +136,18 @@ async
   }
 }
 
-
+function formatCurrency(amount, currency = 'NOK') {
   return new Intl.NumberFormat('nb-NO', { style: 'currency', currency, minimumFractionDigits: 2 }).format(Number(amount || 0));
 }
 
-
+function formatDate(value) {
   if (!value) return 'Ukjent dato';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleDateString('nb-NO');
 }
 
-
+function dashboardMarkup(data) {
   const ambassadorName = data.ambassador_name || 'Ambassadør';
   const firstName = ambassadorName.split(' ')[0] || 'der';
   const avatar = firstName.charAt(0).toUpperCase();
@@ -273,18 +273,18 @@ async
   `;
 }
 
-
+function setLoggedInUI() {
   authCard.classList.add('hidden');
   appContainer.classList.remove('hidden');
 }
 
-
+function setLoggedOutUI() {
   authCard.classList.remove('hidden');
   appContainer.classList.add('hidden');
   appContainer.innerHTML = '';
 }
 
-async 
+async function loadDashboard(email) {
   const filter = getFilterFromURL();
   const ambassadorQuery = new URLSearchParams();
   ambassadorQuery.set('email', email);
@@ -406,6 +406,7 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 </script>
-  <script src="/assets/js/trustai-ai.js" defer></script>
+<script src="/global-header.js?v=1778027386"></script>
+<script src="/global-footer.js?v=1778026816"></script>
 </body>
 </html>

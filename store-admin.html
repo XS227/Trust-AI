@@ -14,18 +14,18 @@
 const ui=DashboardUI, app=TrustAIDashboard; let state={ambassadors:[],orders:[],payouts:[],dashboard:{}};
 const normalizeStatus=(v)=>ui.normalizeStatus(v);
 const renderStatusDot=(v)=>ui.renderStatusDot(v);
-const st=normalizeStatus(a.status);if(st==='pending')return `<button class='btn' onclick='ambAction(${a.id},"approve")'>Godkjenn</button><button class='btn danger' onclick='ambAction(${a.id},"reject")'>Avvis</button>`;if(st==='approved')return `<button class='btn secondary' onclick='ambAction(${a.id},"pause")'>Pause</button>`;if(st==='paused'||st==='rejected')return `<button class='btn' onclick='ambAction(${a.id},"activate")'>Aktiver</button>`;return '';}
-async await fetch('/api/auth/logout.php',{method:'POST',credentials:'include'});location.href='/login.html';}
-async const d=await fetch('/api/auth/route.php',{credentials:'include'}).then(r=>r.json());if(!d.ok||d.role!=='store_admin'){guard.innerHTML='Ingen tilgang';return false;}content.style.display='block';guard.style.display='none';return true;}
-q=q.trim().toLowerCase();if(!q) return rows;return rows.filter(r=>JSON.stringify(r).toLowerCase().includes(q));}
-const d=state.dashboard; const m=[['Ambassadører',d.metrics?.ambassadors],['Pending',d.metrics?.pending_ambassadors],['Salg',ui.formatCurrency(d.metrics?.total_sales)],['Commission',ui.formatCurrency(d.metrics?.total_commission)],['Pending payouts',ui.formatCurrency(d.metrics?.payouts_pending)]];kpis.innerHTML=m.map(([k,v])=>`<div class='card'><div class='muted'>${k}</div><div class='kpi'>${ui.escapeHtml(v??0)}</div></div>`).join('');
+function getAmbassadorActions(a){const st=normalizeStatus(a.status);if(st==='pending')return `<button class='btn' onclick='ambAction(${a.id},"approve")'>Godkjenn</button><button class='btn danger' onclick='ambAction(${a.id},"reject")'>Avvis</button>`;if(st==='approved')return `<button class='btn secondary' onclick='ambAction(${a.id},"pause")'>Pause</button>`;if(st==='paused'||st==='rejected')return `<button class='btn' onclick='ambAction(${a.id},"activate")'>Aktiver</button>`;return '';}
+async function logout(){await fetch('/api/auth/logout.php',{method:'POST',credentials:'include'});location.href='/login.html';}
+async function auth(){const d=await fetch('/api/auth/route.php',{credentials:'include'}).then(r=>r.json());if(!d.ok||d.role!=='store_admin'){guard.innerHTML='Ingen tilgang';return false;}content.style.display='block';guard.style.display='none';return true;}
+function bySearch(rows,q){q=q.trim().toLowerCase();if(!q) return rows;return rows.filter(r=>JSON.stringify(r).toLowerCase().includes(q));}
+function render(){const d=state.dashboard; const m=[['Ambassadører',d.metrics?.ambassadors],['Pending',d.metrics?.pending_ambassadors],['Salg',ui.formatCurrency(d.metrics?.total_sales)],['Commission',ui.formatCurrency(d.metrics?.total_commission)],['Pending payouts',ui.formatCurrency(d.metrics?.payouts_pending)]];kpis.innerHTML=m.map(([k,v])=>`<div class='card'><div class='muted'>${k}</div><div class='kpi'>${ui.escapeHtml(v??0)}</div></div>`).join('');
 storeInfo.innerHTML=`${ui.escapeHtml(d.store?.name||'')}<br><span class='muted'>${ui.escapeHtml(d.store?.domain||'')}</span>`;
 defaultCommission.value=d.store?.default_commission_percent??20;
 const pending=state.ambassadors.filter(a=>normalizeStatus(a.status)==='pending');pendingList.innerHTML=pending.length?pending.map(a=>`<div class='pending-card'><strong>${ui.escapeHtml(a.name)}</strong><div class='muted'>${ui.escapeHtml(a.email||'')}</div><div class='toolbar'>${getAmbassadorActions(a)}</div></div>`).join(''):'<div class="empty">Ingen pending søknader.</div>';
 const amb=bySearch(state.ambassadors,ambSearch.value);ui.renderTable(ambTable,amb,[{key:'id',label:'ID'},{key:'name',label:'Navn',render:(_,r)=>`${ui.escapeHtml(r.name||'')} ${renderStatusDot(r.status)}`},{key:'email',label:'E-post'},{key:'status',label:'Status',render:v=>ui.renderBadge(v)},{key:'commission_percent',label:'Comm %'},{key:'id',label:'Actions',render:(_,r)=>`<button class='btn secondary' onclick='editAmb(${r.id})'>Edit</button>${getAmbassadorActions(r)}`}]);
 const orders=bySearch(state.orders,orderSearch.value);ui.renderTable(ordersTable,orders,[{key:'id',label:'ID'},{key:'customer_name',label:'Kunde'},{key:'amount',label:'Beløp',render:v=>ui.formatCurrency(v)},{key:'commission_amount',label:'Kommisjon',render:v=>ui.formatCurrency(v)},{key:'payout_status',label:'Payout',render:v=>ui.renderBadge(v)},{key:'created_at',label:'Dato',render:v=>ui.formatDate(v)}]);
 ui.renderTable(payoutsTable,state.payouts,[{key:'id',label:'ID'},{key:'ambassador_id',label:'Amb.'},{key:'amount',label:'Beløp',render:v=>ui.formatCurrency(v)},{key:'status',label:'Status',render:v=>ui.renderBadge(v)},{key:'id',label:'Actions',render:(_,r)=>`<button class='btn' onclick='setPayout(${r.id},"paid")'>Paid</button><button class='btn danger' onclick='setPayout(${r.id},"rejected")'>Reject</button>`}]);}
-async 
+async function load(){
     const [d, a, o, p] = await Promise.all([
         fetch('/api/store-admin/dashboard.php', { credentials: 'include' }).then(r => r.json()),
         fetch('/api/store-admin/ambassadors.php', { credentials: 'include' }).then(r => r.json()),
@@ -72,33 +72,77 @@ window.setPayout=async(id,status)=>{const r=await app.post('/api/store-admin/upd
 saveSettings.onclick=async()=>{const r=await app.post('/api/store-admin/update-settings.php',{default_commission_percent:Number(defaultCommission.value||0)});app.toast(r.ok?'Lagt til':'Feil');if(r.ok)load();}
 logoutBtn.onclick=logout;ambSearch.oninput=render;orderSearch.oninput=render;auth().then(ok=>ok&&load());
 changePasswordBtn.onclick=async()=>{const body={current_password:currentPassword.value,new_password:newPassword.value,confirm_password:confirmPassword.value};changePasswordBtn.disabled=true;const r=await app.post('/api/auth/change-password.php',body);changePasswordBtn.disabled=false;app.toast(r.ok?'Passord oppdatert':(r.error||'Feil'));if(r.ok){currentPassword.value='';newPassword.value='';confirmPassword.value='';}};
-</script>    {flex:1;overflow-y:auto;padding:14px;background:#0f172a}
+</script><script src="/global-header.js?v=1778027386"></script>
+<script src="/global-footer.js?v=1778026816"></script>
+    /* TrustAI AI Coach widget
+ * - Insights-kort på toppen av dashboards (sett <div data-tai-insights></div>)
+ * - Floating chat-knapp nederst til høyre (auto-injisert)
+ * Krever: bruker er innlogget, /api/ai/insights.php og /api/ai/chat.php
+ */
+(function () {
+  'use strict';
+  if (window.__trustaiAiLoaded) return;
+  window.__trustaiAiLoaded = true;
 
+  const STYLE = `
+.tai-insights{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin:0 0 18px}
+.tai-insight{background:linear-gradient(135deg,#0b1220,#111827);border:1px solid #334155;border-radius:14px;padding:14px 16px;color:#e2e8f0;position:relative;overflow:hidden}
+.tai-insight.high{border-color:#f97316}
+.tai-insight.high::before{content:"";position:absolute;top:0;left:0;width:4px;height:100%;background:#f97316}
+.tai-insight.medium{border-color:#3b82f6}
+.tai-insight.medium::before{content:"";position:absolute;top:0;left:0;width:4px;height:100%;background:#3b82f6}
+.tai-insight.low{border-color:#475569}
+.tai-insight-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.tai-insight-icon{font-size:20px}
+.tai-insight-title{font-weight:600;font-size:14px}
+.tai-insight-msg{font-size:13px;color:#cbd5e1;line-height:1.5;margin:6px 0}
+.tai-insight-action{margin-top:10px;font-size:12px;color:#94a3b8;border-top:1px solid #1e293b;padding-top:8px}
+.tai-insight-action b{color:#60a5fa}
+.tai-insights-loading{padding:14px;background:#0b1220;border:1px solid #334155;border-radius:14px;color:#94a3b8;text-align:center;font-size:13px}
+.tai-insights-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.tai-insights-title{color:#94a3b8;font-size:12px;text-transform:uppercase;letter-spacing:.8px;font-weight:600;display:flex;align-items:center;gap:6px}
+.tai-refresh-btn{background:transparent;border:0;color:#60a5fa;font-size:12px;cursor:pointer;padding:4px 8px;border-radius:6px}
+.tai-refresh-btn:hover{background:#1e293b}
 
+.tai-fab{position:fixed;bottom:24px;right:24px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;border:0;cursor:pointer;box-shadow:0 8px 24px rgba(37,99,235,.4);display:flex;align-items:center;justify-content:center;z-index:9998;transition:transform .15s}
+.tai-fab:hover{transform:scale(1.05)}
+.tai-fab svg{width:26px;height:26px}
+.tai-fab-pulse{position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:#10b981;border:2px solid #0f172a;border-radius:50%}
 
-
-
-
-
-
-
-
-
-
-@media(max-width:560px){}
+.tai-chat{position:fixed;bottom:96px;right:24px;width:380px;max-width:calc(100vw - 32px);height:540px;max-height:calc(100vh - 120px);background:#0b1220;border:1px solid #334155;border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.5);z-index:9999;display:none;flex-direction:column;overflow:hidden}
+.tai-chat.open{display:flex}
+.tai-chat-head{padding:14px 16px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;display:flex;justify-content:space-between;align-items:center}
+.tai-chat-head h4{margin:0;font-size:15px;font-weight:600}
+.tai-chat-head .sub{font-size:12px;opacity:.85;margin-top:2px}
+.tai-chat-close{background:transparent;border:0;color:#fff;cursor:pointer;font-size:22px;line-height:1;padding:4px 8px}
+.tai-chat-body{flex:1;overflow-y:auto;padding:14px;background:#0f172a}
+.tai-msg{margin-bottom:12px;max-width:85%;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.5;white-space:pre-wrap}
+.tai-msg.user{margin-left:auto;background:#2563eb;color:#fff;border-bottom-right-radius:4px}
+.tai-msg.bot{background:#1e293b;color:#e2e8f0;border-bottom-left-radius:4px}
+.tai-msg.bot.loading{opacity:.7;font-style:italic}
+.tai-chat-foot{padding:12px;border-top:1px solid #1e293b;background:#0b1220;display:flex;gap:8px}
+.tai-chat-foot input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;font-size:13px}
+.tai-chat-foot input:focus{outline:none;border-color:#2563eb}
+.tai-chat-foot button{padding:10px 16px;border-radius:10px;border:0;background:#2563eb;color:#fff;font-weight:600;cursor:pointer;font-size:13px}
+.tai-chat-foot button:disabled{opacity:.5;cursor:not-allowed}
+.tai-chat-suggest{padding:8px 14px;display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid #1e293b;background:#0b1220}
+.tai-chat-suggest button{font-size:11px;padding:6px 10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#cbd5e1;cursor:pointer}
+.tai-chat-suggest button:hover{background:#1e293b;border-color:#475569}
+@media(max-width:560px){.tai-chat{right:8px;left:8px;width:auto;bottom:90px}.tai-fab{bottom:16px;right:16px}}
 `;
 
-  
+  function injectStyle() {
     const s = document.createElement('style');
     s.textContent = STYLE;
     document.head.appendChild(s);
   }
 
-  
+  function escapeHtml(t) {
     return String(t || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
   }
 
-  container, refresh = false) {
+  /* INSIGHTS CARDS */
+  async function loadInsights(container, refresh = false) {
     container.innerHTML = '<div class="tai-insights-loading">🤖 AI tenker...</div>';
     try {
       const res = await fetch('/api/ai/insights.php' + (refresh ? '?refresh=1' : ''), { credentials: 'include' });
@@ -122,7 +166,7 @@ changePasswordBtn.onclick=async()=>{const body={current_password:currentPassword
     }
   }
 
-  
+  function mountInsights() {
     const target = document.querySelector('[data-tai-insights]');
     if (!target) return;
     target.innerHTML = `
@@ -140,7 +184,7 @@ changePasswordBtn.onclick=async()=>{const body={current_password:currentPassword
   /* CHAT WIDGET */
   const history = [];
 
-  
+  function buildChat() {
     const fab = document.createElement('button');
     fab.className = 'tai-fab';
     fab.title = 'Spør AI Coach';
@@ -191,7 +235,7 @@ changePasswordBtn.onclick=async()=>{const body={current_password:currentPassword
       b.onclick = () => { input.value = b.textContent; send(); };
     });
 
-    async 
+    async function send() {
       const text = input.value.trim();
       if (!text) return;
       input.value = '';
@@ -246,7 +290,7 @@ changePasswordBtn.onclick=async()=>{const body={current_password:currentPassword
     });
   }
 
-  
+  function init() {
     injectStyle();
     mountInsights();
     buildChat();
@@ -259,5 +303,4 @@ changePasswordBtn.onclick=async()=>{const body={current_password:currentPassword
   }
 })();
 
-  <script src="/assets/js/trustai-ai.js" defer></script>
 </body></html>

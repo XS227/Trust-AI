@@ -1,6 +1,7 @@
 (function () {
-  if (document.querySelector('header.site-header') || document.querySelector('.ta-global-header')) return;
-  if (document.body && document.body.classList.contains('no-global-header')) return;
+  const appPaths=['/ambassador-dashboard.html','/store-admin.html','/super-admin.html','/trustai-dashboard.html','/dashboard.html','/app.html','/admin-ambassador-applications.html'];
+  if (appPaths.includes(location.pathname) || (document.body && document.body.classList.contains('no-global-header'))) return;
+  if (document.querySelector('.ta-global-header')) return;
   const style = document.createElement('style');
   style.textContent = `
     .ta-global-header{position:sticky;top:0;z-index:100;background:rgba(11,18,32,.96);backdrop-filter:blur(8px);border-bottom:1px solid rgba(148,163,184,.12)}
@@ -55,9 +56,19 @@
   function setLang(lang){
     localStorage.setItem('trustai_lang', lang);
     applyLang(lang);
-    render();
+    cleanupLegacyHeaders();
+  render();
     document.dispatchEvent(new CustomEvent('trustai:langchange', { detail: { lang } }));
   }
+
+  function cleanupLegacyHeaders(){
+    document.querySelectorAll('header.nav, header.sticky.glass, header.sticky.top-0, header:not(.ta-global-header)').forEach((h)=>{
+      if (h.closest('.app') || h.closest('[data-dashboard]')) return;
+      const hasNav = h.querySelector('.nav-cta, .btn, a[href*="login"], a[href*="signup"], a[href*="register"], a[href*="demo"]');
+      if (hasNav) h.remove();
+    });
+  }
+
   function render() {
     const lang = getLang();
     const t = T[lang] || T.no;

@@ -56,7 +56,7 @@
     }
 
     .brand { display: flex; align-items: center; }
-    .brand img { height: 42px; width: auto; display: block; }
+    .brand img { height: 40px; width: auto; display: block; }
     .logo {
       width: 40px;
       height: 40px;
@@ -403,7 +403,15 @@
   </style>
 </head>
 <body>
-<main>
+  <header>
+    <div class="wrap nav">
+      <a class="brand" href="/" aria-label="TrustAi home"><img src="/logo.png" alt="TrustAi logo"></a>
+      <nav>
+      </nav>
+    </div>
+  </header>
+
+  <main>
     <section class="hero">
       <div class="wrap hero-grid">
         <div>

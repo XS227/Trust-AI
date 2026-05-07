@@ -12,6 +12,5 @@
 </head>
 <body>
   <p>Dashboard har flyttet. Gå til <a href="/dashboard.html">/dashboard.html</a>.</p>
-  <script src="/assets/js/trustai-ai.js" defer></script>
 </body>
 </html>

@@ -406,6 +406,5 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 </script>
-  <script src="/assets/js/trustai-ai.js" defer></script>
 </body>
 </html>

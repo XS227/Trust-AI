@@ -1,78 +1,839 @@
-<!doctype html><html lang="no"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TrustAI Store Admin</title><link rel="stylesheet" href="/assets/css/trustai-dashboard.css"><script src="/assets/js/dashboard-ui.js"></script><script src="/assets/js/trustai-dashboard.js"></script></head>
-<body><div class="app header-nav"><aside class="sidebar"><div class="logo">Trust<span>AI</span></div><div class="user-chip" id="storeInfo">Store Admin</div><nav class="nav"><a class="active" href="#">Dashboard</a></nav><button class="btn secondary" id="logoutBtn">Logout</button></aside>
-<main class="main"><div class="topbar"><button class="btn secondary mobile-toggle" onclick="TrustAIDashboard.toggleSidebar()">☰</button><strong>Store Admin</strong><div class="muted">Egen butikk</div></div><div class="content" id="content" style="display:none">
-<div class="cards" id="kpis"></div>
-<div class="grid-2"><div>
-<div class="card"><h3>Innstillinger</h3><div class="toolbar"><input class="input" id="defaultCommission" type="number" step="0.01"><button class="btn" id="saveSettings">Lagre</button></div></div><div class="card"><h3>Endre passord</h3><div class='field-help'>Nåværende passord: Skriv passordet du bruker i dag.</div><input class='input' id='currentPassword' type='password'><div class='field-help'>Nytt passord: Velg et nytt passord på minst 8 tegn.</div><input class='input' id='newPassword' type='password'><div class='field-help'>Bekreft nytt passord: Skriv det nye passordet én gang til.</div><input class='input' id='confirmPassword' type='password'><div class='toolbar'><button class='btn' id='changePasswordBtn'>Oppdater passord</button></div></div>
-<div class="card"><h3>Pending applications</h3><div id="pendingList"></div></div>
-<div class="card"><h3>Ambassadører</h3><div class="toolbar"><input class="input" id="ambSearch" placeholder="Søk ambassador"></div><div id="ambTable"></div></div>
-<div class="card"><h3>Ordre</h3><div class="toolbar"><input class="input" id="orderSearch" placeholder="Søk ordre"></div><div id="ordersTable"></div></div>
-</div><div><div class="card"><h3>Payouts</h3><div id="payoutsTable"></div></div></div></div>
-</div><div class="content" id="guard"></div><div class="footer">© 2026 <a href="https://setai.no" target="_blank" rel="noopener">SETAEI</a>. All rights reserved.</div></main></div>
-<div class="modal-backdrop" id="globalModal"><div class="modal" id="globalModalContent"></div></div>
-<script>
-const ui=DashboardUI, app=TrustAIDashboard; let state={ambassadors:[],orders:[],payouts:[],dashboard:{}};
-const normalizeStatus=(v)=>ui.normalizeStatus(v);
-const renderStatusDot=(v)=>ui.renderStatusDot(v);
-function getAmbassadorActions(a){const st=normalizeStatus(a.status);if(st==='pending')return `<button class='btn' onclick='ambAction(${a.id},"approve")'>Godkjenn</button><button class='btn danger' onclick='ambAction(${a.id},"reject")'>Avvis</button>`;if(st==='approved')return `<button class='btn secondary' onclick='ambAction(${a.id},"pause")'>Pause</button>`;if(st==='paused'||st==='rejected')return `<button class='btn' onclick='ambAction(${a.id},"activate")'>Aktiver</button>`;return '';}
-async function logout(){await fetch('/api/auth/logout.php',{method:'POST',credentials:'include'});location.href='/login.html';}
-async function auth(){const d=await fetch('/api/auth/route.php',{credentials:'include'}).then(r=>r.json());if(!d.ok||d.role!=='store_admin'){guard.innerHTML='Ingen tilgang';return false;}content.style.display='block';guard.style.display='none';return true;}
-function bySearch(rows,q){q=q.trim().toLowerCase();if(!q) return rows;return rows.filter(r=>JSON.stringify(r).toLowerCase().includes(q));}
-function render(){const d=state.dashboard; const m=[['Ambassadører',d.metrics?.ambassadors],['Pending',d.metrics?.pending_ambassadors],['Salg',ui.formatCurrency(d.metrics?.total_sales)],['Commission',ui.formatCurrency(d.metrics?.total_commission)],['Pending payouts',ui.formatCurrency(d.metrics?.payouts_pending)]];kpis.innerHTML=m.map(([k,v])=>`<div class='card'><div class='muted'>${k}</div><div class='kpi'>${ui.escapeHtml(v??0)}</div></div>`).join('');
-storeInfo.innerHTML=`${ui.escapeHtml(d.store?.name||'')}<br><span class='muted'>${ui.escapeHtml(d.store?.domain||'')}</span>`;
-defaultCommission.value=d.store?.default_commission_percent??20;
-const pending=state.ambassadors.filter(a=>normalizeStatus(a.status)==='pending');pendingList.innerHTML=pending.length?pending.map(a=>`<div class='pending-card'><strong>${ui.escapeHtml(a.name)}</strong><div class='muted'>${ui.escapeHtml(a.email||'')}</div><div class='toolbar'>${getAmbassadorActions(a)}</div></div>`).join(''):'<div class="empty">Ingen pending søknader.</div>';
-const amb=bySearch(state.ambassadors,ambSearch.value);ui.renderTable(ambTable,amb,[{key:'id',label:'ID'},{key:'name',label:'Navn',render:(_,r)=>`${ui.escapeHtml(r.name||'')} ${renderStatusDot(r.status)}`},{key:'email',label:'E-post'},{key:'status',label:'Status',render:v=>ui.renderBadge(v)},{key:'commission_percent',label:'Comm %'},{key:'id',label:'Actions',render:(_,r)=>`<button class='btn secondary' onclick='editAmb(${r.id})'>Edit</button>${getAmbassadorActions(r)}`}]);
-const orders=bySearch(state.orders,orderSearch.value);ui.renderTable(ordersTable,orders,[{key:'id',label:'ID'},{key:'customer_name',label:'Kunde'},{key:'amount',label:'Beløp',render:v=>ui.formatCurrency(v)},{key:'commission_amount',label:'Kommisjon',render:v=>ui.formatCurrency(v)},{key:'payout_status',label:'Payout',render:v=>ui.renderBadge(v)},{key:'created_at',label:'Dato',render:v=>ui.formatDate(v)}]);
-ui.renderTable(payoutsTable,state.payouts,[{key:'id',label:'ID'},{key:'ambassador_id',label:'Amb.'},{key:'amount',label:'Beløp',render:v=>ui.formatCurrency(v)},{key:'status',label:'Status',render:v=>ui.renderBadge(v)},{key:'id',label:'Actions',render:(_,r)=>`<button class='btn' onclick='setPayout(${r.id},"paid")'>Paid</button><button class='btn danger' onclick='setPayout(${r.id},"rejected")'>Reject</button>`}]);}
-async function load(){
-    const [d, a, o, p] = await Promise.all([
-        fetch('/api/store-admin/dashboard.php', { credentials: 'include' }).then(r => r.json()),
-        fetch('/api/store-admin/ambassadors.php', { credentials: 'include' }).then(r => r.json()),
-        fetch('/api/store-admin/orders.php', { credentials: 'include' }).then(r => r.json()),
-        fetch('/api/store-admin/payouts.php', { credentials: 'include' }).then(r => r.json())
-    ]);
-    if (!d.ok) {
-        app.toast('Kunne ikke laste');
-        return;
-    }
-    // Start with the existing ambassadors returned from the store-admin API
-    let ambassadorsList = a.ambassadors || [];
-    // Attempt to load any pending applications so store admins can see them
-    try {
-        const apps = await fetch('/api/list-ambassador-applications.php', { credentials: 'include' }).then(r => r.json());
-        if (apps && apps.ok && Array.isArray(apps.applications)) {
-            const storeId = d.store?.id;
-            const pendingApps = apps.applications
-                .filter(app => normalizeStatus(app.status) === 'pending' && (storeId === undefined || Number(app.store_id) === Number(storeId)))
-                .map(app => ({
-                    id: app.application_id,
-                    name: app.name,
-                    email: app.email,
-                    phone: app.phone,
-                    status: app.status,
-                    commission_percent: 0
-                }));
-            ambassadorsList = ambassadorsList.concat(pendingApps);
-        }
-    } catch (e) {
-        // ignore errors; pending list will remain empty if fetch fails
-    }
-    state = {
-        dashboard: d,
-        ambassadors: ambassadorsList,
-        orders: o.orders || [],
-        payouts: p.payouts || []
-    };
-    render();
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Store Admin | TrustAI</title>
+<style>
+:root{
+  --bg:#0a0e1a;--bg-2:#0f1626;--panel:#131c2e;--panel-2:#1a2540;
+  --line:#1e2b47;--line-strong:#2a3a5c;--text:#e2e8f0;--muted:#94a3b8;
+  --accent:#6366f1;--accent-2:#a855f7;--blue:#3b82f6;--green:#10b981;
+  --orange:#f97316;--red:#ef4444;
+  --gradient:linear-gradient(135deg,#6366f1 0%,#a855f7 100%);
+  --gradient-soft:linear-gradient(135deg,rgba(99,102,241,.18),rgba(168,85,247,.18));
 }
-window.ambAction=async(id,act)=>{const map={approve:'/api/store-admin/approve-ambassador.php',reject:'/api/store-admin/reject-ambassador.php',pause:'/api/store-admin/pause-ambassador.php',activate:'/api/store-admin/activate-ambassador.php'};const r=await app.post(map[act],{ambassador_id:id});app.toast(r.ok?'Oppdatert':(r.error||'Feil'));if(r.ok&&r.ambassador){const i=state.ambassadors.findIndex(x=>Number(x.id)===Number(id));if(i>-1) state.ambassadors[i]=r.ambassador;render();} else if(r.ok){load();}}
-window.editAmb=(id)=>{const a=state.ambassadors.find(x=>Number(x.id)===Number(id));app.showModal('Rediger ambassador',`<input class='input' id='am_name' value='${ui.escapeHtml(a.name||'')}'><input class='input' id='am_email' value='${ui.escapeHtml(a.email||'')}'><input class='input' id='am_phone' value='${ui.escapeHtml(a.phone||'')}'><input class='input' id='am_comm' type='number' step='0.01' value='${ui.escapeHtml(a.commission_percent||0)}'>`,async()=>{const r=await app.post('/api/store-admin/update-ambassador.php',{ambassador_id:id,name:app.qs('am_name').value,email:app.qs('am_email').value,phone:app.qs('am_phone').value,commission_percent:Number(app.qs('am_comm').value||0)});app.toast(r.ok?'Lagret':'Feil');if(r.ok)load();});}
-window.setPayout=async(id,status)=>{const r=await app.post('/api/store-admin/update-payout.php',{payout_id:id,status});app.toast(r.ok?'Payout oppdatert':'Feil');if(r.ok)load();}
-saveSettings.onclick=async()=>{const r=await app.post('/api/store-admin/update-settings.php',{default_commission_percent:Number(defaultCommission.value||0)});app.toast(r.ok?'Lagt til':'Feil');if(r.ok)load();}
-logoutBtn.onclick=logout;ambSearch.oninput=render;orderSearch.oninput=render;auth().then(ok=>ok&&load());
-changePasswordBtn.onclick=async()=>{const body={current_password:currentPassword.value,new_password:newPassword.value,confirm_password:confirmPassword.value};changePasswordBtn.disabled=true;const r=await app.post('/api/auth/change-password.php',body);changePasswordBtn.disabled=false;app.toast(r.ok?'Passord oppdatert':(r.error||'Feil'));if(r.ok){currentPassword.value='';newPassword.value='';confirmPassword.value='';}};
-</script><script src="/global-footer.js"></script>
-    
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;font-size:14px;min-height:100vh}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+.app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+.sidebar{background:var(--bg-2);border-right:1px solid var(--line);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-head{padding:22px 20px 18px;border-bottom:1px solid var(--line)}
+.sidebar-brand{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.sidebar-brand img{height:30px}
+.sidebar-brand-txt{font-weight:800;font-size:18px;letter-spacing:-.02em}
+.sidebar-brand-txt span{background:var(--gradient);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sidebar-sub{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.profile-card{margin:14px 20px;padding:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;display:flex;gap:11px;align-items:center}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--gradient);display:grid;place-items:center;font-weight:800;color:#fff;font-size:16px;flex-shrink:0}
+.profile-name{font-weight:700;font-size:13px;line-height:1.2}
+.profile-role{font-size:11px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:5px}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.nav-list{padding:8px 12px;flex:1}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;color:var(--muted);font-size:13px;font-weight:500;margin-bottom:2px;border:0;background:transparent;width:100%;text-align:left;transition:.15s}
+.nav-item:hover{background:rgba(99,102,241,.08);color:var(--text)}
+.nav-item.active{background:var(--gradient-soft);color:#fff;font-weight:650}
+.nav-item .ico{width:18px;height:18px;display:grid;place-items:center;font-size:15px;flex-shrink:0}
+.nav-item .badge{margin-left:auto;font-size:10px;padding:2px 7px;border-radius:6px;background:rgba(245,158,11,.16);color:#fbbf24;font-weight:700}
+.nav-item .badge.coming{background:rgba(148,163,184,.12);color:#94a3b8}
+.nav-item .badge.live{background:rgba(16,185,129,.16);color:#10b981}
+.sidebar-foot{padding:14px 20px;border-top:1px solid var(--line)}
+.logout-btn{display:flex;align-items:center;gap:8px;padding:9px 12px;color:#94a3b8;font-size:13px;border:0;background:transparent;border-radius:8px;width:100%}
+.logout-btn:hover{background:rgba(239,68,68,.08);color:#ef4444}
+.main{padding:24px 28px;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:14px;flex-wrap:wrap}
+.topbar h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.02em}
+.topbar-sub{color:var(--muted);font-size:13px;margin-top:3px}
+.topbar-actions{display:flex;gap:8px;align-items:center}
+.icon-btn{width:38px;height:38px;background:var(--panel);border:1px solid var(--line);border-radius:10px;display:grid;place-items:center;color:var(--muted);font-size:16px;position:relative}
+.icon-btn:hover{border-color:var(--accent);color:var(--text)}
+.icon-btn .dot-badge{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--orange)}
+.date-select{background:var(--panel);border:1px solid var(--line);color:var(--text);padding:9px 14px;border-radius:10px;font-size:13px}
+.status-banner{background:var(--gradient-soft);border:1px solid rgba(99,102,241,.3);border-radius:12px;padding:14px 18px;margin-bottom:24px;display:flex;align-items:center;gap:12px;font-size:13px}
+.status-banner-ico{font-size:20px}
+.status-banner b{color:#a5b4fc}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:24px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;position:relative;overflow:hidden;transition:.2s}
+.kpi:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:0 12px 30px rgba(99,102,241,.15)}
+.kpi-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.kpi-ico{width:36px;height:36px;border-radius:10px;background:var(--gradient-soft);display:grid;place-items:center;font-size:18px}
+.kpi-trend{font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px}
+.kpi-trend.up{background:rgba(16,185,129,.16);color:#10b981}
+.kpi-trend.down{background:rgba(239,68,68,.14);color:#ef4444}
+.kpi-trend.neu{background:rgba(148,163,184,.14);color:#94a3b8}
+.kpi-value{font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.kpi-label{font-size:12px;color:var(--muted);margin-top:4px}
+.kpi-spark{height:30px;margin-top:8px;opacity:.85}
+.row-2{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin-bottom:16px}
+.row-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
+@media(max-width:1100px){.row-2,.row-3{grid-template-columns:1fr}}
+.panel-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.panel-title{font-weight:700;font-size:15px}
+.panel-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.tag-demo{font-size:10px;background:rgba(245,158,11,.18);color:#fbbf24;padding:3px 7px;border-radius:6px;font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+.tag-live{font-size:10px;background:rgba(16,185,129,.18);color:#10b981;padding:3px 7px;border-radius:6px;font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+.tag-soon{font-size:10px;background:rgba(148,163,184,.16);color:#94a3b8;padding:3px 7px;border-radius:6px;font-weight:700;text-transform:uppercase;letter-spacing:.6px}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl thead th{text-align:left;padding:10px 12px;background:var(--bg-2);color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--line)}
+.tbl tbody td{padding:12px;border-bottom:1px solid var(--line)}
+.tbl tbody tr:hover{background:rgba(99,102,241,.04)}
+.tbl tbody tr:last-child td{border-bottom:0}
+.status-pill{display:inline-flex;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.s-open{background:rgba(59,130,246,.16);color:#60a5fa}
+.s-meeting{background:rgba(168,85,247,.16);color:#c084fc}
+.s-offer{background:rgba(245,158,11,.16);color:#fbbf24}
+.s-approved{background:rgba(16,185,129,.16);color:#34d399}
+.s-rejected{background:rgba(239,68,68,.14);color:#f87171}
+.s-pending{background:rgba(245,158,11,.16);color:#fbbf24}
+.s-paused{background:rgba(148,163,184,.14);color:#94a3b8}
+.s-active{background:rgba(16,185,129,.16);color:#34d399}
+.s-paid{background:rgba(16,185,129,.16);color:#34d399}
+.btn-ghost{background:transparent;color:var(--accent);border:1px solid var(--line);padding:5px 11px;border-radius:7px;font-size:11px;font-weight:600}
+.btn-ghost:hover{border-color:var(--accent)}
+.btn-primary{background:var(--gradient);color:#fff;border:0;padding:9px 16px;border-radius:9px;font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+.btn-primary:hover{filter:brightness(1.1)}
+.btn-danger{background:rgba(239,68,68,.14);color:#ef4444;border:1px solid rgba(239,68,68,.2);padding:5px 11px;border-radius:7px;font-size:11px;font-weight:600}
+.btn-danger:hover{background:rgba(239,68,68,.25)}
+.activity-list{display:flex;flex-direction:column;gap:9px}
+.activity-item{display:flex;gap:11px;padding:10px;border-radius:10px;background:var(--bg-2);align-items:flex-start}
+.activity-ico{width:30px;height:30px;border-radius:8px;background:var(--gradient-soft);display:grid;place-items:center;font-size:13px;flex-shrink:0}
+.activity-text{flex:1;font-size:12px}
+.activity-time{font-size:10px;color:var(--muted);margin-top:2px}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px}
+@media(max-width:600px){.form-row{grid-template-columns:1fr}}
+.form-group{margin-bottom:0}
+.form-group label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:600}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 12px;background:var(--bg-2);border:1px solid var(--line);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--accent)}
+.form-group textarea{resize:vertical;min-height:80px}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--gradient);color:#fff;padding:12px 18px;border-radius:10px;font-weight:600;box-shadow:0 10px 30px rgba(99,102,241,.4);z-index:9999;display:none}
+.toast.show{display:block;animation:slideIn .3s}
+@keyframes slideIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.mobile-toggle{display:none;background:var(--panel);border:1px solid var(--line);color:var(--text);padding:8px 12px;border-radius:8px;font-size:14px;margin-bottom:12px}
+@media(max-width:880px){
+  .app{grid-template-columns:1fr}
+  .sidebar{position:fixed;left:0;top:0;width:280px;z-index:1000;transform:translateX(-100%);transition:.3s}
+  .sidebar.open{transform:translateX(0)}
+  .mobile-toggle{display:block}
+  .topbar{flex-direction:column;align-items:flex-start}
+  .main{padding:16px}
+}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-backdrop.open{display:flex}
+.modal{background:var(--panel);border:1px solid var(--line-strong);border-radius:18px;padding:28px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;position:relative}
+.modal h2{margin:0 0 20px;font-size:20px;font-weight:800}
+.modal-close{position:absolute;top:16px;right:16px;background:var(--bg-2);border:1px solid var(--line);color:var(--muted);width:32px;height:32px;border-radius:8px;display:grid;place-items:center;font-size:16px}
+.modal-close:hover{color:var(--text)}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
+.filter-pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.filter-pill{padding:6px 14px;border-radius:999px;border:1px solid var(--line);color:var(--muted);font-size:12px;font-weight:600;background:transparent;transition:.15s}
+.filter-pill.active{background:var(--gradient);color:#fff;border-color:transparent}
+.filter-pill:hover:not(.active){border-color:var(--accent);color:var(--text)}
+.reward-matrix{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+.reward-tier{background:var(--bg-2);border:1px solid var(--line);border-radius:10px;padding:14px;text-align:center}
+.reward-tier.featured{background:var(--gradient-soft);border-color:rgba(99,102,241,.4)}
+.reward-pct{font-size:26px;font-weight:800;background:var(--gradient);-webkit-background-clip:text;background-clip:text;color:transparent}
+.reward-label{font-size:11px;color:var(--muted);margin-top:4px}
+.reward-req{font-size:10px;color:var(--muted);margin-top:6px}
+.ai-area{background:var(--bg-2);border:1px solid rgba(99,102,241,.3);border-radius:12px;padding:14px;margin-top:16px}
+.ai-area textarea{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;font-size:13px;color:var(--text);width:100%;min-height:80px;font-family:inherit;resize:vertical}
+.ai-result{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px;font-size:13px;line-height:1.6;min-height:60px;color:var(--text)}
+.content-card{background:var(--bg-2);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:10px}
+.content-card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.content-body{font-size:13px;color:var(--muted);line-height:1.6}
+.pending-banner{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px;font-size:13px;margin-bottom:16px}
+.pending-banner b{color:#fbbf24}
+</style>
+</head>
+<body>
 
-<script src="/assets/js/trustai-ai.js"></script></body></html>
+<div id="guard" style="padding:60px 20px;text-align:center;color:var(--muted)">
+  <div style="font-size:50px">🔐</div>
+  <h2>Sjekker tilgang...</h2>
+  <p>Vent litt mens vi laster admin-panelet.</p>
+</div>
+
+<div class="app" id="app" style="display:none">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-head">
+      <div class="sidebar-brand">
+        <img src="/logo.png" alt="TrustAI" onerror="this.style.display='none'">
+        <div>
+          <div class="sidebar-brand-txt">Trust<span>AI</span></div>
+          <div class="sidebar-sub" id="sidebarSub">Store Admin</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-card">
+      <div class="avatar" id="profileAvatar">A</div>
+      <div style="flex:1;min-width:0">
+        <div class="profile-name" id="profileName">Store Admin</div>
+        <div class="profile-role"><span class="status-dot"></span><span id="storeDomain">—</span></div>
+      </div>
+    </div>
+
+    <nav class="nav-list">
+      <button class="nav-item active" data-tab="dashboard"><span class="ico">📊</span>Dashboard <span class="badge live">Live</span></button>
+      <button class="nav-item" data-tab="leads"><span class="ico">📋</span>Leads <span class="badge">Demo</span></button>
+      <button class="nav-item" data-tab="ambassadors"><span class="ico">👥</span>Ambassadører <span class="badge live">Live</span></button>
+      <button class="nav-item" data-tab="revenue"><span class="ico">💰</span>Inntekter <span class="badge live">Live</span></button>
+      <button class="nav-item" data-tab="payouts"><span class="ico">💸</span>Utbetalinger <span class="badge live">Live</span></button>
+      <button class="nav-item" data-tab="content"><span class="ico">✍️</span>Innhold <span class="badge">Demo</span></button>
+      <button class="nav-item" data-tab="settings"><span class="ico">⚙️</span>Innstillinger <span class="badge live">Live</span></button>
+    </nav>
+
+    <div class="sidebar-foot">
+      <button class="logout-btn" onclick="logout()">🚪 Logg ut</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰ Meny</button>
+
+    <!-- ===== DASHBOARD ===== -->
+    <div class="tab-content active" id="tab-dashboard">
+      <div class="topbar">
+        <div>
+          <h1>God dag 👋</h1>
+          <div class="topbar-sub" id="dashDate">Oversikt over din butikk</div>
+        </div>
+        <div class="topbar-actions">
+          <button class="icon-btn" title="Varsler" id="notifBtn">🔔<span class="dot-badge" id="notifDot" style="display:none"></span></button>
+          <select class="date-select"><option>Siste 30 dager</option><option>Siste 7 dager</option><option>Siste 90 dager</option><option>Hele perioden</option></select>
+        </div>
+      </div>
+
+      <div class="status-banner">
+        <span class="status-banner-ico">🏪</span>
+        <span><b id="storeBannerName">Din butikk.</b> <span class="tag-live">Live</span> = ekte data. <span class="tag-demo">Demo</span> = forhåndsvisning.</span>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-head"><div class="kpi-ico">👥</div><div class="kpi-trend neu" id="kpiAmbTrend">Total</div></div><div class="kpi-value" id="kpiAmb">—</div><div class="kpi-label">Ambassadører</div><svg class="kpi-spark" viewBox="0 0 100 30"><polyline fill="none" stroke="#a855f7" stroke-width="2" points="0,25 20,20 40,18 60,14 80,10 100,6"/></svg></div>
+        <div class="kpi"><div class="kpi-head"><div class="kpi-ico">⏳</div><div class="kpi-trend down" id="kpiPendTrend">Venter</div></div><div class="kpi-value" id="kpiPending">—</div><div class="kpi-label">Avventer søknader</div><svg class="kpi-spark" viewBox="0 0 100 30"><polyline fill="none" stroke="#f97316" stroke-width="2" points="0,15 20,18 40,12 60,16 80,10 100,14"/></svg></div>
+        <div class="kpi"><div class="kpi-head"><div class="kpi-ico">💰</div><div class="kpi-trend up">+12%</div></div><div class="kpi-value" id="kpiSales">—</div><div class="kpi-label">Total omsetning</div><svg class="kpi-spark" viewBox="0 0 100 30"><polyline fill="none" stroke="#10b981" stroke-width="2" points="0,26 20,22 40,18 60,12 80,8 100,4"/></svg></div>
+        <div class="kpi"><div class="kpi-head"><div class="kpi-ico">💎</div><div class="kpi-trend up">+8%</div></div><div class="kpi-value" id="kpiComm">—</div><div class="kpi-label">Provisjon totalt</div><svg class="kpi-spark" viewBox="0 0 100 30"><polyline fill="none" stroke="#3b82f6" stroke-width="2" points="0,28 20,24 40,20 60,15 80,10 100,5"/></svg></div>
+        <div class="kpi"><div class="kpi-head"><div class="kpi-ico">💸</div><div class="kpi-trend neu">Utestående</div></div><div class="kpi-value" id="kpiPayPend">—</div><div class="kpi-label">Utbetalinger pending</div><svg class="kpi-spark" viewBox="0 0 100 30"><polyline fill="none" stroke="#6366f1" stroke-width="2" points="0,22 20,18 40,20 60,14 80,12 100,8"/></svg></div>
+        <div class="kpi"><div class="kpi-head"><div class="kpi-ico">✅</div><div class="kpi-trend up">Aktive</div></div><div class="kpi-value" id="kpiActive">—</div><div class="kpi-label">Aktive ambassadører</div><svg class="kpi-spark" viewBox="0 0 100 30"><polyline fill="none" stroke="#10b981" stroke-width="2" points="0,24 20,20 40,16 60,13 80,9 100,5"/></svg></div>
+      </div>
+
+      <div class="row-2">
+        <div class="panel-card">
+          <div class="panel-head">
+            <div><div class="panel-title">⚡ Siste aktivitet</div><div class="panel-sub">Siste ordrer i din butikk</div></div>
+            <span class="tag-live">Live</span>
+          </div>
+          <div class="activity-list" id="activityList">
+            <div style="color:var(--muted);text-align:center;padding:20px">Laster...</div>
+          </div>
+        </div>
+        <div class="panel-card">
+          <div class="panel-head">
+            <div><div class="panel-title">⏳ Søknader</div><div class="panel-sub">Venter på godkjenning</div></div>
+            <span class="tag-live">Live</span>
+          </div>
+          <div id="pendingCards" style="display:flex;flex-direction:column;gap:8px">
+            <div style="color:var(--muted);text-align:center;padding:20px">Laster...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <div class="panel-head">
+          <div><div class="panel-title">🤖 AI Coach</div><div class="panel-sub">Innsikt og anbefalinger</div></div>
+          <span class="tag-live">Live</span>
+        </div>
+        <div data-tai-insights></div>
+      </div>
+    </div>
+
+    <!-- ===== LEADS ===== -->
+    <div class="tab-content" id="tab-leads">
+      <div class="topbar">
+        <div><h1>📋 Leads</h1><div class="topbar-sub">Salgspipeline og lead-oppfølging</div></div>
+        <div class="topbar-actions"><span class="tag-demo">Demo data</span></div>
+      </div>
+
+      <div class="filter-pills" id="leadFilters">
+        <button class="filter-pill active" data-filter="all">Alle</button>
+        <button class="filter-pill" data-filter="open">Åpen</button>
+        <button class="filter-pill" data-filter="meeting">Møte</button>
+        <button class="filter-pill" data-filter="offer">Tilbud</button>
+        <button class="filter-pill" data-filter="approved">Godkjent</button>
+        <button class="filter-pill" data-filter="rejected">Avslag</button>
+      </div>
+
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">Alle leads</div><span class="tag-demo">Demo</span></div>
+        <div style="overflow-x:auto">
+          <table class="tbl" id="leadsTable">
+            <thead><tr><th>Firma</th><th>Ambassadør</th><th>Status</th><th>Verdi</th><th>Provisjon</th><th>Kilde</th><th>Dato</th></tr></thead>
+            <tbody id="leadsTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== AMBASSADØRER ===== -->
+    <div class="tab-content" id="tab-ambassadors">
+      <div class="topbar">
+        <div><h1>👥 Ambassadører</h1><div class="topbar-sub">Ambassadører i din butikk</div></div>
+      </div>
+
+      <div class="filter-pills" id="ambFilters">
+        <button class="filter-pill active" data-filter="all">Alle</button>
+        <button class="filter-pill" data-filter="pending">Søknad</button>
+        <button class="filter-pill" data-filter="approved">Aktiv</button>
+        <button class="filter-pill" data-filter="paused">Pauset</button>
+        <button class="filter-pill" data-filter="rejected">Avsluttet</button>
+      </div>
+
+      <div class="panel-card" style="margin-bottom:16px">
+        <div class="panel-head"><div class="panel-title">Ambassadørliste</div><span class="tag-live">Live</span></div>
+        <div style="overflow-x:auto">
+          <table class="tbl">
+            <thead><tr><th>Navn</th><th>E-post</th><th>Status</th><th>Provisjon %</th><th>Registrert</th><th>Handlinger</th></tr></thead>
+            <tbody id="ambTbody"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:30px">Laster...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <div class="panel-head">
+          <div><div class="panel-title">🏆 Belønningsmatrise</div><div class="panel-sub">Provisjonsnivåer basert på prestasjon</div></div>
+          <span class="tag-demo">Demo</span>
+        </div>
+        <div class="reward-matrix">
+          <div class="reward-tier"><div class="reward-pct">5%</div><div class="reward-label">Starter</div><div class="reward-req">0–49.000 kr omsetning</div></div>
+          <div class="reward-tier featured"><div class="reward-pct">10%</div><div class="reward-label">Pro</div><div class="reward-req">50.000–199.000 kr</div></div>
+          <div class="reward-tier"><div class="reward-pct">15%</div><div class="reward-label">Elite</div><div class="reward-req">200.000 kr+</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== INNTEKTER ===== -->
+    <div class="tab-content" id="tab-revenue">
+      <div class="topbar">
+        <div><h1>💰 Inntekter</h1><div class="topbar-sub">Ordrer i din butikk</div></div>
+        <div class="topbar-actions">
+          <select class="date-select" id="revenueFilter"><option value="">Alle perioder</option><option value="7">Siste 7 dager</option><option value="30">Siste 30 dager</option><option value="90">Siste 90 dager</option></select>
+        </div>
+      </div>
+
+      <div class="row-3" style="margin-bottom:16px">
+        <div class="panel-card"><div style="font-size:11px;color:var(--muted);text-transform:uppercase">Total omsetning</div><div style="font-size:28px;font-weight:800;margin:6px 0" id="revTotal">—</div></div>
+        <div class="panel-card"><div style="font-size:11px;color:var(--muted);text-transform:uppercase">Total provisjon</div><div style="font-size:28px;font-weight:800;margin:6px 0" id="revComm">—</div></div>
+        <div class="panel-card"><div style="font-size:11px;color:var(--muted);text-transform:uppercase">Antall ordrer</div><div style="font-size:28px;font-weight:800;margin:6px 0" id="revCount">—</div></div>
+      </div>
+
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">Alle ordrer</div><span class="tag-live">Live</span></div>
+        <div style="overflow-x:auto">
+          <table class="tbl">
+            <thead><tr><th>Ordre ID</th><th>Ambassadør</th><th>Kunde</th><th>Beløp</th><th>Provisjon</th><th>Status</th><th>Dato</th></tr></thead>
+            <tbody id="ordersBody"><tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px">Laster...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== UTBETALINGER ===== -->
+    <div class="tab-content" id="tab-payouts">
+      <div class="topbar">
+        <div><h1>💸 Utbetalinger</h1><div class="topbar-sub">Provisjonsutbetalinger til ambassadører</div></div>
+      </div>
+
+      <div class="panel-card">
+        <div class="panel-head"><div class="panel-title">Utbetalingslogg</div><span class="tag-live">Live</span></div>
+        <div style="overflow-x:auto">
+          <table class="tbl">
+            <thead><tr><th>ID</th><th>Ambassadør</th><th>Beløp</th><th>Status</th><th>Dato</th><th>Handlinger</th></tr></thead>
+            <tbody id="payoutsTbody"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:30px">Laster...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== INNHOLD ===== -->
+    <div class="tab-content" id="tab-content">
+      <div class="topbar">
+        <div><h1>✍️ Innhold & delingstekster</h1><div class="topbar-sub">Forhåndslagde tekster ambassadørene kan dele</div></div>
+      </div>
+
+      <div class="content-card">
+        <div class="content-card-head"><b>📘 LinkedIn-post</b><div style="display:flex;gap:8px;align-items:center"><span style="font-size:11px;color:var(--muted)">Konvertering: 4.2%</span><button class="btn-ghost" onclick="copyContent(this,'Jeg har funnet en plattform jeg virkelig anbefaler — sjekk ut [butikk] via min lenke: [LINK]')">📋 Kopier</button></div></div>
+        <div class="content-body">"Jeg har funnet en plattform jeg virkelig anbefaler — sjekk ut [butikk] via min lenke: [LINK]"</div>
+      </div>
+      <div class="content-card">
+        <div class="content-card-head"><b>📧 E-post</b><div style="display:flex;gap:8px;align-items:center"><span style="font-size:11px;color:var(--muted)">Konvertering: 6.8%</span><button class="btn-ghost" onclick="copyContent(this,'Hei! Jeg vil dele en plattform jeg har gode erfaringer med. Klikk her: [LINK]')">📋 Kopier</button></div></div>
+        <div class="content-body">"Hei! Jeg vil dele en plattform jeg har gode erfaringer med. Klikk her: [LINK]"</div>
+      </div>
+      <div class="content-card">
+        <div class="content-card-head"><b>💬 WhatsApp</b><div style="display:flex;gap:8px;align-items:center"><span style="font-size:11px;color:var(--muted)">Konvertering: 8.1%</span><button class="btn-ghost" onclick="copyContent(this,'Hei! 👋 Du må sjekke dette: [LINK]')">📋 Kopier</button></div></div>
+        <div class="content-body">"Hei! 👋 Du må sjekke dette: [LINK]"</div>
+      </div>
+
+      <div class="ai-area">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <span style="font-size:16px">🤖</span>
+          <div><b>Forbedre med AI</b><div style="font-size:11px;color:var(--muted)">La AI skrive eller forbedre delingsteksten din</div></div>
+          <span class="tag-live" style="margin-left:auto">Live</span>
+        </div>
+        <div class="form-group" style="margin-bottom:10px">
+          <label>Kanal</label>
+          <select id="aiChannel"><option>LinkedIn</option><option>E-post</option><option>WhatsApp</option><option>Facebook</option><option>SMS</option></select>
+        </div>
+        <div class="form-group" style="margin-bottom:10px">
+          <label>Tekst / instruks til AI</label>
+          <textarea id="aiInput" placeholder="F.eks: Skriv en profesjonell LinkedIn-post som promoterer ambassadørprogrammet..."></textarea>
+        </div>
+        <button class="btn-primary" onclick="improveWithAI()" id="aiBtn">✨ Forbedre med AI</button>
+        <div id="aiResult" class="ai-result" style="margin-top:12px;display:none"></div>
+      </div>
+    </div>
+
+    <!-- ===== INNSTILLINGER ===== -->
+    <div class="tab-content" id="tab-settings">
+      <div class="topbar"><div><h1>⚙️ Innstillinger</h1><div class="topbar-sub">Butikk- og kontoinnstillinger</div></div></div>
+
+      <div class="row-2">
+        <div>
+          <div class="panel-card" style="margin-bottom:16px">
+            <div class="panel-head"><div class="panel-title">Butikkinnstillinger</div><span class="tag-live">Live</span></div>
+            <div class="form-row">
+              <div class="form-group"><label>Butikknavn</label><input type="text" id="storeNameField" disabled></div>
+              <div class="form-group"><label>Butikk URL</label><input type="text" id="storeDomainField" disabled></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Standard provisjon %</label>
+                <input type="number" id="defaultCommission" step="0.01" min="0" max="100" placeholder="10">
+              </div>
+              <div class="form-group" style="display:flex;align-items:flex-end">
+                <button class="btn-primary" style="width:100%" onclick="saveSettings()">💾 Lagre innstillinger</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-card">
+            <div class="panel-head"><div class="panel-title">Bytt passord</div><span class="tag-live">Live</span></div>
+            <div class="form-group" style="margin-bottom:10px"><label>Nåværende passord</label><input type="password" id="currPw"></div>
+            <div class="form-group" style="margin-bottom:10px"><label>Nytt passord</label><input type="password" id="newPw"></div>
+            <div class="form-group" style="margin-bottom:12px"><label>Bekreft nytt passord</label><input type="password" id="confPw"></div>
+            <button class="btn-primary" onclick="changePassword()">🔒 Oppdater passord</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="panel-card" style="margin-bottom:16px">
+            <div class="panel-head"><div class="panel-title">Juridisk</div><span class="tag-live">Live</span></div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <a href="/vilkar.html" style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg-2);border:1px solid var(--line);border-radius:10px;font-size:13px;font-weight:600">📄 Vilkår og betingelser</a>
+              <a href="/personvern.html" style="display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg-2);border:1px solid var(--line);border-radius:10px;font-size:13px;font-weight:600">🔒 Personvernerklæring</a>
+            </div>
+          </div>
+          <div class="panel-card">
+            <div class="panel-head"><div class="panel-title">Support</div><span class="tag-live">Live</span></div>
+            <div style="font-size:13px;color:var(--muted);line-height:1.8">
+              <div>📧 <a href="mailto:hello@trustai.no" style="color:#a5b4fc">hello@trustai.no</a></div>
+              <div>💬 <a href="https://wa.me/4741227175" style="color:#a5b4fc">WhatsApp +47 412 27 175</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- MODAL: Rediger ambassadør -->
+<div class="modal-backdrop" id="editAmbModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('editAmbModal')">✕</button>
+    <h2>👤 Rediger ambassadør</h2>
+    <div class="form-row">
+      <div class="form-group"><label>Navn</label><input type="text" id="am_name"></div>
+      <div class="form-group"><label>E-post</label><input type="email" id="am_email"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Telefon</label><input type="text" id="am_phone"></div>
+      <div class="form-group"><label>Provisjon %</label><input type="number" id="am_comm" step="0.01" min="0" max="100"></div>
+    </div>
+    <input type="hidden" id="am_id">
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('editAmbModal')">Avbryt</button>
+      <button class="btn-primary" onclick="saveAmb()">💾 Lagre</button>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/js/trustai-ai.js"></script>
+<script>
+const DEMO_LEADS = [
+  {id:'LD-001',company:'Animer AS',contact:'Ola Nordmann',status:'approved',value:80000,comm_pct:10,source:'LinkedIn',ambassador:'Sara Hansen',date:'2026-04-28'},
+  {id:'LD-002',company:'Tech Solutions AS',contact:'Marte Olsen',status:'offer',value:65000,comm_pct:10,source:'E-post',ambassador:'Jonas Berg',date:'2026-04-25'},
+  {id:'LD-003',company:'Nordic Brands',contact:'Erik Hansen',status:'meeting',value:95000,comm_pct:8,source:'WhatsApp',ambassador:'Sara Hansen',date:'2026-04-22'},
+  {id:'LD-004',company:'StartupX',contact:'Lisa Berg',status:'open',value:35000,comm_pct:10,source:'Direkte',ambassador:'Knut Larsen',date:'2026-04-20'},
+  {id:'LD-005',company:'Build & Grow',contact:'Per Dahl',status:'rejected',value:0,comm_pct:0,source:'Facebook',ambassador:'Jonas Berg',date:'2026-04-18'},
+];
+
+let DATA = {ambassadors:[],orders:[],payouts:[],dashboard:{}};
+let currentLeadFilter = 'all';
+let currentAmbFilter = 'all';
+
+const TAB_BTNS = document.querySelectorAll('.nav-item[data-tab]');
+const TABS = document.querySelectorAll('.tab-content');
+
+TAB_BTNS.forEach(btn => {
+  btn.onclick = () => {
+    const tab = btn.dataset.tab;
+    TAB_BTNS.forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    TABS.forEach(t => t.classList.toggle('active', t.id === 'tab-' + tab));
+    document.getElementById('sidebar').classList.remove('open');
+  };
+});
+
+function fmt(n){return new Intl.NumberFormat('nb-NO',{style:'currency',currency:'NOK',maximumFractionDigits:0}).format(n||0).replace('NOK','kr')}
+function fmtDate(s){return s?(s+'').split(' ')[0]:'—'}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
+
+function statusPill(s){
+  const map={open:'s-open',meeting:'s-meeting',offer:'s-offer',approved:'s-approved',rejected:'s-rejected',pending:'s-pending',paused:'s-paused',active:'s-active',paid:'s-paid',aktiv:'s-active',godkjent:'s-approved'};
+  const labels={open:'Åpen',meeting:'Møte',offer:'Tilbud',approved:'Aktiv',rejected:'Avslått',pending:'Søknad',paused:'Pauset',active:'Aktiv',paid:'Utbetalt',aktiv:'Aktiv',godkjent:'Aktiv'};
+  const norm=String(s||'').toLowerCase();
+  return `<span class="status-pill ${map[norm]||'s-open'}">${labels[norm]||s}</span>`;
+}
+
+function normalizeStatus(v){
+  const s=String(v||'').toLowerCase();
+  if(s==='active'||s==='aktiv'||s==='godkjent')return 'approved';
+  return s;
+}
+
+async function loadData(){
+  try{
+    const [d,a,o,p] = await Promise.all([
+      fetch('/api/store-admin/dashboard.php',{credentials:'include'}).then(r=>r.json()),
+      fetch('/api/store-admin/ambassadors.php',{credentials:'include'}).then(r=>r.json()),
+      fetch('/api/store-admin/orders.php',{credentials:'include'}).then(r=>r.json()),
+      fetch('/api/store-admin/payouts.php',{credentials:'include'}).then(r=>r.json())
+    ]);
+    if(!d.ok){
+      if(d.error==='login_required'||d.error==='forbidden_role'){location.href='/login.html';return;}
+      document.getElementById('guard').innerHTML='<div style="padding:40px;text-align:center"><h2>Kunne ikke laste data</h2><p style="color:#94a3b8">'+(d.error||'Ukjent feil')+'</p></div>';
+      return;
+    }
+
+    let ambassadorsList = a.ambassadors||[];
+    try{
+      const apps = await fetch('/api/list-ambassador-applications.php',{credentials:'include'}).then(r=>r.json());
+      if(apps&&apps.ok&&Array.isArray(apps.applications)){
+        const storeId = d.store?.id;
+        const pendingApps = apps.applications
+          .filter(ap=>normalizeStatus(ap.status)==='pending'&&(storeId===undefined||Number(ap.store_id)===Number(storeId)))
+          .map(ap=>({id:ap.application_id,name:ap.name,email:ap.email,phone:ap.phone,status:ap.status,commission_percent:0}));
+        ambassadorsList = ambassadorsList.concat(pendingApps);
+      }
+    }catch(e){}
+
+    DATA = {dashboard:d, ambassadors:ambassadorsList, orders:o.orders||[], payouts:p.payouts||[]};
+    render();
+  }catch(e){
+    document.getElementById('guard').innerHTML='<div style="padding:40px;text-align:center"><h2>Nettverksfeil</h2><p style="color:#94a3b8">'+e.message+'</p></div>';
+  }
+}
+
+function render(){
+  document.getElementById('guard').style.display='none';
+  document.getElementById('app').style.display='grid';
+
+  const d = DATA.dashboard;
+  const m = d.metrics||{};
+  const store = d.store||{};
+
+  document.getElementById('kpiAmb').textContent = DATA.ambassadors.length||m.ambassadors||'0';
+  const pending = DATA.ambassadors.filter(a=>normalizeStatus(a.status)==='pending');
+  document.getElementById('kpiPending').textContent = pending.length||m.pending_ambassadors||'0';
+  document.getElementById('kpiSales').textContent = fmt(m.total_sales);
+  document.getElementById('kpiComm').textContent = fmt(m.total_commission);
+  document.getElementById('kpiPayPend').textContent = fmt(m.payouts_pending);
+  const active = DATA.ambassadors.filter(a=>normalizeStatus(a.status)==='approved').length;
+  document.getElementById('kpiActive').textContent = active||m.active_ambassadors||'0';
+
+  if(pending.length>0){
+    document.getElementById('notifDot').style.display='block';
+  }
+
+  document.getElementById('storeNameField').value = store.name||'';
+  document.getElementById('storeDomainField').value = store.domain||'';
+  document.getElementById('defaultCommission').value = store.default_commission_percent||'';
+  document.getElementById('storeBannerName').textContent = (store.name||'Din butikk')+'.';
+  document.getElementById('storeDomain').textContent = store.domain||'—';
+
+  // Activity list
+  const orders = DATA.orders.slice(0,6);
+  const actList = document.getElementById('activityList');
+  if(orders.length===0){
+    actList.innerHTML='<div style="color:var(--muted);text-align:center;padding:20px">Ingen ordrer registrert.</div>';
+  }else{
+    actList.innerHTML = orders.map(o=>`
+      <div class="activity-item">
+        <div class="activity-ico">🛒</div>
+        <div class="activity-text">
+          <b>${esc(o.customer_name||'Anonym')}</b> kjøpte via ambassadør
+          <div style="color:var(--muted)">${esc(o.ambassador_name||'')} — ${fmt(o.amount)}</div>
+          <div class="activity-time">${fmtDate(o.created_at)}</div>
+        </div>
+        <div style="font-weight:700;color:#10b981">${fmt(o.commission_amount)}</div>
+      </div>`).join('');
+  }
+
+  // Pending cards
+  const pendingEl = document.getElementById('pendingCards');
+  if(pending.length===0){
+    pendingEl.innerHTML='<div style="color:var(--muted);text-align:center;padding:20px">Ingen søknader.</div>';
+  }else{
+    pendingEl.innerHTML = pending.map(a=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;background:var(--bg-2);border:1px solid var(--line);border-radius:10px">
+        <div>
+          <b style="font-size:13px">${esc(a.name||'—')}</b>
+          <div style="font-size:11px;color:var(--muted)">${esc(a.email||'')}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn-ghost" onclick="ambAction(${a.id},'approve')">Godkjenn</button>
+          <button class="btn-danger" onclick="ambAction(${a.id},'reject')">Avvis</button>
+        </div>
+      </div>`).join('');
+  }
+
+  renderLeads();
+  renderAmbassadors();
+  renderRevenue();
+  renderPayouts();
+}
+
+function renderLeads(){
+  const rows = currentLeadFilter==='all'?DEMO_LEADS:DEMO_LEADS.filter(l=>l.status===currentLeadFilter);
+  document.getElementById('leadsTbody').innerHTML = rows.length===0
+    ?'<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px">Ingen leads</td></tr>'
+    :rows.map(l=>`<tr>
+      <td><b>${esc(l.company)}</b><div style="font-size:11px;color:var(--muted)">${esc(l.contact)}</div></td>
+      <td>${esc(l.ambassador)}</td>
+      <td>${statusPill(l.status)}</td>
+      <td>${l.value?fmt(l.value):'—'}</td>
+      <td>${l.comm_pct&&l.value?fmt(l.value*l.comm_pct/100):'—'}</td>
+      <td>${esc(l.source)}</td>
+      <td>${l.date}</td>
+    </tr>`).join('');
+}
+
+function renderAmbassadors(){
+  let rows = DATA.ambassadors;
+  if(currentAmbFilter!=='all') rows=rows.filter(a=>normalizeStatus(a.status).includes(currentAmbFilter));
+  document.getElementById('ambTbody').innerHTML = rows.length===0
+    ?'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:30px">Ingen ambassadører</td></tr>'
+    :rows.map(a=>`<tr>
+      <td><b>${esc(a.name||'—')}</b></td>
+      <td>${esc(a.email||'—')}</td>
+      <td>${statusPill(a.status)}</td>
+      <td>${a.commission_percent||'0'}%</td>
+      <td>${fmtDate(a.created_at)}</td>
+      <td style="white-space:nowrap">
+        <button class="btn-ghost" style="margin-right:4px" onclick="openEditAmb(${a.id})">✏️ Edit</button>
+        ${normalizeStatus(a.status)==='pending'?`<button class="btn-ghost" style="margin-right:4px" onclick="ambAction(${a.id},'approve')">Godkjenn</button>`:''}
+        ${normalizeStatus(a.status)==='approved'?`<button class="btn-ghost" style="margin-right:4px" onclick="ambAction(${a.id},'pause')">Pause</button>`:''}
+        ${['paused','rejected'].includes(normalizeStatus(a.status))?`<button class="btn-ghost" style="margin-right:4px" onclick="ambAction(${a.id},'activate')">Aktiver</button>`:''}
+        <button class="btn-danger" onclick="ambAction(${a.id},'reject')">Avvis</button>
+      </td>
+    </tr>`).join('');
+}
+
+function renderRevenue(){
+  const orders = DATA.orders;
+  const total = orders.reduce((s,o)=>s+parseFloat(o.amount||0),0);
+  const comm = orders.reduce((s,o)=>s+parseFloat(o.commission_amount||0),0);
+  document.getElementById('revTotal').textContent = fmt(total);
+  document.getElementById('revComm').textContent = fmt(comm);
+  document.getElementById('revCount').textContent = orders.length;
+  document.getElementById('ordersBody').innerHTML = orders.length===0
+    ?'<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px">Ingen ordrer</td></tr>'
+    :orders.map(o=>`<tr>
+      <td>#${esc(String(o.id||'—'))}</td>
+      <td>${esc(o.ambassador_name||o.ambassador_id||'—')}</td>
+      <td>${esc(o.customer_name||'Anonym')}</td>
+      <td>${fmt(o.amount)}</td>
+      <td>${fmt(o.commission_amount)}</td>
+      <td>${statusPill(o.payout_status||o.status||'open')}</td>
+      <td>${fmtDate(o.created_at)}</td>
+    </tr>`).join('');
+}
+
+function renderPayouts(){
+  const payouts = DATA.payouts;
+  document.getElementById('payoutsTbody').innerHTML = payouts.length===0
+    ?'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:30px">Ingen utbetalinger</td></tr>'
+    :payouts.map(p=>`<tr>
+      <td>#${esc(String(p.id))}</td>
+      <td>${esc(p.ambassador_name||p.ambassador_id||'—')}</td>
+      <td>${fmt(p.amount)}</td>
+      <td>${statusPill(p.status)}</td>
+      <td>${fmtDate(p.created_at)}</td>
+      <td>
+        ${p.status==='requested'?`<button class="btn-ghost" style="margin-right:6px" onclick="setPayout(${p.id},'paid')">Godkjenn</button><button class="btn-danger" onclick="setPayout(${p.id},'rejected')">Avvis</button>`:'—'}
+      </td>
+    </tr>`).join('');
+}
+
+// Filter pills
+document.querySelectorAll('#leadFilters .filter-pill').forEach(btn=>{
+  btn.onclick=()=>{
+    currentLeadFilter=btn.dataset.filter;
+    document.querySelectorAll('#leadFilters .filter-pill').forEach(b=>b.classList.toggle('active',b===btn));
+    renderLeads();
+  };
+});
+document.querySelectorAll('#ambFilters .filter-pill').forEach(btn=>{
+  btn.onclick=()=>{
+    currentAmbFilter=btn.dataset.filter;
+    document.querySelectorAll('#ambFilters .filter-pill').forEach(b=>b.classList.toggle('active',b===btn));
+    renderAmbassadors();
+  };
+});
+
+async function ambAction(id, act){
+  const map={
+    approve:'/api/store-admin/approve-ambassador.php',
+    reject:'/api/store-admin/reject-ambassador.php',
+    pause:'/api/store-admin/pause-ambassador.php',
+    activate:'/api/store-admin/activate-ambassador.php'
+  };
+  try{
+    const r=await fetch(map[act],{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({ambassador_id:id})}).then(r=>r.json());
+    showToast(r.ok?'✓ Oppdatert':'Feil: '+(r.error||'ukjent'));
+    if(r.ok){
+      if(r.ambassador){
+        const i=DATA.ambassadors.findIndex(x=>Number(x.id)===Number(id));
+        if(i>-1) DATA.ambassadors[i]=r.ambassador;
+        render();
+      }else{
+        loadData();
+      }
+    }
+  }catch(e){showToast('Nettverksfeil')}
+}
+
+function openEditAmb(id){
+  const a=DATA.ambassadors.find(x=>Number(x.id)===Number(id));
+  if(!a)return;
+  document.getElementById('am_id').value=id;
+  document.getElementById('am_name').value=a.name||'';
+  document.getElementById('am_email').value=a.email||'';
+  document.getElementById('am_phone').value=a.phone||'';
+  document.getElementById('am_comm').value=a.commission_percent||'';
+  openModal('editAmbModal');
+}
+
+async function saveAmb(){
+  const id=document.getElementById('am_id').value;
+  const body={
+    ambassador_id:id,
+    name:document.getElementById('am_name').value,
+    email:document.getElementById('am_email').value,
+    phone:document.getElementById('am_phone').value,
+    commission_percent:Number(document.getElementById('am_comm').value||0)
+  };
+  try{
+    const r=await fetch('/api/store-admin/update-ambassador.php',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json());
+    showToast(r.ok?'✓ Lagret':'Feil: '+(r.error||'ukjent'));
+    if(r.ok){closeModal('editAmbModal');loadData();}
+  }catch(e){showToast('Nettverksfeil')}
+}
+
+async function setPayout(id, status){
+  try{
+    const r=await fetch('/api/store-admin/update-payout.php',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({payout_id:id,status})}).then(r=>r.json());
+    showToast(r.ok?'✓ Payout oppdatert':'Feil: '+(r.error||'ukjent'));
+    if(r.ok)loadData();
+  }catch(e){showToast('Nettverksfeil')}
+}
+
+async function saveSettings(){
+  const comm=Number(document.getElementById('defaultCommission').value||0);
+  try{
+    const r=await fetch('/api/store-admin/update-settings.php',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({default_commission_percent:comm})}).then(r=>r.json());
+    showToast(r.ok?'✓ Innstillinger lagret':'Feil: '+(r.error||'ukjent'));
+    if(r.ok)loadData();
+  }catch(e){showToast('Nettverksfeil')}
+}
+
+async function changePassword(){
+  const curr=document.getElementById('currPw').value;
+  const np=document.getElementById('newPw').value;
+  const cp=document.getElementById('confPw').value;
+  if(np.length<8)return showToast('Passord må være minst 8 tegn');
+  if(np!==cp)return showToast('Passordene stemmer ikke');
+  try{
+    const r=await fetch('/api/auth/change-password.php',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({current_password:curr,new_password:np,confirm_password:cp})}).then(r=>r.json());
+    showToast(r.ok?'✓ Passord oppdatert':'Feil: '+(r.error||'ukjent'));
+    if(r.ok){document.getElementById('currPw').value='';document.getElementById('newPw').value='';document.getElementById('confPw').value='';}
+  }catch(e){showToast('Nettverksfeil')}
+}
+
+async function improveWithAI(){
+  const btn=document.getElementById('aiBtn');
+  const input=document.getElementById('aiInput').value.trim();
+  const channel=document.getElementById('aiChannel').value;
+  if(!input)return showToast('Skriv inn tekst eller instruks');
+  btn.disabled=true;btn.textContent='⏳ Tenker...';
+  const resultEl=document.getElementById('aiResult');
+  resultEl.style.display='block';resultEl.textContent='Genererer...';
+  try{
+    const r=await fetch('/api/ai/chat.php',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:`Kanal: ${channel}. Tekst: ${input}`,history:[]})}).then(r=>r.json());
+    resultEl.textContent=r.reply||r.message||r.response||JSON.stringify(r);
+  }catch(e){resultEl.textContent='AI ikke tilgjengelig: '+e.message;}
+  btn.disabled=false;btn.textContent='✨ Forbedre med AI';
+}
+
+function copyContent(btn, text){
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='✓ Kopiert!';
+    setTimeout(()=>{btn.textContent='📋 Kopier';},2000);
+  }).catch(()=>showToast('Kunne ikke kopiere'));
+}
+
+async function logout(){
+  await fetch('/api/auth/logout.php',{method:'POST',credentials:'include'});
+  location.href='/login.html';
+}
+
+document.querySelectorAll('.modal-backdrop').forEach(bd=>{
+  bd.addEventListener('click',e=>{if(e.target===bd)bd.classList.remove('open');});
+});
+
+async function checkAuth(){
+  try{
+    const r=await fetch('/api/auth/route.php',{credentials:'include'}).then(r=>r.json());
+    if(!r.ok||r.role!=='store_admin'){location.href='/login.html';return false;}
+    document.getElementById('profileName').textContent=r.email||'Store Admin';
+    document.getElementById('profileAvatar').textContent=(r.email||'A').charAt(0).toUpperCase();
+    document.getElementById('dashDate').textContent='God dag, '+new Date().toLocaleDateString('nb-NO',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    document.getElementById('sidebarSub').textContent=r.store_name||'Store Admin';
+    return true;
+  }catch(e){
+    location.href='/login.html';return false;
+  }
+}
+
+checkAuth().then(ok=>ok&&loadData());
+</script>
+</body>
+</html>

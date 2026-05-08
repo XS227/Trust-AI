@@ -57,7 +57,7 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL) || $password === '') {
 ensurePasswordHashColumn($pdo);
 ensureStatusColumn($pdo);
 
-$stmt = $pdo->prepare('SELECT id, email, role, status, password_hash FROM users WHERE email = :email LIMIT 1');
+$stmt = $pdo->prepare('SELECT id, email, role, status, password_hash, store_id, ambassador_id FROM users WHERE email = :email LIMIT 1');
 $stmt->execute(['email' => $email]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 

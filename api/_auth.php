@@ -2,9 +2,19 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../inc/bootstrap.php';
+require_once __DIR__ . '/../inc/session_epoch.php';
 trustaiConfigureSession();
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
+}
+
+// Invalidate sessions created before the current epoch (force re-login after deploys).
+if (($_SESSION['trustai_epoch'] ?? 0) < TRUSTAI_SESSION_EPOCH) {
+    session_unset();
+    session_destroy();
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
 }
 
 $pdo = null;
@@ -61,6 +71,12 @@ function getCurrentUser(): ?array
     $sessionEmail = trim((string)($_SESSION['trustai_user_email'] ?? $_SESSION['email'] ?? ''));
     $sessionRole = trim((string)($_SESSION['role'] ?? ''));
 
+    // Prefer the full stored user (has store_id/ambassador_id) before building from flat keys.
+    if (!empty($_SESSION['trustai_user']) && is_array($_SESSION['trustai_user'])
+        && ($sessionRole !== '' && $sessionUserId > 0)) {
+        return $_SESSION['trustai_user'];
+    }
+
     if ($sessionRole !== '' && $sessionUserId > 0) {
         return [
             'id' => $sessionUserId,
@@ -75,10 +91,6 @@ function getCurrentUser(): ?array
     if (!$pdo instanceof PDO) {
         error_log('api/_auth.php: getCurrentUser called without DB connection');
         return null;
-    }
-
-    if (!empty($_SESSION['trustai_user']) && is_array($_SESSION['trustai_user'])) {
-        return $_SESSION['trustai_user'];
     }
 
     $email = trim((string)($_SERVER['HTTP_X_USER_EMAIL'] ?? ''));

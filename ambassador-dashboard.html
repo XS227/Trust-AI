@@ -133,6 +133,18 @@ button{font-family:inherit;cursor:pointer}
 .s-offer{background:rgba(245,158,11,.16);color:#fbbf24}
 .s-approved{background:rgba(16,185,129,.16);color:#34d399}
 .s-rejected{background:rgba(239,68,68,.14);color:#f87171}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-backdrop.open{display:flex}
+.modal{background:var(--bg-1);border:1px solid var(--line);border-radius:14px;padding:24px;max-width:760px;width:100%;max-height:90vh;overflow-y:auto;position:relative}
+.modal h2{font-size:18px;margin:0 0 16px}
+.modal-close{position:absolute;top:14px;right:14px;background:transparent;border:0;color:var(--muted);font-size:20px;cursor:pointer}
+.modal-close:hover{color:var(--text)}
+.modal-footer{margin-top:18px;display:flex;justify-content:flex-end;gap:10px}
+.changelog{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.changelog-item{display:flex;gap:10px;font-size:12px;padding:8px 0;border-bottom:1px solid var(--line)}
+.changelog-item:last-child{border-bottom:0}
+.changelog-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:4px}
+.activity-time{color:var(--muted);font-size:11px;margin-top:2px}
 .btn-ghost{background:transparent;color:var(--accent);border:1px solid var(--line);padding:5px 11px;border-radius:7px;font-size:11px;font-weight:600}
 .btn-ghost:hover{border-color:var(--accent)}
 .btn-primary{background:var(--gradient);color:#fff;border:0;padding:9px 16px;border-radius:9px;font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:6px}
@@ -406,22 +418,16 @@ button{font-family:inherit;cursor:pointer}
       <div class="topbar"><div><h1>👥 Leads & Pipeline</h1><div class="topbar-sub">Følg leads fra første kontakt til godkjent salg</div></div><div class="topbar-actions"><span class="tag-live">Live</span></div></div>
 
       <div class="row-3" style="grid-template-columns:repeat(5,1fr);gap:10px">
-        <div class="panel-card" style="text-align:center;padding:14px"><div style="font-size:11px;color:#60a5fa;text-transform:uppercase;font-weight:700">Åpne</div><div style="font-size:22px;font-weight:800;margin-top:4px">7</div><div style="font-size:10px;color:var(--muted)">kr 245.000</div></div>
-        <div class="panel-card" style="text-align:center;padding:14px"><div style="font-size:11px;color:#c084fc;text-transform:uppercase;font-weight:700">Møte</div><div style="font-size:22px;font-weight:800;margin-top:4px">3</div><div style="font-size:10px;color:var(--muted)">kr 180.000</div></div>
-        <div class="panel-card" style="text-align:center;padding:14px"><div style="font-size:11px;color:#fbbf24;text-transform:uppercase;font-weight:700">Tilbud</div><div style="font-size:22px;font-weight:800;margin-top:4px">2</div><div style="font-size:10px;color:var(--muted)">kr 120.000</div></div>
-        <div class="panel-card" style="text-align:center;padding:14px"><div style="font-size:11px;color:#34d399;text-transform:uppercase;font-weight:700">Godkjent</div><div style="font-size:22px;font-weight:800;margin-top:4px">1</div><div style="font-size:10px;color:var(--muted)">kr 80.000</div></div>
-        <div class="panel-card" style="text-align:center;padding:14px"><div style="font-size:11px;color:#f87171;text-transform:uppercase;font-weight:700">Avslag</div><div style="font-size:22px;font-weight:800;margin-top:4px">1</div><div style="font-size:10px;color:var(--muted)">—</div></div>
+        <div class="panel-card" style="text-align:center;padding:14px"><div style="font-size:11px;color:#60a5fa;text-transform:uppercase;font-weight:700">Åpne</div><div style="font-size:22px;font-weight:800;margin-top:4px" id="pl_open_count">—</div><div style="font-size:10px;color:var(--muted)" id="pl_open_val">—</div></div>
+        <div class="panel-card" style="text-align:center;padding:14px"><div style="font-size:11px;color:#c084fc;text-transform:uppercase;font-weight:700">Møte</div><div style="font-size:22px;font-weight:800;margin-top:4px" id="pl_meet_count">—</div><div style="font-size:10px;color:var(--muted)" id="pl_meet_val">—</div></div>
+        <div class="panel-card" style="text-align:center;padding:14px"><div style="font-size:11px;color:#fbbf24;text-transform:uppercase;font-weight:700">Tilbud</div><div style="font-size:22px;font-weight:800;margin-top:4px" id="pl_offer_count">—</div><div style="font-size:10px;color:var(--muted)" id="pl_offer_val">—</div></div>
+        <div class="panel-card" style="text-align:center;padding:14px"><div style="font-size:11px;color:#34d399;text-transform:uppercase;font-weight:700">Godkjent</div><div style="font-size:22px;font-weight:800;margin-top:4px" id="pl_appr_count">—</div><div style="font-size:10px;color:var(--muted)" id="pl_appr_val">—</div></div>
+        <div class="panel-card" style="text-align:center;padding:14px"><div style="font-size:11px;color:#f87171;text-transform:uppercase;font-weight:700">Avslag</div><div style="font-size:22px;font-weight:800;margin-top:4px" id="pl_rej_count">—</div><div style="font-size:10px;color:var(--muted)" id="pl_rej_val">—</div></div>
       </div>
 
       <div class="panel-card">
         <div class="panel-head"><div class="panel-title">Alle leads</div><span class="tag-live">Live</span></div>
-        <div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Firma</th><th>Kontakt</th><th>Status</th><th>Verdi</th><th>Provisjon</th><th>Dato</th><th></th></tr></thead><tbody>
-          <tr><td><b>Animer AS</b></td><td>Ola Nordmann</td><td><span class="status-pill s-approved">Godkjent</span></td><td>kr 80.000</td><td>kr 8.000</td><td>2026-04-28</td><td><button class="btn-ghost">Se</button></td></tr>
-          <tr><td><b>Tech Solutions AS</b></td><td>Marte Olsen</td><td><span class="status-pill s-offer">Tilbud sendt</span></td><td>kr 65.000</td><td>kr 6.500</td><td>2026-04-25</td><td><button class="btn-ghost">Se</button></td></tr>
-          <tr><td><b>Nordic Brands</b></td><td>Erik Hansen</td><td><span class="status-pill s-meeting">Møte booket</span></td><td>kr 95.000</td><td>kr 9.500</td><td>2026-04-22</td><td><button class="btn-ghost">Se</button></td></tr>
-          <tr><td><b>StartupX</b></td><td>Lisa Berg</td><td><span class="status-pill s-open">Åpen</span></td><td>kr 35.000</td><td>kr 3.500</td><td>2026-04-20</td><td><button class="btn-ghost">Se</button></td></tr>
-          <tr><td><b>Build & Grow</b></td><td>Knut Larsen</td><td><span class="status-pill s-rejected">Avslag</span></td><td>—</td><td>—</td><td>2026-04-18</td><td><button class="btn-ghost">Se</button></td></tr>
-        </tbody></table></div>
+        <div style="overflow-x:auto"><table class="tbl" id="leadsTab"><thead><tr><th>Firma</th><th>Kontakt</th><th>Status</th><th>Verdi</th><th>Provisjon</th><th>Dato</th><th></th></tr></thead><tbody id="leadsTbody"><tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px">Laster...</td></tr></tbody></table></div>
       </div>
     </div>
 
@@ -529,8 +535,54 @@ button{font-family:inherit;cursor:pointer}
 
 <div class="toast" id="toast">✓ Lenke kopiert!</div>
 
+<!-- MODAL: Lead detalj (read-only) -->
+<div class="modal-backdrop" id="leadModal">
+  <div class="modal" style="max-width:720px">
+    <button class="modal-close" onclick="closeModal('leadModal')">✕</button>
+    <h2 id="leadModalTitle">Lead detaljer</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:600;margin-bottom:4px">Firma</div>
+        <div id="lm_company" style="font-weight:600;margin-bottom:10px">—</div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:600;margin-bottom:4px">Kontaktperson</div>
+        <div id="lm_contact" style="margin-bottom:10px">—</div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:600;margin-bottom:4px">E-post</div>
+        <div id="lm_email" style="margin-bottom:10px">—</div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:600;margin-bottom:4px">Telefon</div>
+        <div id="lm_phone" style="margin-bottom:10px">—</div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:600;margin-bottom:4px">Oppfølgingsdato</div>
+        <div id="lm_followup">—</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:600;margin-bottom:4px">Status</div>
+        <div id="lm_status_pill" style="margin-bottom:10px">—</div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:600;margin-bottom:4px">Kilde</div>
+        <div id="lm_source" style="margin-bottom:10px">—</div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:600;margin-bottom:4px">Tilbudssum</div>
+        <div id="lm_value" style="margin-bottom:10px">—</div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:600;margin-bottom:4px">Provisjon</div>
+        <div id="lm_comm_amt" style="margin-bottom:10px">—</div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:600;margin-bottom:4px">Opprettet</div>
+        <div id="lm_created">—</div>
+      </div>
+    </div>
+    <div id="lm_history_wrap" style="margin-top:18px;display:none">
+      <div style="font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Endringslogg</div>
+      <div class="changelog" id="lm_history"></div>
+    </div>
+    <div id="lm_notes_wrap" style="margin-top:18px;display:none">
+      <div style="font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Notater</div>
+      <div id="lm_notes"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('leadModal')">Lukk</button>
+    </div>
+  </div>
+</div>
+
 <script>
 let DATA = null;
+let LEADS_DATA = [];
 const TAB_BTNS = document.querySelectorAll('.nav-item');
 const TABS = document.querySelectorAll('.tab-content');
 
@@ -553,9 +605,116 @@ async function loadData(){
     if(r.status === 401){location.href = '/login.html';return}
     DATA = await r.json();
     if(!DATA.ok){document.getElementById('guard').innerHTML='<div style="padding:40px;text-align:center"><h2>Kunne ikke laste data</h2><p style="color:#94a3b8">'+(DATA.error||'Ukjent feil')+'</p></div>';return}
+    await loadLeads();
     render();
   }catch(e){document.getElementById('guard').innerHTML='<div style="padding:40px;text-align:center"><h2>Nettverksfeil</h2><p>'+e.message+'</p></div>'}
 }
+
+function fmtDate(s){return s?(s+'').split(' ')[0]:'—'}
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function esc(s){const d=document.createElement('div');d.textContent=s==null?'':String(s);return d.innerHTML}
+
+function statusPill(s){
+  const map={open:'s-open',meeting_booked:'s-meeting',offer_sent:'s-offer',meeting:'s-meeting',offer:'s-offer',approved:'s-approved',rejected:'s-rejected'};
+  const labels={open:'Åpen',meeting_booked:'Møte booket',offer_sent:'Tilbud sendt',meeting:'Møte',offer:'Tilbud',approved:'Godkjent',rejected:'Avslått'};
+  const norm=String(s||'').toLowerCase();
+  return `<span class="status-pill ${map[norm]||'s-open'}">${labels[norm]||esc(s)}</span>`;
+}
+
+async function loadLeads(){
+  try{
+    const r = await fetch('/api/leads/list.php',{credentials:'include'}).then(r=>r.json());
+    LEADS_DATA = (r&&r.ok&&Array.isArray(r.leads)) ? r.leads : [];
+    renderPipeline((r&&r.pipeline)||{});
+    renderLeads();
+  }catch(e){ LEADS_DATA = []; }
+}
+
+function renderPipeline(p){
+  const set = (k, prefix) => {
+    const c = p[k]?.count||0;
+    const t = p[k]?.total||0;
+    const cEl = document.getElementById(prefix+'_count'); if(cEl) cEl.textContent = c;
+    const vEl = document.getElementById(prefix+'_val'); if(vEl) vEl.textContent = t? fmt(t) : '—';
+  };
+  set('open','pl_open');
+  set('meeting_booked','pl_meet');
+  set('offer_sent','pl_offer');
+  set('approved','pl_appr');
+  set('rejected','pl_rej');
+}
+
+function renderLeads(){
+  const tbody = document.getElementById('leadsTbody');
+  if(!tbody) return;
+  if(!LEADS_DATA.length){
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px">Ingen leads enda.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = LEADS_DATA.map(l=>`<tr data-clickable onclick="openLeadDetail(${l.id})">
+    <td><b>${esc(l.company_name||'—')}</b></td>
+    <td>${esc(l.contact_person||'—')}</td>
+    <td>${statusPill(l.status)}</td>
+    <td>${l.offer_amount?fmt(l.offer_amount):'—'}</td>
+    <td>${l.commission_amount?fmt(l.commission_amount):'—'}</td>
+    <td>${fmtDate(l.created_at)}</td>
+    <td><button class="btn-ghost" onclick="event.stopPropagation();openLeadDetail(${l.id})">Se</button></td>
+  </tr>`).join('');
+}
+
+async function openLeadDetail(id){
+  try{
+    const r = await fetch('/api/leads/get.php?id='+encodeURIComponent(id),{credentials:'include'}).then(r=>r.json());
+    if(!r.ok){ return; }
+    const l = r.lead;
+    document.getElementById('leadModalTitle').textContent = (l.company_name||'Lead')+' — detaljer';
+    document.getElementById('lm_company').textContent = l.company_name||'—';
+    document.getElementById('lm_contact').textContent = l.contact_person||'—';
+    document.getElementById('lm_email').textContent = l.contact_email||'—';
+    document.getElementById('lm_phone').textContent = l.contact_phone||'—';
+    document.getElementById('lm_followup').textContent = l.follow_up_date ? String(l.follow_up_date).slice(0,10) : '—';
+    document.getElementById('lm_status_pill').innerHTML = statusPill(l.status);
+    document.getElementById('lm_source').textContent = l.source||'—';
+    document.getElementById('lm_value').textContent = l.offer_amount?fmt(l.offer_amount):'—';
+    document.getElementById('lm_comm_amt').textContent = l.commission_amount?fmt(l.commission_amount):'—';
+    document.getElementById('lm_created').textContent = fmtDate(l.created_at);
+    renderHistory(r.history||[]);
+    renderNotes(r.notes||[]);
+    openModal('leadModal');
+  }catch(e){}
+}
+
+function renderHistory(history){
+  const wrap = document.getElementById('lm_history_wrap');
+  const list = document.getElementById('lm_history');
+  if(!history.length){ wrap.style.display='none'; return; }
+  wrap.style.display='block';
+  const labels = {created:'Lead opprettet',status_change:'Status endret',field_update:'Felt oppdatert',note_added:'Notat lagt til'};
+  list.innerHTML = history.map(h=>{
+    const label = labels[h.action_type]||esc(h.action_type);
+    let detail = '';
+    if(h.action_type==='status_change') detail = `${esc(h.old_value||'—')} → <b>${esc(h.new_value||'—')}</b>`;
+    else if(h.action_type==='field_update') detail = `${esc(h.field_name)}: ${esc(h.old_value||'—')} → ${esc(h.new_value||'—')}`;
+    else if(h.action_type==='note_added') detail = esc((h.new_value||'').slice(0,120));
+    const cmt = h.comment ? `<div style="color:var(--muted);font-size:12px;margin-top:2px">💬 ${esc(h.comment)}</div>` : '';
+    return `<div class="changelog-item"><div class="changelog-dot"></div><div><b>${label}</b><div style="font-size:12px;color:var(--muted)">${detail}</div>${cmt}<div class="activity-time">${fmtDate(h.created_at)}</div></div></div>`;
+  }).join('');
+}
+
+function renderNotes(notes){
+  const wrap = document.getElementById('lm_notes_wrap');
+  const list = document.getElementById('lm_notes');
+  if(!notes.length){ wrap.style.display='none'; return; }
+  wrap.style.display='block';
+  list.innerHTML = notes.map(n=>{
+    return `<div style="background:var(--bg-2);padding:10px 12px;border-radius:10px;border:1px solid var(--line);margin-bottom:8px"><div style="font-size:13px;white-space:pre-wrap">${esc(n.note_text||'')}</div><div style="font-size:11px;color:var(--muted);margin-top:6px">${fmtDate(n.created_at)}</div></div>`;
+  }).join('');
+}
+
+document.querySelectorAll('.modal-backdrop').forEach(bd=>{
+  bd.addEventListener('click',e=>{if(e.target===bd)bd.classList.remove('open');});
+});
 
 function render(){
   document.getElementById('guard').style.display='none';

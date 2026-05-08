@@ -124,6 +124,10 @@ button{font-family:inherit;cursor:pointer}
 }
 .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-backdrop.open{display:flex}
+.changelog{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.changelog-item{display:flex;gap:10px;font-size:12px;padding:8px 0;border-bottom:1px solid var(--line)}
+.changelog-item:last-child{border-bottom:0}
+.changelog-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:4px}
 .modal{background:var(--panel);border:1px solid var(--line-strong);border-radius:18px;padding:28px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;position:relative}
 .modal h2{margin:0 0 20px;font-size:20px;font-weight:800}
 .modal-close{position:absolute;top:16px;right:16px;background:var(--bg-2);border:1px solid var(--line);color:var(--muted);width:32px;height:32px;border-radius:8px;display:grid;place-items:center;font-size:16px}
@@ -262,8 +266,8 @@ button{font-family:inherit;cursor:pointer}
       <div class="filter-pills" id="leadFilters">
         <button class="filter-pill active" data-filter="all">Alle</button>
         <button class="filter-pill" data-filter="open">Åpen</button>
-        <button class="filter-pill" data-filter="meeting">Møte</button>
-        <button class="filter-pill" data-filter="offer">Tilbud</button>
+        <button class="filter-pill" data-filter="meeting_booked">Møte</button>
+        <button class="filter-pill" data-filter="offer_sent">Tilbud</button>
         <button class="filter-pill" data-filter="approved">Godkjent</button>
         <button class="filter-pill" data-filter="rejected">Avslag</button>
       </div>
@@ -272,7 +276,7 @@ button{font-family:inherit;cursor:pointer}
         <div class="panel-head"><div class="panel-title">Alle leads</div><span class="tag-live">Live</span></div>
         <div style="overflow-x:auto">
           <table class="tbl" id="leadsTable">
-            <thead><tr><th>Firma</th><th>Ambassadør</th><th>Status</th><th>Verdi</th><th>Provisjon</th><th>Kilde</th><th>Dato</th></tr></thead>
+            <thead><tr><th>Firma</th><th>Ambassadør</th><th>Status</th><th>Tilbud</th><th>Provisjon</th><th>Kilde</th><th>Dato</th><th></th></tr></thead>
             <tbody id="leadsTbody"></tbody>
           </table>
         </div>
@@ -452,6 +456,56 @@ button{font-family:inherit;cursor:pointer}
 
 <div class="toast" id="toast"></div>
 
+<!-- MODAL: Lead detalj -->
+<div class="modal-backdrop" id="leadModal">
+  <div class="modal" style="max-width:800px">
+    <button class="modal-close" onclick="closeModal('leadModal')">✕</button>
+    <h2 id="leadModalTitle">Lead detaljer</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div>
+        <div class="form-group" style="margin-bottom:10px"><label>Firma *</label><input type="text" id="lm_company" placeholder="Firmanavn"></div>
+        <div class="form-group" style="margin-bottom:10px"><label>Kontaktperson</label><input type="text" id="lm_contact"></div>
+        <div class="form-group" style="margin-bottom:10px"><label>E-post</label><input type="email" id="lm_email"></div>
+        <div class="form-group" style="margin-bottom:10px"><label>Telefon</label><input type="text" id="lm_phone"></div>
+        <div class="form-group" style="margin-bottom:10px"><label>Oppfølgingsdato</label><input type="date" id="lm_followup"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><input type="checkbox" id="lm_visible"><label for="lm_visible" style="margin:0;font-size:12px">Kommentar synlig for ambassadør</label></div>
+      </div>
+      <div>
+        <div class="form-group" style="margin-bottom:10px"><label>Status</label><select id="lm_status" onchange="onStatusChange()"><option value="open">Åpen</option><option value="meeting_booked">Møte booket</option><option value="offer_sent">Tilbud sendt</option><option value="approved">Godkjent</option><option value="rejected">Avslått</option></select></div>
+        <div class="form-group" style="margin-bottom:10px" id="lm_comment_wrap"><label>Kommentar til statusendring *</label><textarea id="lm_comment" rows="2" placeholder="Beskriv hva som skjedde..."></textarea></div>
+        <div class="form-group" style="margin-bottom:10px"><label>Ambassadør</label><input type="text" id="lm_amb" disabled></div>
+        <div class="form-group" style="margin-bottom:10px"><label>Lead ID</label><input type="text" id="lm_id" disabled></div>
+        <div class="form-group" style="margin-bottom:10px"><label>Kilde</label><input type="text" id="lm_source"></div>
+        <div class="form-group" style="margin-bottom:10px"><label>Tilbudssum (kr)</label><input type="number" id="lm_value" oninput="calcCommission()"></div>
+        <div class="form-group" style="margin-bottom:10px"><label>Provisjon %</label><input type="number" id="lm_comm_pct" oninput="calcCommission()"></div>
+        <div class="form-group"><label>Provisjonsbeløp (kr)</label><input type="text" id="lm_comm_amt" disabled></div>
+      </div>
+    </div>
+    <div id="lm_history_wrap" style="margin-top:16px;display:none">
+      <div style="font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Endringslogg</div>
+      <div class="changelog" id="lm_history"></div>
+    </div>
+    <div style="margin-top:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px">Notater</div>
+        <button class="btn-ghost" id="lm_add_note_btn" onclick="toggleNoteForm()" style="display:none">+ Legg til notat</button>
+      </div>
+      <div id="lm_notes"></div>
+      <div id="lm_note_form" style="display:none;margin-top:8px;background:var(--bg-2);padding:12px;border-radius:10px;border:1px solid var(--line)">
+        <div class="form-group" style="margin-bottom:8px"><label>Notat</label><textarea id="nn_text" rows="3" placeholder="Skriv notat..."></textarea></div>
+        <div style="display:flex;align-items:center;gap:12px;justify-content:space-between">
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px"><input type="checkbox" id="nn_visible"> Synlig for ambassadør</label>
+          <button class="btn-primary" onclick="submitNote()">Lagre notat</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('leadModal')">Avbryt</button>
+      <button class="btn-primary" onclick="saveLead()">💾 Lagre</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL: Rediger ambassadør -->
 <div class="modal-backdrop" id="editAmbModal">
   <div class="modal">
@@ -475,17 +529,12 @@ button{font-family:inherit;cursor:pointer}
 
 <script src="/assets/js/trustai-ai.js"></script>
 <script>
-const DEMO_LEADS = [
-  {id:'LD-001',company:'Animer AS',contact:'Ola Nordmann',status:'approved',value:80000,comm_pct:10,source:'LinkedIn',ambassador:'Sara Hansen',date:'2026-04-28'},
-  {id:'LD-002',company:'Tech Solutions AS',contact:'Marte Olsen',status:'offer',value:65000,comm_pct:10,source:'E-post',ambassador:'Jonas Berg',date:'2026-04-25'},
-  {id:'LD-003',company:'Nordic Brands',contact:'Erik Hansen',status:'meeting',value:95000,comm_pct:8,source:'WhatsApp',ambassador:'Sara Hansen',date:'2026-04-22'},
-  {id:'LD-004',company:'StartupX',contact:'Lisa Berg',status:'open',value:35000,comm_pct:10,source:'Direkte',ambassador:'Knut Larsen',date:'2026-04-20'},
-  {id:'LD-005',company:'Build & Grow',contact:'Per Dahl',status:'rejected',value:0,comm_pct:0,source:'Facebook',ambassador:'Jonas Berg',date:'2026-04-18'},
-];
-
 let DATA = {ambassadors:[],orders:[],payouts:[],dashboard:{}};
+let LEADS_DATA = [];
 let currentLeadFilter = 'all';
 let currentAmbFilter = 'all';
+let editingLeadId = null;
+let editingLeadOrigStatus = null;
 
 const TAB_BTNS = document.querySelectorAll('.nav-item[data-tab]');
 const TABS = document.querySelectorAll('.tab-content');
@@ -507,8 +556,8 @@ function closeModal(id){document.getElementById(id).classList.remove('open')}
 function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
 
 function statusPill(s){
-  const map={open:'s-open',meeting:'s-meeting',offer:'s-offer',approved:'s-approved',rejected:'s-rejected',pending:'s-pending',paused:'s-paused',active:'s-active',paid:'s-paid',aktiv:'s-active',godkjent:'s-approved'};
-  const labels={open:'Åpen',meeting:'Møte',offer:'Tilbud',approved:'Aktiv',rejected:'Avslått',pending:'Søknad',paused:'Pauset',active:'Aktiv',paid:'Utbetalt',aktiv:'Aktiv',godkjent:'Aktiv'};
+  const map={open:'s-open',meeting:'s-meeting',offer:'s-offer',meeting_booked:'s-meeting',offer_sent:'s-offer',approved:'s-approved',rejected:'s-rejected',pending:'s-pending',paused:'s-paused',active:'s-active',paid:'s-paid',aktiv:'s-active',godkjent:'s-approved'};
+  const labels={open:'Åpen',meeting:'Møte',offer:'Tilbud',meeting_booked:'Møte booket',offer_sent:'Tilbud sendt',approved:'Godkjent',rejected:'Avslått',pending:'Søknad',paused:'Pauset',active:'Aktiv',paid:'Utbetalt',aktiv:'Aktiv',godkjent:'Aktiv'};
   const norm=String(s||'').toLowerCase();
   return `<span class="status-pill ${map[norm]||'s-open'}">${labels[norm]||s}</span>`;
 }
@@ -546,6 +595,7 @@ async function loadData(){
     }catch(e){}
 
     DATA = {dashboard:d, ambassadors:ambassadorsList, orders:o.orders||[], payouts:p.payouts||[]};
+    await loadLeads();
     render();
   }catch(e){
     document.getElementById('guard').innerHTML='<div style="padding:40px;text-align:center"><h2>Nettverksfeil</h2><p style="color:#94a3b8">'+e.message+'</p></div>';
@@ -621,19 +671,150 @@ function render(){
   renderPayouts();
 }
 
+async function loadLeads(){
+  try{
+    const r = await fetch('/api/leads/list.php',{credentials:'include'}).then(r=>r.json());
+    LEADS_DATA = (r&&r.ok&&Array.isArray(r.leads)) ? r.leads : [];
+  }catch(e){ LEADS_DATA = []; }
+}
+
 function renderLeads(){
-  const rows = currentLeadFilter==='all'?DEMO_LEADS:DEMO_LEADS.filter(l=>l.status===currentLeadFilter);
+  const rows = currentLeadFilter==='all' ? LEADS_DATA : LEADS_DATA.filter(l=>String(l.status)===currentLeadFilter);
   document.getElementById('leadsTbody').innerHTML = rows.length===0
-    ?'<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px">Ingen leads</td></tr>'
-    :rows.map(l=>`<tr>
-      <td><b>${esc(l.company)}</b><div style="font-size:11px;color:var(--muted)">${esc(l.contact)}</div></td>
-      <td>${esc(l.ambassador)}</td>
+    ?'<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">Ingen leads</td></tr>'
+    :rows.map(l=>`<tr data-clickable onclick="openLeadDetail(${l.id})">
+      <td><b>${esc(l.company_name||'—')}</b><div style="font-size:11px;color:var(--muted)">${esc(l.contact_person||'')}</div></td>
+      <td>${esc(l.ambassador_name||'—')}</td>
       <td>${statusPill(l.status)}</td>
-      <td>${l.value?fmt(l.value):'—'}</td>
-      <td>${l.comm_pct&&l.value?fmt(l.value*l.comm_pct/100):'—'}</td>
-      <td>${esc(l.source)}</td>
-      <td>${l.date}</td>
+      <td>${l.offer_amount?fmt(l.offer_amount):'—'}</td>
+      <td>${l.commission_amount?fmt(l.commission_amount):'—'}</td>
+      <td>${esc(l.source||'—')}</td>
+      <td>${fmtDate(l.created_at)}</td>
+      <td><button class="btn-ghost" onclick="event.stopPropagation();openLeadDetail(${l.id})">Se</button></td>
     </tr>`).join('');
+}
+
+async function openLeadDetail(id){
+  editingLeadId = id;
+  try{
+    const r = await fetch('/api/leads/get.php?id='+encodeURIComponent(id),{credentials:'include'}).then(r=>r.json());
+    if(!r.ok){ showToast('Kunne ikke laste lead: '+(r.error||'')); return; }
+    const l = r.lead;
+    editingLeadOrigStatus = l.status;
+    document.getElementById('leadModalTitle').textContent = (l.company_name||'Lead')+' — detaljer';
+    document.getElementById('lm_company').value = l.company_name||'';
+    document.getElementById('lm_contact').value = l.contact_person||'';
+    document.getElementById('lm_email').value = l.contact_email||'';
+    document.getElementById('lm_phone').value = l.contact_phone||'';
+    document.getElementById('lm_followup').value = l.follow_up_date ? String(l.follow_up_date).slice(0,10) : '';
+    document.getElementById('lm_status').value = l.status||'open';
+    document.getElementById('lm_amb').value = l.ambassador_name||'';
+    document.getElementById('lm_id').value = l.id;
+    document.getElementById('lm_source').value = l.source||'';
+    document.getElementById('lm_value').value = l.offer_amount||'';
+    document.getElementById('lm_comm_pct').value = l.commission_percent||'';
+    document.getElementById('lm_comm_amt').value = l.commission_amount?fmt(l.commission_amount):'';
+    document.getElementById('lm_comment').value='';
+    document.getElementById('lm_visible').checked=false;
+    document.getElementById('lm_comment_wrap').style.display='none';
+    renderHistory(r.history||[]);
+    renderNotes(r.notes||[]);
+    document.getElementById('lm_add_note_btn').style.display='inline-block';
+    document.getElementById('lm_note_form').style.display='none';
+    openModal('leadModal');
+  }catch(e){ showToast('Nettverksfeil'); }
+}
+
+function renderHistory(history){
+  const wrap = document.getElementById('lm_history_wrap');
+  const list = document.getElementById('lm_history');
+  if(!history.length){ wrap.style.display='none'; return; }
+  wrap.style.display='block';
+  const labels = {created:'Lead opprettet',status_change:'Status endret',field_update:'Felt oppdatert',note_added:'Notat lagt til'};
+  list.innerHTML = history.map(h=>{
+    const label = labels[h.action_type]||h.action_type;
+    let detail = '';
+    if(h.action_type==='status_change') detail = `${esc(h.old_value||'—')} → <b>${esc(h.new_value||'—')}</b>`;
+    else if(h.action_type==='field_update') detail = `${esc(h.field_name)}: ${esc(h.old_value||'—')} → ${esc(h.new_value||'—')}`;
+    else if(h.action_type==='note_added') detail = esc((h.new_value||'').slice(0,120));
+    const cmt = h.comment ? `<div style="color:var(--muted);font-size:12px;margin-top:2px">💬 ${esc(h.comment)}</div>` : '';
+    return `<div class="changelog-item"><div class="changelog-dot"></div><div><b>${label}</b><div style="font-size:12px;color:var(--muted)">${detail}</div>${cmt}<div class="activity-time">${fmtDate(h.created_at)} · ${esc(h.user_email||'')}</div></div></div>`;
+  }).join('');
+}
+
+function renderNotes(notes){
+  const list = document.getElementById('lm_notes');
+  if(!notes.length){ list.innerHTML = '<div style="color:var(--muted);font-size:12px">Ingen notater enda.</div>'; return; }
+  list.innerHTML = notes.map(n=>{
+    const vis = (n.visible_to_ambassador==1 || n.visible_to_ambassador===true) ? '<span class="tag-live" style="margin-left:6px">Synlig for ambassadør</span>' : '';
+    return `<div style="background:var(--bg-2);padding:10px 12px;border-radius:10px;border:1px solid var(--line);margin-bottom:8px"><div style="font-size:13px;white-space:pre-wrap">${esc(n.note_text||'')}</div><div style="font-size:11px;color:var(--muted);margin-top:6px">${fmtDate(n.created_at)} · ${esc(n.user_email||'')}${vis}</div></div>`;
+  }).join('');
+}
+
+function onStatusChange(){
+  if(!editingLeadId){ document.getElementById('lm_comment_wrap').style.display='none'; return; }
+  const cur = document.getElementById('lm_status').value;
+  document.getElementById('lm_comment_wrap').style.display = (cur !== editingLeadOrigStatus) ? 'block' : 'none';
+}
+
+function toggleNoteForm(){
+  const f = document.getElementById('lm_note_form');
+  f.style.display = f.style.display==='none' ? 'block' : 'none';
+  if(f.style.display==='block'){ document.getElementById('nn_text').value=''; document.getElementById('nn_visible').checked=false; }
+}
+
+async function submitNote(){
+  if(!editingLeadId){ showToast('Lagre lead først'); return; }
+  const text = document.getElementById('nn_text').value.trim();
+  if(!text){ showToast('Notattekst er påkrevd'); return; }
+  const visible = document.getElementById('nn_visible').checked;
+  try{
+    const r = await fetch('/api/leads/add-note.php',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({lead_id:editingLeadId,note_text:text,visible_to_ambassador:visible})}).then(r=>r.json());
+    if(!r.ok){ showToast('Feil: '+(r.error||'ukjent')); return; }
+    showToast('✓ Notat lagret');
+    const detail = await fetch('/api/leads/get.php?id='+editingLeadId,{credentials:'include'}).then(r=>r.json());
+    if(detail.ok){ renderHistory(detail.history||[]); renderNotes(detail.notes||[]); }
+    document.getElementById('lm_note_form').style.display='none';
+  }catch(e){ showToast('Nettverksfeil'); }
+}
+
+function calcCommission(){
+  const val=parseFloat(document.getElementById('lm_value').value)||0;
+  const pct=parseFloat(document.getElementById('lm_comm_pct').value)||0;
+  document.getElementById('lm_comm_amt').value=val&&pct?fmt(val*pct/100):'';
+}
+
+async function saveLead(){
+  if(!editingLeadId) return;
+  const company = document.getElementById('lm_company').value.trim();
+  if(!company){ showToast('Firmanavn er påkrevd'); return; }
+  const status = document.getElementById('lm_status').value;
+  if(status !== editingLeadOrigStatus){
+    if(!document.getElementById('lm_comment').value.trim()){ showToast('Kommentar er påkrevd ved statusendring'); return; }
+  }
+  const offerVal = document.getElementById('lm_value').value;
+  const commPct = document.getElementById('lm_comm_pct').value;
+  const body = {
+    id: editingLeadId,
+    company_name: company,
+    contact_person: document.getElementById('lm_contact').value.trim(),
+    contact_email: document.getElementById('lm_email').value.trim(),
+    contact_phone: document.getElementById('lm_phone').value.trim(),
+    status,
+    source: document.getElementById('lm_source').value.trim(),
+    offer_amount: offerVal===''?'':parseFloat(offerVal),
+    commission_percent: commPct===''?'':parseFloat(commPct),
+    follow_up_date: document.getElementById('lm_followup').value || null,
+    comment: document.getElementById('lm_comment').value.trim(),
+    visible_to_ambassador: document.getElementById('lm_visible').checked,
+  };
+  try{
+    const r = await fetch('/api/leads/update.php',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json());
+    if(!r.ok){ showToast('Feil: '+(r.error||'ukjent')); return; }
+    showToast('✓ Lead oppdatert');
+    closeModal('leadModal');
+    await loadLeads(); renderLeads();
+  }catch(e){ showToast('Nettverksfeil'); }
 }
 
 function renderAmbassadors(){

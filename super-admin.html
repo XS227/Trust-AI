@@ -199,7 +199,7 @@ button{font-family:inherit;cursor:pointer}
 
     <nav class="nav-list">
       <button class="nav-item active" data-tab="dashboard"><span class="ico">📊</span>Dashboard <span class="badge live">Live</span></button>
-      <button class="nav-item" data-tab="leads"><span class="ico">📋</span>Leads <span class="badge">Demo</span></button>
+      <button class="nav-item" data-tab="leads"><span class="ico">📋</span>Leads <span class="badge live">Live</span></button>
       <button class="nav-item" data-tab="ambassadors"><span class="ico">👥</span>Ambassadører <span class="badge live">Live</span></button>
       <button class="nav-item" data-tab="revenue"><span class="ico">💰</span>Inntekter <span class="badge live">Live</span></button>
       <button class="nav-item" data-tab="payouts"><span class="ico">💸</span>Utbetalinger <span class="badge live">Live</span></button>
@@ -249,14 +249,14 @@ button{font-family:inherit;cursor:pointer}
       <div class="panel-card" style="margin-bottom:16px">
         <div class="panel-head">
           <div><div class="panel-title">📋 Salgspipeline</div><div class="panel-sub">Leads fordelt på status</div></div>
-          <span class="tag-demo">Demo</span>
+          <span class="tag-live">Live</span>
         </div>
         <div class="pipeline-grid">
-          <div class="pipeline-col"><div class="pipeline-col-head" style="color:#60a5fa">Åpne</div><div class="pipeline-count">14</div><div class="pipeline-val">kr 425.000</div><div class="pipeline-bar"><div class="pipeline-bar-fill" style="width:70%;background:#3b82f6"></div></div></div>
-          <div class="pipeline-col"><div class="pipeline-col-head" style="color:#c084fc">Møte booket</div><div class="pipeline-count">6</div><div class="pipeline-val">kr 310.000</div><div class="pipeline-bar"><div class="pipeline-bar-fill" style="width:40%;background:#a855f7"></div></div></div>
-          <div class="pipeline-col"><div class="pipeline-col-head" style="color:#fbbf24">Tilbud sendt</div><div class="pipeline-count">4</div><div class="pipeline-val">kr 220.000</div><div class="pipeline-bar"><div class="pipeline-bar-fill" style="width:27%;background:#f59e0b"></div></div></div>
-          <div class="pipeline-col"><div class="pipeline-col-head" style="color:#34d399">Godkjent</div><div class="pipeline-count">3</div><div class="pipeline-val">kr 185.000</div><div class="pipeline-bar"><div class="pipeline-bar-fill" style="width:20%;background:#10b981"></div></div></div>
-          <div class="pipeline-col"><div class="pipeline-col-head" style="color:#f87171">Avslått</div><div class="pipeline-count">2</div><div class="pipeline-val">—</div><div class="pipeline-bar"><div class="pipeline-bar-fill" style="width:13%;background:#ef4444"></div></div></div>
+          <div class="pipeline-col"><div class="pipeline-col-head" style="color:#60a5fa">Åpne</div><div class="pipeline-count" id="pl_open_count">—</div><div class="pipeline-val" id="pl_open_val">—</div><div class="pipeline-bar"><div class="pipeline-bar-fill" id="pl_open_fill" style="width:0%;background:#3b82f6"></div></div></div>
+          <div class="pipeline-col"><div class="pipeline-col-head" style="color:#c084fc">Møte booket</div><div class="pipeline-count" id="pl_meet_count">—</div><div class="pipeline-val" id="pl_meet_val">—</div><div class="pipeline-bar"><div class="pipeline-bar-fill" id="pl_meet_fill" style="width:0%;background:#a855f7"></div></div></div>
+          <div class="pipeline-col"><div class="pipeline-col-head" style="color:#fbbf24">Tilbud sendt</div><div class="pipeline-count" id="pl_offer_count">—</div><div class="pipeline-val" id="pl_offer_val">—</div><div class="pipeline-bar"><div class="pipeline-bar-fill" id="pl_offer_fill" style="width:0%;background:#f59e0b"></div></div></div>
+          <div class="pipeline-col"><div class="pipeline-col-head" style="color:#34d399">Godkjent</div><div class="pipeline-count" id="pl_appr_count">—</div><div class="pipeline-val" id="pl_appr_val">—</div><div class="pipeline-bar"><div class="pipeline-bar-fill" id="pl_appr_fill" style="width:0%;background:#10b981"></div></div></div>
+          <div class="pipeline-col"><div class="pipeline-col-head" style="color:#f87171">Avslått</div><div class="pipeline-count" id="pl_rej_count">—</div><div class="pipeline-val" id="pl_rej_val">—</div><div class="pipeline-bar"><div class="pipeline-bar-fill" id="pl_rej_fill" style="width:0%;background:#ef4444"></div></div></div>
         </div>
       </div>
 
@@ -294,23 +294,23 @@ button{font-family:inherit;cursor:pointer}
     <div class="tab-content" id="tab-leads">
       <div class="topbar">
         <div><h1>📋 Leads</h1><div class="topbar-sub">Salgspipeline og lead-oppfølging</div></div>
-        <div class="topbar-actions"><span class="tag-demo">Demo data</span><button class="btn-primary" onclick="openLeadModal()">➕ Legg til lead</button></div>
+        <div class="topbar-actions"><span class="tag-live">Live</span><button class="btn-primary" onclick="openLeadModal()">➕ Ny lead</button></div>
       </div>
 
       <div class="filter-pills" id="leadFilters">
         <button class="filter-pill active" data-filter="all">Alle</button>
         <button class="filter-pill" data-filter="open">Åpen</button>
-        <button class="filter-pill" data-filter="meeting">Møte</button>
-        <button class="filter-pill" data-filter="offer">Tilbud</button>
+        <button class="filter-pill" data-filter="meeting_booked">Møte</button>
+        <button class="filter-pill" data-filter="offer_sent">Tilbud</button>
         <button class="filter-pill" data-filter="approved">Godkjent</button>
         <button class="filter-pill" data-filter="rejected">Avslag</button>
       </div>
 
       <div class="panel-card">
-        <div class="panel-head"><div class="panel-title">Alle leads</div><span class="tag-demo">Demo</span></div>
+        <div class="panel-head"><div class="panel-title">Alle leads</div><span class="tag-live">Live</span></div>
         <div style="overflow-x:auto">
           <table class="tbl" id="leadsTable">
-            <thead><tr><th>Firma</th><th>Ambassadør</th><th>Status</th><th>Verdi</th><th>Provisjon</th><th>Kilde</th><th>Dato</th><th></th></tr></thead>
+            <thead><tr><th>Firma</th><th>Ambassadør</th><th>Butikk</th><th>Status</th><th>Tilbud</th><th>Provisjon</th><th>Kilde</th><th>Dato</th><th></th></tr></thead>
             <tbody id="leadsTbody"></tbody>
           </table>
         </div>
@@ -520,31 +520,51 @@ button{font-family:inherit;cursor:pointer}
 
 <div class="toast" id="toast"></div>
 
-<!-- MODAL: Lead detalj -->
+<!-- MODAL: Lead detalj / Ny lead -->
 <div class="modal-backdrop" id="leadModal">
-  <div class="modal" style="max-width:700px">
+  <div class="modal" style="max-width:800px">
     <button class="modal-close" onclick="closeModal('leadModal')">✕</button>
     <h2 id="leadModalTitle">Lead detaljer</h2>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
       <div>
-        <div class="form-group" style="margin-bottom:10px"><label>Firma</label><input type="text" id="lm_company"></div>
+        <div class="form-group" style="margin-bottom:10px" id="lm_store_wrap"><label>Butikk</label><select id="lm_store_id"></select></div>
+        <div class="form-group" style="margin-bottom:10px"><label>Firma *</label><input type="text" id="lm_company" placeholder="Firmanavn"></div>
         <div class="form-group" style="margin-bottom:10px"><label>Kontaktperson</label><input type="text" id="lm_contact"></div>
         <div class="form-group" style="margin-bottom:10px"><label>E-post</label><input type="email" id="lm_email"></div>
         <div class="form-group" style="margin-bottom:10px"><label>Telefon</label><input type="text" id="lm_phone"></div>
         <div class="form-group" style="margin-bottom:10px"><label>Oppfølgingsdato</label><input type="date" id="lm_followup"></div>
-        <div class="form-group"><label>Notat</label><textarea id="lm_note" rows="3"></textarea></div>
+        <div class="form-group" style="margin-bottom:6px"><label>Ambassadør ID (ved ny lead)</label><input type="number" id="lm_amb_id" placeholder="Valgfri"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><input type="checkbox" id="lm_visible"><label for="lm_visible" style="margin:0;font-size:12px">Kommentar synlig for ambassadør</label></div>
       </div>
       <div>
-        <div class="form-group" style="margin-bottom:10px"><label>Status</label><select id="lm_status"><option value="open">Åpen</option><option value="meeting">Møte booket</option><option value="offer">Tilbud sendt</option><option value="approved">Godkjent</option><option value="rejected">Avslag</option></select></div>
-        <div class="form-group" style="margin-bottom:10px"><label>Ambassadør</label><input type="text" id="lm_amb"></div>
+        <div class="form-group" style="margin-bottom:10px"><label>Status</label><select id="lm_status" onchange="onStatusChange()"><option value="open">Åpen</option><option value="meeting_booked">Møte booket</option><option value="offer_sent">Tilbud sendt</option><option value="approved">Godkjent</option><option value="rejected">Avslått</option></select></div>
+        <div class="form-group" style="margin-bottom:10px" id="lm_comment_wrap"><label>Kommentar til statusendring *</label><textarea id="lm_comment" rows="2" placeholder="Beskriv hva som skjedde..."></textarea></div>
+        <div class="form-group" style="margin-bottom:10px"><label>Ambassadør</label><input type="text" id="lm_amb" disabled></div>
         <div class="form-group" style="margin-bottom:10px"><label>Lead ID</label><input type="text" id="lm_id" disabled></div>
         <div class="form-group" style="margin-bottom:10px"><label>Kilde</label><input type="text" id="lm_source"></div>
-        <div class="form-group" style="margin-bottom:10px"><label>Tilbudssum (kr)</label><input type="number" id="lm_value"></div>
+        <div class="form-group" style="margin-bottom:10px"><label>Tilbudssum (kr)</label><input type="number" id="lm_value" oninput="calcCommission()"></div>
         <div class="form-group" style="margin-bottom:10px"><label>Provisjon %</label><input type="number" id="lm_comm_pct" oninput="calcCommission()"></div>
         <div class="form-group"><label>Provisjonsbeløp (kr)</label><input type="text" id="lm_comm_amt" disabled></div>
       </div>
     </div>
-    <div id="lm_changelog" class="changelog"></div>
+    <div id="lm_history_wrap" style="margin-top:16px;display:none">
+      <div style="font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">Endringslogg</div>
+      <div class="changelog" id="lm_history"></div>
+    </div>
+    <div style="margin-top:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px">Notater</div>
+        <button class="btn-ghost" id="lm_add_note_btn" onclick="toggleNoteForm()" style="display:none">+ Legg til notat</button>
+      </div>
+      <div id="lm_notes"></div>
+      <div id="lm_note_form" style="display:none;margin-top:8px;background:var(--bg-2);padding:12px;border-radius:10px;border:1px solid var(--line)">
+        <div class="form-group" style="margin-bottom:8px"><label>Notat</label><textarea id="nn_text" rows="3" placeholder="Skriv notat..."></textarea></div>
+        <div style="display:flex;align-items:center;gap:12px;justify-content:space-between">
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px"><input type="checkbox" id="nn_visible"> Synlig for ambassadør</label>
+          <button class="btn-primary" onclick="submitNote()">Lagre notat</button>
+        </div>
+      </div>
+    </div>
     <div class="modal-footer">
       <button class="btn-ghost" onclick="closeModal('leadModal')">Avbryt</button>
       <button class="btn-primary" onclick="saveLead()">💾 Lagre</button>
@@ -622,19 +642,12 @@ button{font-family:inherit;cursor:pointer}
 
 <script src="/assets/js/trustai-ai.js"></script>
 <script>
-const DEMO_LEADS = [
-  {id:'LD-001',company:'Animer AS',contact:'Ola Nordmann',email:'ola@animer.no',phone:'91234567',status:'approved',value:80000,comm_pct:10,source:'LinkedIn',ambassador:'Sara Hansen',date:'2026-04-28',note:'Veldig interessert',followup:'2026-05-10'},
-  {id:'LD-002',company:'Tech Solutions AS',contact:'Marte Olsen',email:'marte@tech.no',phone:'92345678',status:'offer',value:65000,comm_pct:10,source:'E-post',ambassador:'Jonas Berg',date:'2026-04-25',note:'Tilbud sendt',followup:'2026-05-12'},
-  {id:'LD-003',company:'Nordic Brands',contact:'Erik Hansen',email:'erik@nordic.no',phone:'93456789',status:'meeting',value:95000,comm_pct:8,source:'WhatsApp',ambassador:'Sara Hansen',date:'2026-04-22',note:'Møte avtalt',followup:'2026-05-08'},
-  {id:'LD-004',company:'StartupX',contact:'Lisa Berg',email:'lisa@startupx.no',phone:'94567890',status:'open',value:35000,comm_pct:10,source:'Direkte',ambassador:'Knut Larsen',date:'2026-04-20',note:'Første kontakt',followup:'2026-05-15'},
-  {id:'LD-005',company:'Build & Grow',contact:'Per Dahl',email:'per@bg.no',phone:'95678901',status:'rejected',value:0,comm_pct:0,source:'Facebook',ambassador:'Jonas Berg',date:'2026-04-18',note:'Ikke interessert',followup:''},
-  {id:'LD-006',company:'Fjord Commerce',contact:'Anne Lie',email:'anne@fjord.no',phone:'96789012',status:'open',value:120000,comm_pct:12,source:'LinkedIn',ambassador:'Sara Hansen',date:'2026-05-01',note:'Potensielt stor kunde',followup:'2026-05-20'},
-];
-
 let DATA = {stores:[],ambassadors:[],metrics:{},orders:[],payouts:[]};
+let LEADS_DATA = [];
 let currentLeadFilter = 'all';
 let currentAmbFilter = 'all';
-let editingLead = null;
+let editingLeadId = null;
+let editingLeadOrigStatus = null;
 
 const TAB_BTNS = document.querySelectorAll('.nav-item[data-tab]');
 const TABS = document.querySelectorAll('.tab-content');
@@ -655,11 +668,10 @@ function openModal(id){document.getElementById(id).classList.add('open')}
 function closeModal(id){document.getElementById(id).classList.remove('open')}
 
 function statusPill(s){
-  const map={open:'s-open',meeting:'s-meeting',offer:'s-offer',approved:'s-approved',rejected:'s-rejected',pending:'s-pending',paused:'s-paused',active:'s-active'};
-  const labels={open:'Åpen',meeting:'Møte',offer:'Tilbud',approved:'Godkjent/Aktiv',rejected:'Avslått',pending:'Søknad',paused:'Pauset',active:'Aktiv'};
-  const norm=String(s||'').toLowerCase().replace('approved','approved').replace('active','active');
-  const cls=map[norm]||'s-open';
-  return `<span class="status-pill ${cls}">${labels[norm]||s}</span>`;
+  const map={open:'s-open',meeting:'s-meeting',offer:'s-offer',meeting_booked:'s-meeting',offer_sent:'s-offer',approved:'s-approved',rejected:'s-rejected',pending:'s-pending',paused:'s-paused',active:'s-active'};
+  const labels={open:'Åpen',meeting:'Møte',offer:'Tilbud',meeting_booked:'Møte booket',offer_sent:'Tilbud sendt',approved:'Godkjent',rejected:'Avslått',pending:'Søknad',paused:'Pauset',active:'Aktiv'};
+  const norm=String(s||'').toLowerCase();
+  return `<span class="status-pill ${map[norm]||'s-open'}">${labels[norm]||s}</span>`;
 }
 
 async function loadData(){
@@ -676,6 +688,7 @@ async function loadData(){
     DATA.metrics = payload.metrics||{};
     DATA.orders = Array.isArray(payload.orders)?payload.orders:[];
     DATA.payouts = Array.isArray(payload.payouts)?payload.payouts:[];
+    await loadLeads();
     render();
   }catch(e){
     document.getElementById('guard').innerHTML='<div style="padding:40px;text-align:center"><h2>Nettverksfeil</h2><p style="color:#94a3b8">'+e.message+'</p></div>';
@@ -735,20 +748,47 @@ function render(){
   populateStoreSelect();
 }
 
+async function loadLeads(){
+  try{
+    const r = await fetch('/api/leads/list.php',{credentials:'include'}).then(r=>r.json());
+    if(!r.ok){ LEADS_DATA = []; return; }
+    LEADS_DATA = Array.isArray(r.leads) ? r.leads : [];
+    renderPipeline(r.pipeline||{});
+  }catch(e){ LEADS_DATA = []; }
+}
+
+function renderPipeline(p){
+  const totalCount = (p.open?.count||0)+(p.meeting_booked?.count||0)+(p.offer_sent?.count||0)+(p.approved?.count||0)+(p.rejected?.count||0);
+  const max = Math.max(1, totalCount);
+  const set = (k, prefix) => {
+    const c = p[k]?.count||0;
+    const t = p[k]?.total||0;
+    const cEl = document.getElementById(prefix+'_count'); if(cEl) cEl.textContent = c;
+    const vEl = document.getElementById(prefix+'_val'); if(vEl) vEl.textContent = t? fmt(t) : '—';
+    const fEl = document.getElementById(prefix+'_fill'); if(fEl) fEl.style.width = Math.round(c/max*100)+'%';
+  };
+  set('open','pl_open');
+  set('meeting_booked','pl_meet');
+  set('offer_sent','pl_offer');
+  set('approved','pl_appr');
+  set('rejected','pl_rej');
+}
+
 function renderLeads(){
   const filter = currentLeadFilter;
-  const rows = filter==='all'?DEMO_LEADS:DEMO_LEADS.filter(l=>l.status===filter);
+  const rows = filter==='all' ? LEADS_DATA : LEADS_DATA.filter(l => String(l.status)===filter);
   document.getElementById('leadsTbody').innerHTML = rows.length===0
-    ?'<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">Ingen leads</td></tr>'
-    :rows.map(l=>`<tr data-clickable data-id="${l.id}" onclick="openLeadDetail('${l.id}')">
-      <td><b>${l.company}</b><div style="font-size:11px;color:var(--muted)">${l.contact}</div></td>
-      <td>${l.ambassador}</td>
+    ?'<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:30px">Ingen leads</td></tr>'
+    :rows.map(l=>`<tr data-clickable data-id="${l.id}" onclick="openLeadDetail(${l.id})">
+      <td><b>${l.company_name||'—'}</b><div style="font-size:11px;color:var(--muted)">${l.contact_person||''}</div></td>
+      <td>${l.ambassador_name||'—'}</td>
+      <td>${l.store_name||'—'}</td>
       <td>${statusPill(l.status)}</td>
-      <td>${l.value?fmt(l.value):'—'}</td>
-      <td>${l.comm_pct&&l.value?fmt(l.value*l.comm_pct/100):'—'}</td>
-      <td>${l.source}</td>
-      <td>${l.date}</td>
-      <td><button class="btn-ghost" onclick="event.stopPropagation();openLeadDetail('${l.id}')">Se</button></td>
+      <td>${l.offer_amount?fmt(l.offer_amount):'—'}</td>
+      <td>${l.commission_amount?fmt(l.commission_amount):'—'}</td>
+      <td>${l.source||'—'}</td>
+      <td>${fmtDate(l.created_at)}</td>
+      <td><button class="btn-ghost" onclick="event.stopPropagation();openLeadDetail(${l.id})">Se</button></td>
     </tr>`).join('');
 }
 
@@ -833,43 +873,116 @@ document.querySelectorAll('#ambFilters .filter-pill').forEach(btn=>{
   };
 });
 
-function openLeadDetail(id){
-  const l = DEMO_LEADS.find(x=>x.id===id);
-  if(!l) return;
-  editingLead = l;
-  document.getElementById('leadModalTitle').textContent = l.company+' — Lead detaljer';
-  document.getElementById('lm_company').value = l.company;
-  document.getElementById('lm_contact').value = l.contact;
-  document.getElementById('lm_email').value = l.email;
-  document.getElementById('lm_phone').value = l.phone;
-  document.getElementById('lm_followup').value = l.followup||'';
-  document.getElementById('lm_note').value = l.note||'';
-  document.getElementById('lm_status').value = l.status;
-  document.getElementById('lm_amb').value = l.ambassador;
-  document.getElementById('lm_id').value = l.id;
-  document.getElementById('lm_source').value = l.source;
-  document.getElementById('lm_value').value = l.value||'';
-  document.getElementById('lm_comm_pct').value = l.comm_pct||'';
-  document.getElementById('lm_comm_amt').value = l.value&&l.comm_pct?fmt(l.value*l.comm_pct/100):'';
-  document.getElementById('lm_changelog').innerHTML = `
-    <div style="font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-top:16px;margin-bottom:8px">Endringslogg</div>
-    <div class="changelog">
-      <div class="changelog-item"><div class="changelog-dot"></div><div><b>Status endret til ${l.status}</b><div class="activity-time">${l.date}</div></div></div>
-      <div class="changelog-item"><div class="changelog-dot"></div><div><b>Lead opprettet</b><div class="activity-time">${l.date}</div></div></div>
-    </div>`;
-  openModal('leadModal');
+function populateLeadStoreSelect(){
+  const sel = document.getElementById('lm_store_id');
+  if(!sel) return;
+  sel.innerHTML = (DATA.stores||[]).map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+}
+
+async function openLeadDetail(id){
+  editingLeadId = id;
+  try{
+    const r = await fetch('/api/leads/get.php?id='+encodeURIComponent(id),{credentials:'include'}).then(r=>r.json());
+    if(!r.ok){ showToast('Kunne ikke laste lead: '+(r.error||'')); return; }
+    const l = r.lead;
+    editingLeadOrigStatus = l.status;
+    populateLeadStoreSelect();
+    document.getElementById('leadModalTitle').textContent = (l.company_name||'Lead')+' — detaljer';
+    document.getElementById('lm_store_wrap').style.display='none';
+    document.getElementById('lm_company').value = l.company_name||'';
+    document.getElementById('lm_contact').value = l.contact_person||'';
+    document.getElementById('lm_email').value = l.contact_email||'';
+    document.getElementById('lm_phone').value = l.contact_phone||'';
+    document.getElementById('lm_followup').value = l.follow_up_date ? String(l.follow_up_date).slice(0,10) : '';
+    document.getElementById('lm_status').value = l.status||'open';
+    document.getElementById('lm_amb').value = l.ambassador_name||'';
+    document.getElementById('lm_amb_id').value = l.ambassador_id||'';
+    document.getElementById('lm_id').value = l.id;
+    document.getElementById('lm_source').value = l.source||'';
+    document.getElementById('lm_value').value = l.offer_amount||'';
+    document.getElementById('lm_comm_pct').value = l.commission_percent||'';
+    document.getElementById('lm_comm_amt').value = l.commission_amount?fmt(l.commission_amount):'';
+    document.getElementById('lm_comment').value='';
+    document.getElementById('lm_visible').checked=false;
+    document.getElementById('lm_comment_wrap').style.display='none';
+    renderHistory(r.history||[]);
+    renderNotes(r.notes||[]);
+    document.getElementById('lm_add_note_btn').style.display='inline-block';
+    document.getElementById('lm_note_form').style.display='none';
+    openModal('leadModal');
+  }catch(e){ showToast('Nettverksfeil'); }
+}
+
+function renderHistory(history){
+  const wrap = document.getElementById('lm_history_wrap');
+  const list = document.getElementById('lm_history');
+  if(!history.length){ wrap.style.display='none'; return; }
+  wrap.style.display='block';
+  const labels = {created:'Lead opprettet',status_change:'Status endret',field_update:'Felt oppdatert',note_added:'Notat lagt til'};
+  list.innerHTML = history.map(h=>{
+    const label = labels[h.action_type]||h.action_type;
+    let detail = '';
+    if(h.action_type==='status_change') detail = `${h.old_value||'—'} → <b>${h.new_value||'—'}</b>`;
+    else if(h.action_type==='field_update') detail = `${h.field_name}: ${h.old_value||'—'} → ${h.new_value||'—'}`;
+    else if(h.action_type==='note_added') detail = (h.new_value||'').slice(0,120);
+    const cmt = h.comment ? `<div style="color:var(--muted);font-size:12px;margin-top:2px">💬 ${h.comment}</div>` : '';
+    return `<div class="changelog-item"><div class="changelog-dot"></div><div><b>${label}</b><div style="font-size:12px;color:var(--muted)">${detail}</div>${cmt}<div class="activity-time">${fmtDate(h.created_at)} · ${h.user_email||''}</div></div></div>`;
+  }).join('');
+}
+
+function renderNotes(notes){
+  const list = document.getElementById('lm_notes');
+  if(!notes.length){ list.innerHTML = '<div style="color:var(--muted);font-size:12px">Ingen notater enda.</div>'; return; }
+  list.innerHTML = notes.map(n=>{
+    const vis = n.visible_to_ambassador==1 || n.visible_to_ambassador===true ? '<span class="tag-live" style="margin-left:6px">Synlig for ambassadør</span>' : '';
+    return `<div style="background:var(--bg-2);padding:10px 12px;border-radius:10px;border:1px solid var(--line);margin-bottom:8px"><div style="font-size:13px;white-space:pre-wrap">${(n.note_text||'').replace(/</g,'&lt;')}</div><div style="font-size:11px;color:var(--muted);margin-top:6px">${fmtDate(n.created_at)} · ${n.user_email||''}${vis}</div></div>`;
+  }).join('');
 }
 
 function openLeadModal(){
-  editingLead = null;
-  ['lm_company','lm_contact','lm_email','lm_phone','lm_followup','lm_note','lm_amb','lm_id','lm_source','lm_value','lm_comm_pct','lm_comm_amt'].forEach(id=>{
+  editingLeadId = null;
+  editingLeadOrigStatus = null;
+  populateLeadStoreSelect();
+  ['lm_company','lm_contact','lm_email','lm_phone','lm_followup','lm_amb','lm_amb_id','lm_id','lm_source','lm_value','lm_comm_pct','lm_comm_amt','lm_comment'].forEach(id=>{
     const el=document.getElementById(id);if(el)el.value='';
   });
+  document.getElementById('lm_visible').checked=false;
   document.getElementById('lm_status').value='open';
-  document.getElementById('lm_id').value='LD-NEW';
+  document.getElementById('lm_store_wrap').style.display='block';
   document.getElementById('leadModalTitle').textContent='Ny lead';
-  document.getElementById('lm_changelog').innerHTML='';
+  document.getElementById('lm_history_wrap').style.display='none';
+  document.getElementById('lm_notes').innerHTML='';
+  document.getElementById('lm_comment_wrap').style.display='none';
+  document.getElementById('lm_add_note_btn').style.display='none';
+  document.getElementById('lm_note_form').style.display='none';
   openModal('leadModal');
+}
+
+function onStatusChange(){
+  if(!editingLeadId){ document.getElementById('lm_comment_wrap').style.display='none'; return; }
+  const cur = document.getElementById('lm_status').value;
+  document.getElementById('lm_comment_wrap').style.display = (cur !== editingLeadOrigStatus) ? 'block' : 'none';
+}
+
+function toggleNoteForm(){
+  const f = document.getElementById('lm_note_form');
+  f.style.display = f.style.display==='none' ? 'block' : 'none';
+  if(f.style.display==='block'){ document.getElementById('nn_text').value=''; document.getElementById('nn_visible').checked=false; }
+}
+
+async function submitNote(){
+  if(!editingLeadId){ showToast('Lagre lead først'); return; }
+  const text = document.getElementById('nn_text').value.trim();
+  if(!text){ showToast('Notattekst er påkrevd'); return; }
+  const visible = document.getElementById('nn_visible').checked;
+  try{
+    const r = await fetch('/api/leads/add-note.php',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({lead_id:editingLeadId,note_text:text,visible_to_ambassador:visible})}).then(r=>r.json());
+    if(!r.ok){ showToast('Feil: '+(r.error||'ukjent')); return; }
+    showToast('✓ Notat lagret');
+    const detail = await fetch('/api/leads/get.php?id='+editingLeadId,{credentials:'include'}).then(r=>r.json());
+    if(detail.ok){ renderHistory(detail.history||[]); renderNotes(detail.notes||[]); }
+    document.getElementById('lm_note_form').style.display='none';
+  }catch(e){ showToast('Nettverksfeil'); }
 }
 
 function calcCommission(){
@@ -878,7 +991,65 @@ function calcCommission(){
   document.getElementById('lm_comm_amt').value=val&&pct?fmt(val*pct/100):'';
 }
 
-function saveLead(){showToast('✓ Lead oppdatert (demo)');closeModal('leadModal');}
+async function saveLead(){
+  const company = document.getElementById('lm_company').value.trim();
+  if(!company){ showToast('Firmanavn er påkrevd'); return; }
+  const status = document.getElementById('lm_status').value;
+  const followup = document.getElementById('lm_followup').value || null;
+  const offerVal = document.getElementById('lm_value').value;
+  const commPct = document.getElementById('lm_comm_pct').value;
+  const ambIdVal = document.getElementById('lm_amb_id').value;
+
+  if(editingLeadId){
+    if(status !== editingLeadOrigStatus){
+      const cmt = document.getElementById('lm_comment').value.trim();
+      if(!cmt){ showToast('Kommentar er påkrevd ved statusendring'); return; }
+    }
+    const body = {
+      id: editingLeadId,
+      company_name: company,
+      contact_person: document.getElementById('lm_contact').value.trim(),
+      contact_email: document.getElementById('lm_email').value.trim(),
+      contact_phone: document.getElementById('lm_phone').value.trim(),
+      status,
+      source: document.getElementById('lm_source').value.trim(),
+      offer_amount: offerVal===''?'':parseFloat(offerVal),
+      commission_percent: commPct===''?'':parseFloat(commPct),
+      follow_up_date: followup,
+      comment: document.getElementById('lm_comment').value.trim(),
+      visible_to_ambassador: document.getElementById('lm_visible').checked,
+    };
+    try{
+      const r = await fetch('/api/leads/update.php',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json());
+      if(!r.ok){ showToast('Feil: '+(r.error||'ukjent')); return; }
+      showToast('✓ Lead oppdatert');
+      closeModal('leadModal');
+      loadLeads().then(renderLeads);
+    }catch(e){ showToast('Nettverksfeil'); }
+  } else {
+    const storeId = parseInt(document.getElementById('lm_store_id').value,10);
+    if(!storeId){ showToast('Velg butikk'); return; }
+    const body = {
+      store_id: storeId,
+      ambassador_id: ambIdVal===''?null:parseInt(ambIdVal,10),
+      company_name: company,
+      contact_person: document.getElementById('lm_contact').value.trim(),
+      contact_email: document.getElementById('lm_email').value.trim(),
+      contact_phone: document.getElementById('lm_phone').value.trim(),
+      source: document.getElementById('lm_source').value.trim(),
+      offer_amount: offerVal===''?null:parseFloat(offerVal),
+      commission_percent: commPct===''?null:parseFloat(commPct),
+      follow_up_date: followup,
+    };
+    try{
+      const r = await fetch('/api/leads/create.php',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json());
+      if(!r.ok){ showToast('Feil: '+(r.error||'ukjent')); return; }
+      showToast('✓ Lead opprettet');
+      closeModal('leadModal');
+      loadLeads().then(renderLeads);
+    }catch(e){ showToast('Nettverksfeil'); }
+  }
+}
 
 function openNewStoreModal(){openModal('newStoreModal')}
 function openNewAmbModal(){openModal('newAmbModal')}

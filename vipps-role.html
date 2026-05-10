@@ -9,7 +9,7 @@
   body{font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:linear-gradient(160deg,#0f172a,#111827);color:#e2e8f0;margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
   .card{width:100%;max-width:460px;background:#0b1220;border:1px solid #334155;border-radius:16px;padding:24px}
   h1{margin:0 0 6px;font-size:22px}
-  p.help{margin:0 0 20px;color:#94a3b8;font-size:14px;line-height:1.45}
+  p.help{margin:0 0 18px;color:#94a3b8;font-size:14px;line-height:1.45}
   .role-list{display:grid;gap:12px}
   .role{display:flex;align-items:flex-start;gap:14px;padding:18px;border:1px solid #334155;border-radius:12px;background:#0f172a;cursor:pointer;transition:.15s ease}
   .role:hover{border-color:#2563eb}
@@ -18,8 +18,12 @@
   .role .body{flex:1}
   .role .title{font-weight:700;font-size:15px;color:#f1f5f9}
   .role .desc{font-size:13px;color:#94a3b8;margin-top:3px;line-height:1.45}
-  button{width:100%;padding:14px;border-radius:12px;border:0;background:#2563eb;color:#fff;font-weight:600;font-size:15px;margin-top:18px;cursor:pointer}
-  button:disabled{opacity:.55;cursor:not-allowed}
+  .age-block{margin-top:18px;padding:14px;border:1px solid #334155;border-radius:12px;background:#0f172a}
+  .age-block label{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:#e2e8f0;cursor:pointer;line-height:1.45}
+  .age-block input{margin-top:3px;width:18px;height:18px;accent-color:#22c55e;flex-shrink:0}
+  .age-block .desc{display:block;margin-top:4px;color:#94a3b8;font-size:12px}
+  button.submit{width:100%;padding:14px;border-radius:12px;border:0;background:#2563eb;color:#fff;font-weight:600;font-size:15px;margin-top:18px;cursor:pointer}
+  button.submit:disabled{opacity:.55;cursor:not-allowed}
   .msg{margin-top:14px;padding:10px;border-radius:10px;font-size:14px;display:none}
   .msg.show{display:block}
   .err{background:#3f1d1d;border:1px solid #7f1d1d;color:#fecaca}
@@ -31,11 +35,11 @@
 </head>
 <body>
 <main class="card">
-  <h1>Hva vil du registrere deg som?</h1>
-  <p class="help">Du er logget inn med Vipps. Velg rollen som passer deg for å fullføre registreringen.</p>
+  <h1 id="title">Hva vil du registrere deg som?</h1>
+  <p class="help" id="help">Du er logget inn med Vipps. Velg rollen som passer deg for å fullføre registreringen.</p>
 
   <form id="roleForm">
-    <div class="role-list">
+    <div class="role-list" id="roleList">
       <label class="role">
         <input type="radio" name="role" value="ambassador" required>
         <span class="body">
@@ -51,42 +55,87 @@
         </span>
       </label>
     </div>
-    <button id="submitBtn" type="submit" disabled>Fortsett</button>
+
+    <div class="age-block" id="ageBlock">
+      <label>
+        <input type="checkbox" id="confirm18">
+        <span>
+          Jeg bekrefter at jeg er 18 år eller eldre.
+          <span class="desc">TrustAI krever at alle brukere er minst 18 år for å registrere seg.</span>
+        </span>
+      </label>
+    </div>
+
+    <button class="submit" id="submitBtn" type="submit" disabled>Fortsett</button>
     <div id="msg" class="msg err"></div>
   </form>
 </main>
 <script>
 (function(){
+  const qs = new URLSearchParams(location.search);
+  const confirmAgeOnly = qs.get('confirm_age') === '1';
+
   const form = document.getElementById('roleForm');
   const btn = document.getElementById('submitBtn');
   const msg = document.getElementById('msg');
+  const ageBlock = document.getElementById('ageBlock');
+  const confirm18 = document.getElementById('confirm18');
+  const roleList = document.getElementById('roleList');
+  const title = document.getElementById('title');
+  const help = document.getElementById('help');
+
+  if (confirmAgeOnly) {
+    // Existing user re-authenticating; we just need the age confirmation.
+    title.textContent = 'Bekreft alder';
+    help.textContent = 'Du må bekrefte at du er 18 år eller eldre for å fortsette.';
+    roleList.style.display = 'none';
+    form.querySelectorAll('input[name=role]').forEach(i => i.required = false);
+  }
 
   function showError(t){ msg.textContent = t; msg.classList.add('show'); }
+  function clearError(){ msg.classList.remove('show'); }
+  function updateSubmit() {
+    const roleOk = confirmAgeOnly || !!form.querySelector('input[name=role]:checked');
+    const ageOk = confirm18.checked;
+    btn.disabled = !(roleOk && ageOk);
+  }
 
   form.addEventListener('change', () => {
-    btn.disabled = !form.querySelector('input[name=role]:checked');
     document.querySelectorAll('.role').forEach(el => {
       const input = el.querySelector('input');
       el.classList.toggle('selected', !!(input && input.checked));
     });
+    updateSubmit();
   });
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const role = (form.querySelector('input[name=role]:checked') || {}).value;
-    if (!role) return;
+    clearError();
+    const roleEl = form.querySelector('input[name=role]:checked');
+    const role = roleEl ? roleEl.value : '';
+    if (!confirmAgeOnly && !role) { showError('Velg en rolle først.'); return; }
+    if (!confirm18.checked) { showError('Du må bekrefte at du er 18 år eller eldre.'); return; }
+
     btn.disabled = true; btn.textContent = 'Lagrer...';
-    msg.classList.remove('show');
     try {
+      const body = { confirm_18: true };
+      if (role) body.role = role;
       const res = await fetch('/api/auth/vipps/set-role.php', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role })
+        body: JSON.stringify(body),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) {
-        showError(data.message || 'Kunne ikke lagre rollen. Prøv igjen.');
+        const map = {
+          age_confirmation_required: 'Du må bekrefte at du er 18 år eller eldre.',
+          invalid_role: 'Ugyldig rolle.',
+          role_already_set: 'Rollen din er allerede satt. Prøv å logge inn på nytt.',
+          role_required: 'Velg en rolle først.',
+          login_required: 'Du må logge inn med Vipps på nytt.',
+        };
+        showError(map[data.error] || data.message || 'Kunne ikke lagre. Prøv igjen.');
         btn.disabled = false; btn.textContent = 'Fortsett';
         return;
       }
@@ -96,6 +145,9 @@
       btn.disabled = false; btn.textContent = 'Fortsett';
     }
   });
+
+  confirm18.addEventListener('change', updateSubmit);
+  updateSubmit();
 })();
 </script>
 </body>

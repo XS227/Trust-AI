@@ -95,7 +95,16 @@
       vipps_create_failed: 'Kunne ikke opprette Vipps-bruker.',
       vipps_user_not_found: 'Fant ikke brukeren etter innlogging.',
     };
-    flash(vippsMap[err] || (err.startsWith('vipps') ? 'Innlogging via Vipps feilet.' : 'Innlogging feilet. Prøv igjen.'));
+    let text = vippsMap[err] || (err.startsWith('vipps') ? 'Innlogging via Vipps feilet.' : 'Innlogging feilet. Prøv igjen.');
+    // Append the raw Vipps error code + description if Vipps sent one along.
+    const vErr = qs.get('vipps_error');
+    const vDesc = qs.get('vipps_error_description');
+    if (vErr || vDesc) {
+      text += ' (' + [vErr, vDesc].filter(Boolean).join(': ') + ')';
+    } else if (!vippsMap[err] && err !== 'under_18') {
+      text += ' (' + err + ')';
+    }
+    flash(text);
   }
   document.getElementById('vippsBtn').onclick = () => {
     location.href = '/api/auth/vipps/login.php?intent=auto';

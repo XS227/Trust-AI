@@ -10,13 +10,33 @@ if (!$pdo instanceof PDO) {
 
 $cfg = trustaiVippsRequireConfig();
 
-if (!empty($_GET['error'])) {
-    header('Location: /login.html?error=vipps_cancelled');
+$code = (string)($_GET['code'] ?? '');
+$rawState = (string)($_GET['state'] ?? '');
+$grantedScope = (string)($_GET['scope'] ?? '');
+$vippsErrorCode = (string)($_GET['error'] ?? '');
+$vippsErrorDesc = (string)($_GET['error_description'] ?? '');
+
+trustaiVippsDebugLog('callback_entry', [
+    'has_code' => $code !== '',
+    'has_state' => $rawState !== '',
+    'state_len' => strlen($rawState),
+    'granted_scope' => $grantedScope,
+    'vipps_error' => $vippsErrorCode !== '' ? $vippsErrorCode : null,
+    'vipps_error_description' => $vippsErrorDesc !== '' ? $vippsErrorDesc : null,
+    'sid_len' => strlen((string)session_id()),
+    'cookie_present' => isset($_COOKIE[session_name()]),
+    'session_has_csrf' => isset($_SESSION['vipps_csrf']),
+    'session_has_pkce' => isset($_SESSION['vipps_pkce_verifier']),
+]);
+
+if ($vippsErrorCode !== '') {
+    // Forward Vipps' own error details for diagnosis on /login.html.
+    $params = ['error' => 'vipps_cancelled', 'vipps_error' => $vippsErrorCode];
+    if ($vippsErrorDesc !== '') $params['vipps_error_description'] = $vippsErrorDesc;
+    header('Location: /login.html?' . http_build_query($params));
     exit;
 }
 
-$code = (string)($_GET['code'] ?? '');
-$rawState = (string)($_GET['state'] ?? '');
 if ($code === '' || $rawState === '') {
     header('Location: /login.html?error=vipps_missing_code');
     exit;
@@ -125,15 +145,32 @@ if ($fullName === '') {
 $phone = trustaiVippsNormalizePhone((string)($ui['phone_number'] ?? ''));
 $birthDate = trustaiVippsParseBirthDate((string)($ui['birthdate'] ?? $ui['birth_date'] ?? ''));
 $age = trustaiVippsAgeFromBirthDate($birthDate);
+$ageVerified = false; // true only when Vipps gave us birthdate AND age >= 18
 
-// 18+ gate. Vipps users without a usable birthdate are rejected too, since
-// we cannot prove they meet the requirement.
-if ($age === null || $age < 18) {
-    // Clear any temp Vipps state on the session so they can retry cleanly.
+trustaiVippsDebugLog('callback_userinfo', [
+    'has_sub' => !empty($ui['sub']),
+    'has_name' => !empty($ui['name']) || !empty($ui['given_name']),
+    'has_email' => !empty($ui['email']),
+    'has_phone' => !empty($ui['phone_number']),
+    'has_birthdate' => $birthDate !== '',
+    'age_calculated' => $age,
+    'granted_scope' => $grantedScope,
+]);
+
+// 18+ gate.
+// Strict path: Vipps returned birthdate AND user is under 18 -> hard reject.
+// Self-declaration path: Vipps did NOT return birthdate (scope not granted by
+// the merchant's Vipps API product subscription) -> proceed but require an
+// explicit "I am 18 or older" confirmation on the role picker before any
+// role/account work is finalised.
+if ($birthDate !== '' && $age !== null && $age < 18) {
     unset($_SESSION['vipps_csrf'], $_SESSION['vipps_pkce_verifier'], $_SESSION['vipps_intent'], $_SESSION['vipps_desired_role']);
-    error_log('Vipps under_18 reject: age=' . ($age === null ? 'unknown' : (string)$age));
+    trustaiVippsDebugLog('callback_redirect', ['target' => '/login.html?error=under_18', 'reason' => 'birthdate_verified_under_18']);
     header('Location: /login.html?error=under_18');
     exit;
+}
+if ($birthDate !== '' && $age !== null && $age >= 18) {
+    $ageVerified = true;
 }
 
 trustaiVippsEnsureSchema($pdo);
@@ -231,25 +268,43 @@ if ($currentRole === '' && in_array($desiredRole, ['ambassador', 'store_admin'],
 
 trustaiStartSessionForUser($user);
 
-// New or role-less user → role picker. Anonymous-OAuth temp keys live on the
-// session even after trustaiStartSessionForUser() rotates the session id.
+// Carry the age-verification status into the post-login session. The role
+// picker / role-setting endpoint enforces it before any role is committed.
+$_SESSION['vipps_age_verified'] = $ageVerified;
+$_SESSION['vipps_needs_age_confirm'] = !$ageVerified;
+
+// Pick the final redirect target.
+$target = null;
+$reason = '';
 if ($currentRole === '') {
+    // New or role-less user → role picker. Anonymous-OAuth temp keys survive
+    // trustaiStartSessionForUser()'s session-id rotation.
     $_SESSION['vipps_pending_user_id'] = (int)$user['id'];
-    header('Location: /vipps-role.html');
-    exit;
+    $target = '/vipps-role.html';
+    $reason = $ageVerified ? 'new_or_no_role' : 'new_or_no_role_age_unverified';
+} elseif (!$ageVerified) {
+    // Existing user re-authenticating but we still haven't proven their age.
+    // Bounce through the role picker page (which will now just collect age
+    // confirmation, since their role is already set).
+    $target = '/vipps-role.html?confirm_age=1';
+    $reason = 'existing_role_age_unverified';
+} elseif ($currentRole === 'ambassador' && empty($user['ambassador_id'])) {
+    $target = '/ambassador-signup.html?vipps=1';
+    $reason = 'ambassador_missing_application';
+} elseif ($currentRole === 'store_admin' && empty($user['store_id'])) {
+    $target = '/store-signup.html?vipps=1';
+    $reason = 'store_admin_missing_store';
+} else {
+    $target = trustaiRoleRedirect($user);
+    $reason = 'role_dashboard:' . $currentRole;
 }
 
-// Authenticated user with a known role → existing role-specific dashboards.
-// trustaiRoleRedirect() already handles super_admin / store_admin / ambassador.
-if ($currentRole === 'ambassador' && empty($user['ambassador_id'])) {
-    header('Location: /ambassador-signup.html?vipps=1');
-    exit;
-}
-
-if ($currentRole === 'store_admin' && empty($user['store_id'])) {
-    header('Location: /store-signup.html?vipps=1');
-    exit;
-}
-
-header('Location: ' . trustaiRoleRedirect($user));
+trustaiVippsDebugLog('callback_redirect', [
+    'target' => $target,
+    'reason' => $reason,
+    'role' => $currentRole !== '' ? $currentRole : null,
+    'age_verified' => $ageVerified,
+    'user_id' => (int)$user['id'],
+]);
+header('Location: ' . $target);
 exit;

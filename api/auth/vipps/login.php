@@ -56,5 +56,15 @@ $params = [
     'code_challenge_method' => 'S256',
 ];
 
+trustaiVippsDebugLog('login_redirect', [
+    'intent' => $intent,
+    'desired_role' => $desiredRole !== '' ? $desiredRole : null,
+    'redirect_uri' => $cfg['redirect_uri'],
+    'scope' => $params['scope'],
+    'sid_len' => strlen((string)session_id()),
+    'cookie_present' => isset($_COOKIE[session_name()]),
+    'env' => $cfg['env'],
+]);
+
 header('Location: ' . $discovery['authorization_endpoint'] . '?' . http_build_query($params));
 exit;

@@ -181,3 +181,12 @@ function trustaiVippsLogStateIssue(string $reason, array $ctx = []): void
     ] + $ctx;
     error_log('Vipps state issue [' . $reason . '] ' . json_encode($safe));
 }
+
+/**
+ * Always-on structured debug log for Vipps endpoints. Only logs
+ * non-secret fields (no codes, tokens, secrets, verifiers).
+ */
+function trustaiVippsDebugLog(string $event, array $ctx = []): void
+{
+    error_log('Vipps[' . $event . '] ' . json_encode($ctx, JSON_UNESCAPED_SLASHES));
+}

@@ -8,13 +8,24 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Invalidate sessions created before the current epoch (force re-login after deploys).
-if (($_SESSION['trustai_epoch'] ?? 0) < TRUSTAI_SESSION_EPOCH) {
+// Invalidate sessions created before the current epoch (force re-login after
+// deploys) -- but only sessions that were previously authenticated. Anonymous
+// sessions (e.g. mid-OAuth, holding CSRF/PKCE state) must survive across
+// requests; destroying them here was wiping Vipps CSRF tokens between
+// login.php and callback.php.
+$hadAuthIdentity = !empty($_SESSION['trustai_user_id']) || !empty($_SESSION['user_id']);
+if ($hadAuthIdentity && (int)($_SESSION['trustai_epoch'] ?? 0) < TRUSTAI_SESSION_EPOCH) {
     session_unset();
     session_destroy();
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
+}
+
+// Stamp the epoch on every fresh session so future deploys correctly
+// invalidate it after the user authenticates.
+if (!isset($_SESSION['trustai_epoch'])) {
+    $_SESSION['trustai_epoch'] = TRUSTAI_SESSION_EPOCH;
 }
 
 $pdo = null;

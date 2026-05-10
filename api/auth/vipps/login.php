@@ -5,9 +5,9 @@ require_once __DIR__ . '/_vipps_common.php';
 
 $cfg = trustaiVippsRequireConfig();
 
-$intent = strtolower(trim((string)($_GET['intent'] ?? 'login')));
-if (!in_array($intent, ['login', 'ambassador', 'store'], true)) {
-    $intent = 'login';
+$intent = strtolower(trim((string)($_GET['intent'] ?? 'auto')));
+if (!in_array($intent, ['auto', 'login', 'ambassador', 'store'], true)) {
+    $intent = 'auto';
 }
 
 $desiredRole = strtolower(trim((string)($_GET['role'] ?? '')));
@@ -30,6 +30,9 @@ $csrf = bin2hex(random_bytes(16));
 $verifier = trustaiVippsBase64UrlEncode(random_bytes(32));
 $challenge = trustaiVippsBase64UrlEncode(hash('sha256', $verifier, true));
 
+// Stamp the current epoch on this anonymous session so the bootstrap in
+// _auth.php doesn't destroy it on the callback request and wipe our CSRF.
+$_SESSION['trustai_epoch'] = TRUSTAI_SESSION_EPOCH;
 $_SESSION['vipps_csrf'] = $csrf;
 $_SESSION['vipps_pkce_verifier'] = $verifier;
 $_SESSION['vipps_intent'] = $intent;
@@ -46,7 +49,7 @@ $state = trustaiVippsBase64UrlEncode(json_encode($statePayload, JSON_UNESCAPED_U
 $params = [
     'client_id' => $cfg['client_id'],
     'response_type' => 'code',
-    'scope' => 'openid name phoneNumber email',
+    'scope' => 'openid name phoneNumber email birthDate',
     'redirect_uri' => $cfg['redirect_uri'],
     'state' => $state,
     'code_challenge' => $challenge,

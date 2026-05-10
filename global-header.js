@@ -12,8 +12,23 @@
     .ta-header-nav{display:flex;align-items:center;gap:6px;position:relative}
     .ta-header-nav a{color:#cbd5e1;text-decoration:none;font-size:14px;padding:8px 12px;border-radius:8px;font-weight:500}
     .ta-header-nav a:hover{color:#fff;background:rgba(148,163,184,.08)}
-    .ta-header-cta{padding:8px 14px;border-radius:8px;background:#2563eb;color:#fff !important;font-weight:600;font-size:13px}
-    .ta-header-cta:hover{background:#1d4ed8 !important}
+    .ta-header-cta{padding:10px 18px;border-radius:10px;background:#ff5b24;color:#fff !important;font-weight:700;font-size:14px;border:0;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:8px;line-height:1;letter-spacing:.01em;box-shadow:0 6px 18px rgba(255,91,36,.28);transition:background .15s, transform .15s}
+    .ta-header-cta:hover{background:#e64f1f !important;transform:translateY(-1px)}
+    .ta-vipps-mark{display:inline-flex;align-items:center;justify-content:center;background:#fff;color:#ff5b24;border-radius:6px;font-weight:900;font-size:11px;padding:2px 6px;letter-spacing:.04em}
+    /* modal */
+    .ta-modal-backdrop{position:fixed;inset:0;background:rgba(7,11,22,.72);backdrop-filter:blur(4px);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px}
+    .ta-modal-backdrop.open{display:flex}
+    .ta-modal{width:100%;max-width:440px;background:#0b1220;color:#e2e8f0;border:1px solid rgba(148,163,184,.18);border-radius:18px;padding:26px;box-shadow:0 30px 60px rgba(0,0,0,.5);position:relative}
+    .ta-modal h2{margin:0 0 10px;font-size:20px;line-height:1.25;letter-spacing:-.01em}
+    .ta-modal p{margin:0 0 18px;color:#94a3b8;font-size:14px;line-height:1.55}
+    .ta-modal-close{position:absolute;top:12px;right:14px;background:transparent;border:0;color:#94a3b8;font-size:24px;line-height:1;cursor:pointer;padding:6px;border-radius:6px}
+    .ta-modal-close:hover{color:#fff;background:rgba(148,163,184,.1)}
+    .ta-modal-cta{width:100%;padding:14px;border-radius:12px;background:#ff5b24;color:#fff;border:0;font-weight:700;font-size:15px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;gap:10px}
+    .ta-modal-cta:hover{background:#e64f1f}
+    .ta-modal-meta{margin-top:12px;font-size:12px;color:#64748b;text-align:center}
+    @media (max-width:560px){
+      .ta-modal{border-radius:14px;padding:22px}
+    }
     .ta-dropdown{position:relative}
     .ta-dropdown-btn{display:inline-flex;align-items:center;gap:6px;color:#cbd5e1;background:transparent;border:0;font-size:14px;font-weight:500;padding:8px 12px;border-radius:8px;cursor:pointer;font-family:inherit}
     .ta-dropdown-btn:hover{color:#fff;background:rgba(148,163,184,.08)}
@@ -42,8 +57,8 @@
   `;
   document.head.appendChild(style);
   const T = {
-    en: { useCases:'Use cases', recruitment:'Recruitment', recruitmentSub:'HR & talent agencies', realestate:'Real Estate', realestateSub:'International property', sales:'Sales & Leads', salesSub:'B2B partners', ecommerce:'Ecommerce', ecommerceSub:'Online stores', login:'Log in', register:'Sign up', switchTo:'Switch to Norwegian' },
-    no: { useCases:'Bruksområder', recruitment:'Rekruttering', recruitmentSub:'HR & talent', realestate:'Eiendom', realestateSub:'Internasjonale prosjekter', sales:'Salg & Leads', salesSub:'B2B-partnere', ecommerce:'E-handel', ecommerceSub:'Nettbutikker', login:'Logg inn', register:'Registrer', switchTo:'Switch til engelsk' },
+    en: { useCases:'Use cases', recruitment:'Recruitment', recruitmentSub:'HR & talent agencies', realestate:'Real Estate', realestateSub:'International property', sales:'Sales & Leads', salesSub:'B2B partners', ecommerce:'Ecommerce', ecommerceSub:'Online stores', switchTo:'Switch to Norwegian', vippsCta:'Continue with Vipps', modalTitle:'Continue with Vipps', modalBody:'Use Vipps for secure sign-in and registration. If you already have an account we will send you straight to your dashboard. If not, we will help you complete the registration.', modalCta:'Continue with Vipps', modalMeta:'You must be 18 or older to register.' },
+    no: { useCases:'Bruksområder', recruitment:'Rekruttering', recruitmentSub:'HR & talent', realestate:'Eiendom', realestateSub:'Internasjonale prosjekter', sales:'Salg & Leads', salesSub:'B2B-partnere', ecommerce:'E-handel', ecommerceSub:'Nettbutikker', switchTo:'Switch til engelsk', vippsCta:'Fortsett med Vipps', modalTitle:'Fortsett med Vipps', modalBody:'Bruk Vipps for trygg innlogging og registrering. Hvis du allerede har konto sender vi deg rett til dashboardet ditt. Hvis ikke hjelper vi deg å fullføre registreringen.', modalCta:'Fortsett med Vipps', modalMeta:'Du må være 18 år eller eldre for å registrere deg.' },
   };
   function getLang(){ return localStorage.getItem('trustai_lang') || 'no'; }
   function applyLang(lang){
@@ -99,13 +114,46 @@
               <a href="/ecommerce.html"><span class="ico">🛒</span><div><div style="font-weight:600;color:#fff">${t.ecommerce}</div><div style="font-size:11px;color:#94a3b8">${t.ecommerceSub}</div></div></a>
             </div>
           </div>
-          <a href="/login.html">${t.login}</a>
-          <a href="/ambassador-signup.html" class="ta-header-cta">${t.register}</a>
+          <button type="button" class="ta-header-cta" id="taVippsCta">
+            <span class="ta-vipps-mark">vipps</span><span>${t.vippsCta}</span>
+          </button>
           <div class="ta-header-lang">
             <button data-lang="${otherLang}" type="button" title="${t.switchTo}">${otherFlag}</button>
           </div>
         </nav>
       </div>`;
+    // Vipps modal (rendered once outside the header so it overlays the page).
+    let modal = document.querySelector('.ta-modal-backdrop');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.className = 'ta-modal-backdrop';
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-modal', 'true');
+      document.body.appendChild(modal);
+    }
+    modal.innerHTML = `
+      <div class="ta-modal" role="document">
+        <button class="ta-modal-close" type="button" aria-label="Lukk">×</button>
+        <h2>${t.modalTitle}</h2>
+        <p>${t.modalBody}</p>
+        <button type="button" class="ta-modal-cta" id="taModalCta">
+          <span class="ta-vipps-mark">vipps</span><span>${t.modalCta}</span>
+        </button>
+        <div class="ta-modal-meta">${t.modalMeta}</div>
+      </div>`;
+    function openModal() { modal.classList.add('open'); document.documentElement.style.overflow = 'hidden'; }
+    function closeModal() { modal.classList.remove('open'); document.documentElement.style.overflow = ''; }
+    header.querySelector('#taVippsCta').onclick = (e) => { e.stopPropagation(); openModal(); };
+    modal.querySelector('.ta-modal-close').onclick = closeModal;
+    modal.onclick = (e) => { if (e.target === modal) closeModal(); };
+    modal.querySelector('#taModalCta').onclick = () => { window.location.href = '/api/auth/vipps/login.php?intent=auto'; };
+    if (!window.__taVippsEscBound) {
+      document.addEventListener('keydown', (e) => {
+        const m = document.querySelector('.ta-modal-backdrop.open');
+        if (e.key === 'Escape' && m) { m.classList.remove('open'); document.documentElement.style.overflow = ''; }
+      });
+      window.__taVippsEscBound = true;
+    }
     const burger = header.querySelector('.ta-header-burger');
     const nav = header.querySelector('.ta-header-nav');
     burger.onclick = (e) => { e.stopPropagation(); nav.classList.toggle('open'); };

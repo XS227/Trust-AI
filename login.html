@@ -1,21 +1,156 @@
 <!doctype html>
 <html lang="no">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Logg inn | TrustAI</title>
-<style>body{font-family:Inter,Arial,sans-serif;background:linear-gradient(160deg,#0f172a,#111827);color:#e2e8f0;margin:0;min-height:100vh}.login-main{width:100%;min-height:calc(100vh - 180px);display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box}.card{width:100%;max-width:420px;background:#0b1220;border:1px solid #334155;border-radius:14px;padding:24px}.hide{display:none}.msg{margin-top:12px;padding:10px;border-radius:9px;display:none}.msg.show{display:block}.ok{background:#102a1a;border:1px solid #14532d;color:#bbf7d0}.error{background:#3f1d1d;border:1px solid #7f1d1d;color:#fecaca}input,button{width:100%;padding:11px;border-radius:10px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;box-sizing:border-box}button{margin-top:12px;background:#2563eb;color:#fff;border:0}.secondary{background:#fff;color:#0f172a}.vipps-btn{margin-top:10px;background:#ff5b24;color:#fff;border:0;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px}.vipps-btn:hover{background:#e64f1f}.divider{display:flex;align-items:center;gap:10px;color:#64748b;font-size:12px;margin:14px 0 4px}.divider:before,.divider:after{content:"";flex:1;height:1px;background:#1f2937}.meta{margin-top:14px}</style></head>
-<body><main class="login-main"><div class="card"><h1 id="title">Logg inn</h1><p id="help">Logg inn for å komme til riktig TrustAI-dashboard.</p>
-<form id="loginForm"><label>E-post</label><input id="email" type="email" required><div id="passwordWrap"><label>Passord</label><input id="password" type="password" required></div><button id="loginBtn">Logg inn</button><button id="forgotBtn" type="button" class="hide">Send passord</button><div id="oauthWrap"><div class="divider">eller</div><button id="vippsBtn" type="button" class="vipps-btn">Logg inn med Vipps</button><button id="gmailBtn" type="button" class="secondary">Logg inn med Google</button></div></form>
-<div id="message" class="msg"></div><div class="meta"><a href="#" id="forgotLink">Glemt passord?</a><a href="#" id="backLink" class="hide">Tilbake til innlogging</a></div></div></main>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Logg inn | TrustAI</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:linear-gradient(160deg,#0f172a,#111827);color:#e2e8f0;margin:0;min-height:100vh}
+  .login-main{width:100%;min-height:calc(100vh - 180px);display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box}
+  .card{width:100%;max-width:440px;background:#0b1220;border:1px solid #334155;border-radius:16px;padding:28px}
+  h1{margin:0 0 8px;font-size:22px;letter-spacing:-.01em}
+  p.help{margin:0 0 20px;color:#94a3b8;font-size:14px;line-height:1.55}
+  .vipps-mark{display:inline-flex;align-items:center;justify-content:center;background:#fff;color:#ff5b24;border-radius:6px;font-weight:900;font-size:11px;padding:2px 6px;letter-spacing:.04em}
+  .vipps-btn{width:100%;padding:14px;border-radius:12px;border:0;background:#ff5b24;color:#fff;font-weight:700;font-size:15px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px}
+  .vipps-btn:hover{background:#e64f1f}
+  .meta{margin-top:14px;text-align:center;font-size:13px;color:#94a3b8}
+  .meta a{color:#60a5fa;text-decoration:none}
+  .meta a:hover{text-decoration:underline}
+  .hide{display:none !important}
+  .msg{margin-top:14px;padding:11px 13px;border-radius:10px;display:none;font-size:14px;line-height:1.45}
+  .msg.show{display:block}
+  .ok{background:#102a1a;border:1px solid #14532d;color:#bbf7d0}
+  .error{background:#3f1d1d;border:1px solid #7f1d1d;color:#fecaca}
+  /* admin form */
+  label{display:block;margin-top:12px;font-size:13px;color:#94a3b8}
+  input,button.btn{width:100%;padding:11px;border-radius:10px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;box-sizing:border-box;margin-top:6px;font-size:15px}
+  input:focus{outline:none;border-color:#2563eb}
+  button.btn{margin-top:14px;background:#2563eb;color:#fff;border:0;font-weight:600;cursor:pointer}
+  button.btn.secondary{background:#fff;color:#0f172a;margin-top:10px}
+  .divider{display:flex;align-items:center;gap:10px;color:#64748b;font-size:12px;margin:18px 0 4px}
+  .divider:before,.divider:after{content:"";flex:1;height:1px;background:#1f2937}
+  .small{font-size:12px;color:#64748b;margin-top:16px;text-align:center}
+</style>
+</head>
+<body>
+<main class="login-main">
+  <div class="card">
+    <!-- Public Vipps-first view -->
+    <div id="publicView">
+      <h1>Logg inn eller registrer deg</h1>
+      <p class="help">Bruk Vipps for trygg innlogging og registrering. Hvis du allerede har konto sender vi deg rett til dashboardet ditt. Hvis ikke hjelper vi deg å fullføre registreringen.</p>
+      <button id="vippsBtn" type="button" class="vipps-btn">
+        <span class="vipps-mark">vipps</span><span>Fortsett med Vipps</span>
+      </button>
+      <div id="message" class="msg"></div>
+      <div class="small">Du må være 18 år eller eldre for å registrere deg.</div>
+    </div>
+
+    <!-- Internal/admin recovery view, shown only with ?admin=1 -->
+    <div id="adminView" class="hide">
+      <h1>Intern innlogging</h1>
+      <p class="help">For Super Admin og intern recovery. Vanlige brukere skal bruke Vipps.</p>
+      <form id="loginForm">
+        <label>E-post</label><input id="email" type="email" required>
+        <div id="passwordWrap"><label>Passord</label><input id="password" type="password" required></div>
+        <button id="loginBtn" class="btn">Logg inn</button>
+        <button id="forgotBtn" type="button" class="btn hide">Send passord</button>
+        <div class="divider">eller</div>
+        <button id="gmailBtn" type="button" class="btn secondary">Logg inn med Google</button>
+      </form>
+      <div id="adminMessage" class="msg"></div>
+      <div class="meta"><a href="#" id="forgotLink">Glemt passord?</a> <a href="#" id="backLink" class="hide">Tilbake til innlogging</a></div>
+    </div>
+  </div>
+</main>
 <script>
-const qs=new URLSearchParams(location.search);const msg=document.getElementById('message');const loginBtn=document.getElementById('loginBtn');const forgotBtn=document.getElementById('forgotBtn');
-function flash(t,ok=false){msg.className='msg show '+(ok?'ok':'error');msg.textContent=t;}
-if(qs.get('reset')==='success')flash('Passordet er oppdatert. Du kan logge inn nå.',true);
-const err=qs.get('error');if(err){const vippsMap={vipps_not_configured:'Vipps Login er ikke konfigurert ennå.',vipps_cancelled:'Innlogging via Vipps ble avbrutt.',vipps_discovery_failed:'Kunne ikke nå Vipps. Prøv igjen.',vipps_csrf:'Sikkerhetssjekk feilet (CSRF). Prøv igjen.',vipps_pkce:'PKCE manglet. Prøv igjen.',vipps_bad_state:'Ugyldig state fra Vipps.',vipps_missing_code:'Manglende kode fra Vipps.',vipps_token_failed:'Vipps token-utveksling feilet.',vipps_userinfo_failed:'Kunne ikke hente Vipps-profil.',vipps_no_sub:'Manglet bruker-ID fra Vipps.',vipps_create_failed:'Kunne ikke opprette Vipps-bruker.',vipps_user_not_found:'Fant ikke brukeren etter innlogging.'};flash(vippsMap[err]||(err.startsWith('vipps')?'Innlogging via Vipps feilet.':'Innlogging via Google feilet. Prøv igjen.'));}
-document.getElementById('gmailBtn').onclick=()=>location.href='/api/auth/google.php?action=start';
-document.getElementById('vippsBtn').onclick=()=>location.href='/api/auth/vipps/login.php?intent=login';
-function setForgot(on){document.getElementById('passwordWrap').classList.toggle('hide',on);document.getElementById('oauthWrap').classList.toggle('hide',on);loginBtn.classList.toggle('hide',on);forgotBtn.classList.toggle('hide',!on);document.getElementById('forgotLink').classList.toggle('hide',on);document.getElementById('backLink').classList.toggle('hide',!on);document.getElementById('title').textContent=on?'Glemt passord':'Logg inn';document.getElementById('help').textContent=on?'Skriv din e-post, så sender vi deg hjelp til å få nytt passord hvis du er registrert fra før.':'Logg inn for å komme til riktig TrustAI-dashboard.';}
-document.getElementById('forgotLink').onclick=(e)=>{e.preventDefault();setForgot(true)};document.getElementById('backLink').onclick=(e)=>{e.preventDefault();setForgot(false)};
-forgotBtn.onclick=async()=>{const email=document.getElementById('email').value.trim();const r=await fetch('/api/auth/forgot-password.php',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})});const d=await r.json().catch(()=>({}));flash(d.message||'Hvis e-posten er registrert, sender vi deg en melding.',true);};
-document.getElementById('loginForm').onsubmit=async(e)=>{e.preventDefault();const payload={email:email.value.trim(),password:password.value};const res=await fetch('/api/auth/login.php',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});const data=await res.json().catch(()=>({}));if(!res.ok||!data.ok){flash(data.message||'Feil e-post eller passord.');return;}location.href=data.redirect||'/app.html';};
-</script><script src="/global-header.js?v=1778027386"></script>
+(function () {
+  const qs = new URLSearchParams(location.search);
+  const adminMode = qs.get('admin') === '1';
+
+  const publicView = document.getElementById('publicView');
+  const adminView = document.getElementById('adminView');
+  if (adminMode) { publicView.classList.add('hide'); adminView.classList.remove('hide'); }
+
+  // ---------- Public (Vipps) view ----------
+  const msg = document.getElementById('message');
+  function flash(t, ok) { msg.className = 'msg show ' + (ok ? 'ok' : 'error'); msg.textContent = t; }
+
+  if (qs.get('reset') === 'success') flash('Passordet er oppdatert. Du kan logge inn nå.', true);
+  const err = qs.get('error');
+  if (err) {
+    const vippsMap = {
+      under_18: 'Du må være over 18 år for å registrere deg hos TrustAI.',
+      vipps_not_configured: 'Vipps Login er ikke konfigurert ennå.',
+      vipps_cancelled: 'Innlogging via Vipps ble avbrutt.',
+      vipps_discovery_failed: 'Kunne ikke nå Vipps. Prøv igjen.',
+      vipps_csrf: 'Sikkerhetssjekk feilet (CSRF). Prøv igjen.',
+      vipps_pkce: 'PKCE manglet. Prøv igjen.',
+      vipps_bad_state: 'Ugyldig state fra Vipps.',
+      vipps_missing_code: 'Manglende kode fra Vipps.',
+      vipps_token_failed: 'Vipps token-utveksling feilet.',
+      vipps_userinfo_failed: 'Kunne ikke hente Vipps-profil.',
+      vipps_no_sub: 'Manglet bruker-ID fra Vipps.',
+      vipps_create_failed: 'Kunne ikke opprette Vipps-bruker.',
+      vipps_user_not_found: 'Fant ikke brukeren etter innlogging.',
+    };
+    flash(vippsMap[err] || (err.startsWith('vipps') ? 'Innlogging via Vipps feilet.' : 'Innlogging feilet. Prøv igjen.'));
+  }
+  document.getElementById('vippsBtn').onclick = () => {
+    location.href = '/api/auth/vipps/login.php?intent=auto';
+  };
+
+  // ---------- Admin recovery view ----------
+  if (!adminMode) return;
+
+  const loginBtn = document.getElementById('loginBtn');
+  const forgotBtn = document.getElementById('forgotBtn');
+  const adminMsg = document.getElementById('adminMessage');
+  function flashAdmin(t, ok) { adminMsg.className = 'msg show ' + (ok ? 'ok' : 'error'); adminMsg.textContent = t; }
+
+  document.getElementById('gmailBtn').onclick = () => location.href = '/api/auth/google.php?action=start';
+
+  function setForgot(on) {
+    document.getElementById('passwordWrap').classList.toggle('hide', on);
+    loginBtn.classList.toggle('hide', on);
+    forgotBtn.classList.toggle('hide', !on);
+    document.getElementById('forgotLink').classList.toggle('hide', on);
+    document.getElementById('backLink').classList.toggle('hide', !on);
+  }
+  document.getElementById('forgotLink').onclick = (e) => { e.preventDefault(); setForgot(true); };
+  document.getElementById('backLink').onclick = (e) => { e.preventDefault(); setForgot(false); };
+
+  forgotBtn.onclick = async () => {
+    const email = document.getElementById('email').value.trim();
+    const r = await fetch('/api/auth/forgot-password.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const d = await r.json().catch(() => ({}));
+    flashAdmin(d.message || 'Hvis e-posten er registrert, sender vi deg en melding.', true);
+  };
+
+  document.getElementById('loginForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const payload = {
+      email: document.getElementById('email').value.trim(),
+      password: document.getElementById('password').value,
+    };
+    const res = await fetch('/api/auth/login.php', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) { flashAdmin(data.message || 'Feil e-post eller passord.'); return; }
+    location.href = data.redirect || '/app.html';
+  };
+})();
+</script>
+<script src="/global-header.js?v=1778452000"></script>
 <script src="/global-footer.js?v=1778026816"></script>
-</body></html>
+</body>
+</html>

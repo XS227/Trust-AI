@@ -119,29 +119,10 @@ function trustaiVippsBase64UrlEncode(string $bin): string
 
 function trustaiVippsEnsureSchema(PDO $pdo): void
 {
+    // The MySQL flavour on the live host (< 8.0.29) does not understand
+    // `ADD COLUMN IF NOT EXISTS`, so column ensure is handled by the dedicated
+    // migration runner. See database/migrations/2026-05-10_vipps_*.sql.
     static $done = false;
-    if ($done) {
-        return;
-    }
-    try {
-        $pdo->exec(
-            "ALTER TABLE users
-              ADD COLUMN IF NOT EXISTS provider VARCHAR(40) DEFAULT NULL,
-              ADD COLUMN IF NOT EXISTS provider_id VARCHAR(190) DEFAULT NULL,
-              ADD COLUMN IF NOT EXISTS vipps_sub VARCHAR(190) DEFAULT NULL,
-              ADD COLUMN IF NOT EXISTS full_name VARCHAR(191) DEFAULT NULL,
-              ADD COLUMN IF NOT EXISTS phone_number VARCHAR(60) DEFAULT NULL,
-              ADD COLUMN IF NOT EXISTS status VARCHAR(40) NOT NULL DEFAULT 'active',
-              ADD COLUMN IF NOT EXISTS role VARCHAR(40) DEFAULT NULL"
-        );
-    } catch (Throwable $e) {
-        error_log('Vipps ensure schema (columns) failed: ' . $e->getMessage());
-    }
-    try {
-        $pdo->exec("ALTER TABLE users ADD UNIQUE KEY IF NOT EXISTS uniq_users_vipps_sub (vipps_sub)");
-    } catch (Throwable $e) {
-        // Index may exist already; ignore.
-    }
     $done = true;
 }
 
@@ -152,4 +133,51 @@ function trustaiVippsNormalizePhone(?string $raw): string
     }
     $phone = preg_replace('/\s+/', '', trim((string)$raw));
     return (string)$phone;
+}
+
+/**
+ * Parse Vipps userinfo birthdate into a Y-m-d string, returning '' if missing
+ * or unparseable. Vipps returns ISO date "YYYY-MM-DD" per OIDC.
+ */
+function trustaiVippsParseBirthDate(?string $raw): string
+{
+    if ($raw === null || $raw === '') return '';
+    $raw = trim($raw);
+    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $raw) !== 1) return '';
+    $d = DateTime::createFromFormat('Y-m-d', $raw);
+    if (!$d) return '';
+    $errors = DateTime::getLastErrors();
+    if (!empty($errors['warning_count']) || !empty($errors['error_count'])) return '';
+    return $d->format('Y-m-d');
+}
+
+function trustaiVippsAgeFromBirthDate(string $birthDate, ?DateTimeInterface $now = null): ?int
+{
+    if ($birthDate === '') return null;
+    try {
+        $bd = new DateTimeImmutable($birthDate);
+    } catch (Throwable $e) {
+        return null;
+    }
+    $today = $now instanceof DateTimeInterface
+        ? DateTimeImmutable::createFromInterface($now)
+        : new DateTimeImmutable('today');
+    return (int)$today->diff($bd)->y;
+}
+
+/**
+ * Log a CSRF / state mismatch with non-secret context to help debugging
+ * without leaking the actual CSRF or session values.
+ */
+function trustaiVippsLogStateIssue(string $reason, array $ctx = []): void
+{
+    $safe = [
+        'sid_len' => strlen((string)session_id()),
+        'has_csrf' => isset($_SESSION['vipps_csrf']),
+        'has_pkce' => isset($_SESSION['vipps_pkce_verifier']),
+        'has_intent' => isset($_SESSION['vipps_intent']),
+        'cookie_present' => isset($_COOKIE[session_name()]),
+        'remote' => substr((string)($_SERVER['REMOTE_ADDR'] ?? ''), 0, 24),
+    ] + $ctx;
+    error_log('Vipps state issue [' . $reason . '] ' . json_encode($safe));
 }

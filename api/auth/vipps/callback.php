@@ -24,18 +24,24 @@ if ($code === '' || $rawState === '') {
 
 $decoded = json_decode((string)base64_decode(strtr($rawState, '-_', '+/'), true), true);
 if (!is_array($decoded) || empty($decoded['csrf'])) {
+    trustaiVippsLogStateIssue('bad_state_payload', ['raw_state_len' => strlen($rawState)]);
     header('Location: /login.html?error=vipps_bad_state');
     exit;
 }
 
 $sessionCsrf = (string)($_SESSION['vipps_csrf'] ?? '');
 if ($sessionCsrf === '' || !hash_equals($sessionCsrf, (string)$decoded['csrf'])) {
+    trustaiVippsLogStateIssue('csrf_mismatch', [
+        'session_csrf_present' => $sessionCsrf !== '',
+        'state_csrf_present' => !empty($decoded['csrf']),
+    ]);
     header('Location: /login.html?error=vipps_csrf');
     exit;
 }
 
 $verifier = (string)($_SESSION['vipps_pkce_verifier'] ?? '');
 if ($verifier === '') {
+    trustaiVippsLogStateIssue('missing_pkce_verifier');
     header('Location: /login.html?error=vipps_pkce');
     exit;
 }
@@ -117,6 +123,18 @@ if ($fullName === '') {
     $fullName = trim($given . ' ' . $family);
 }
 $phone = trustaiVippsNormalizePhone((string)($ui['phone_number'] ?? ''));
+$birthDate = trustaiVippsParseBirthDate((string)($ui['birthdate'] ?? $ui['birth_date'] ?? ''));
+$age = trustaiVippsAgeFromBirthDate($birthDate);
+
+// 18+ gate. Vipps users without a usable birthdate are rejected too, since
+// we cannot prove they meet the requirement.
+if ($age === null || $age < 18) {
+    // Clear any temp Vipps state on the session so they can retry cleanly.
+    unset($_SESSION['vipps_csrf'], $_SESSION['vipps_pkce_verifier'], $_SESSION['vipps_intent'], $_SESSION['vipps_desired_role']);
+    error_log('Vipps under_18 reject: age=' . ($age === null ? 'unknown' : (string)$age));
+    header('Location: /login.html?error=under_18');
+    exit;
+}
 
 trustaiVippsEnsureSchema($pdo);
 
@@ -145,7 +163,8 @@ if ($user) {
                 provider_id = COALESCE(provider_id, :sub2),
                 full_name = COALESCE(NULLIF(full_name, ""), :full_name),
                 phone_number = COALESCE(NULLIF(phone_number, ""), :phone),
-                phone = COALESCE(NULLIF(phone, ""), :phone2)
+                phone = COALESCE(NULLIF(phone, ""), :phone2),
+                birth_date = COALESCE(birth_date, :bdate)
           WHERE id = :id'
     );
     $update->execute([
@@ -154,6 +173,7 @@ if ($user) {
         'full_name' => $fullName !== '' ? $fullName : null,
         'phone' => $phone !== '' ? $phone : null,
         'phone2' => $phone !== '' ? $phone : null,
+        'bdate' => $birthDate !== '' ? $birthDate : null,
         'id' => (int)$user['id'],
     ]);
 } else {
@@ -163,9 +183,9 @@ if ($user) {
     try {
         $ins = $pdo->prepare(
             'INSERT INTO users
-                (email, role, provider, provider_id, vipps_sub, full_name, name, phone, phone_number, status, password_hash, created_at, updated_at)
+                (email, role, provider, provider_id, vipps_sub, full_name, name, phone, phone_number, birth_date, status, password_hash, created_at, updated_at)
              VALUES
-                (:email, "", "vipps", :provider_id, :sub, :full_name, :name, :phone, :phone2, "active", "", NOW(), NOW())'
+                (:email, "", "vipps", :provider_id, :sub, :full_name, :name, :phone, :phone2, :bdate, "active", "", NOW(), NOW())'
         );
         $ins->execute([
             'email' => $email,
@@ -175,6 +195,7 @@ if ($user) {
             'name' => $fullName !== '' ? $fullName : null,
             'phone' => $phone !== '' ? $phone : null,
             'phone2' => $phone !== '' ? $phone : null,
+            'bdate' => $birthDate !== '' ? $birthDate : null,
         ]);
     } catch (PDOException $e) {
         error_log('Vipps create user failed: ' . $e->getMessage());
@@ -210,12 +231,16 @@ if ($currentRole === '' && in_array($desiredRole, ['ambassador', 'store_admin'],
 
 trustaiStartSessionForUser($user);
 
+// New or role-less user → role picker. Anonymous-OAuth temp keys live on the
+// session even after trustaiStartSessionForUser() rotates the session id.
 if ($currentRole === '') {
     $_SESSION['vipps_pending_user_id'] = (int)$user['id'];
     header('Location: /vipps-role.html');
     exit;
 }
 
+// Authenticated user with a known role → existing role-specific dashboards.
+// trustaiRoleRedirect() already handles super_admin / store_admin / ambassador.
 if ($currentRole === 'ambassador' && empty($user['ambassador_id'])) {
     header('Location: /ambassador-signup.html?vipps=1');
     exit;

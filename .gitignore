@@ -1,0 +1,21 @@
+# Secrets / environment-specific overrides — never commit
+inc/config.local.php
+.env
+.env.*
+
+# Service account keys
+khabatsecdc62d.json
+
+# Backup files
+*.bak
+*.backup-*
+*.tmp
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Local Claude session state (per-machine)
+.claude/settings.local.json

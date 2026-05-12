@@ -63,18 +63,23 @@
           <span class="demo-badge-top">Demo-modus aktiv</span>
           <span style="font-size:11px;color:#475569">Ingen ekte data</span>
         </div>
-        <p class="demo-intro">Prøv plattformen med <b>testdata</b> — ingen Vipps-konto nødvendig.</p>
+        <p class="demo-intro">Test hele registreringsprosessen med demo-data — ingen Vipps-konto nødvendig.</p>
         <div class="demo-btns">
           <button type="button" id="demoAmbBtn" class="demo-btn">
             <span class="demo-btn-icon">🧑‍💼</span>
             <span class="demo-badge">DEMO</span><br>
-            <span style="margin-top:3px;display:block">Demo som ambassadør</span>
+            <span style="margin-top:3px;display:block">Test ambassadør-registrering</span>
           </button>
           <button type="button" id="demoStoreBtn" class="demo-btn">
             <span class="demo-btn-icon">🏪</span>
             <span class="demo-badge">DEMO</span><br>
-            <span style="margin-top:3px;display:block">Demo som butikk</span>
+            <span style="margin-top:3px;display:block">Test butikk-oppsett</span>
           </button>
+        </div>
+        <div style="margin-top:10px;text-align:center;font-size:11px;color:#1e3a5f">
+          Direkte tilgang (dev):
+          <a href="/api/demo/login-demo-ambassador.php" style="color:#1e3a5f;text-decoration:underline">amb-dashboard</a> ·
+          <a href="/api/demo/login-demo-store.php" style="color:#1e3a5f;text-decoration:underline">butikk-dashboard</a>
         </div>
       </div>
     </div>
@@ -151,7 +156,7 @@
       }
     });
   document.getElementById('demoAmbBtn').onclick = () => {
-    location.href = '/api/demo/login-demo-ambassador.php';
+    location.href = '/api/demo/start-ambassador-flow.php';
   };
   document.getElementById('demoStoreBtn').onclick = () => {
     location.href = '/api/demo/login-demo-store.php';

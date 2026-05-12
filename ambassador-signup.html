@@ -58,6 +58,12 @@ button:disabled{opacity:.55;cursor:not-allowed}
 </head>
 <body>
 <div class="card">
+  <!-- Demo banner (shown when ?demo=1) -->
+  <div id="demoBanner" style="display:none;background:linear-gradient(90deg,#1e1b4b,#1e2456);border:1px solid #4338ca;border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#a5b4fc;align-items:center;gap:10px;flex-wrap:wrap">
+    <span style="background:#312e81;color:#c7d2fe;font-size:10px;font-weight:800;border-radius:4px;padding:2px 7px;letter-spacing:.06em;text-transform:uppercase;flex-shrink:0">Demo-modus aktiv</span>
+    <span><strong style="color:#c7d2fe">Ingen ekte Vipps-data brukes.</strong> Skjema er forhåndsutfylt med testdata. Velg butikk og send søknad.</span>
+  </div>
+
   <h1>Bli ambassadør</h1>
   <p class="help">Fyll inn domenet til butikken du vil representere. Vi sender søknaden automatisk til riktig butikk.</p>
 
@@ -117,6 +123,7 @@ button:disabled{opacity:.55;cursor:not-allowed}
 <script>
 const qs = new URLSearchParams(location.search);
 const isVipps = qs.get('vipps') === '1';
+const isDemo  = qs.get('demo')  === '1';
 const status = document.getElementById('status');
 let storeFound = false;
 
@@ -132,6 +139,24 @@ if (isVipps) {
   ['name','email','phone','password','password2'].forEach(id => {
     const el = document.getElementById(id); if(el) el.required = false;
   });
+}
+
+// Demo mode – pre-fill data, hide auth buttons, auto-lookup store
+if (isDemo) {
+  document.getElementById('demoBanner').style.display = 'flex';
+  document.getElementById('vippsSignup').style.display = 'none';
+  document.querySelector('.divider').style.display = 'none';
+  document.getElementById('gmailSignup').style.display = 'none';
+  document.getElementById('passwordBlock').style.display = 'none';
+  ['password','password2'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.required = false;
+  });
+  document.getElementById('name').value  = 'Demo Ambassadør';
+  document.getElementById('email').value = 'demo.ambassador@trustai.no';
+  document.getElementById('phone').value = '+4799990001';
+  document.getElementById('partner').value = 'demo.trustai.no';
+  // Auto-lookup the demo store
+  setTimeout(lookupStore, 200);
 }
 
 document.getElementById('vippsSignup').onclick = () => location.href = '/api/auth/vipps/login.php?intent=ambassador';
@@ -186,7 +211,18 @@ document.getElementById('f').addEventListener('submit', async e => {
   btn.disabled = true; btn.textContent = 'Sender søknad…';
   try {
     let res;
-    if (isVipps) {
+    if (isDemo) {
+      res = await fetch('/api/demo/ambassador-apply.php', {
+        method:'POST', credentials:'include',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          name:   document.getElementById('name').value.trim(),
+          email:  document.getElementById('email').value.trim(),
+          phone:  document.getElementById('phone').value.trim(),
+          domain: partner,
+        })
+      });
+    } else if (isVipps) {
       res = await fetch('/api/auth/vipps/finish-ambassador.php', {
         method:'POST', credentials:'include',
         headers:{'Content-Type':'application/json'},
@@ -207,9 +243,14 @@ document.getElementById('f').addEventListener('submit', async e => {
     }
     const data = await res.json().catch(() => ({}));
     if (data.ok) {
-      flash('Søknad mottatt! Du kan logge inn så snart butikken godkjenner søknaden din.', true);
-      if (!isVipps) document.getElementById('f').reset();
-      clearStoreCard();
+      if (data.redirect) {
+        flash('Søknad godkjent! Videresender til dashboard…', true);
+        setTimeout(() => { location.href = data.redirect; }, 1200);
+      } else {
+        flash('Søknad mottatt! Du kan logge inn så snart butikken godkjenner søknaden din.', true);
+        if (!isVipps && !isDemo) document.getElementById('f').reset();
+        clearStoreCard();
+      }
     } else {
       flash('Feil: ' + (data.message || data.error || 'ukjent'));
     }

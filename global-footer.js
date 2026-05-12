@@ -53,7 +53,12 @@
       beta: 'Operativ beta'
     }
   };
-  function getLang() { return localStorage.getItem('trustai_lang') || 'en'; }
+  function getLang() {
+    const stored = localStorage.getItem('trustai_lang');
+    if (stored) return stored;
+    const nav = navigator.language || navigator.userLanguage || '';
+    return (nav.startsWith('no') || nav.startsWith('nb') || nav.startsWith('nn')) ? 'no' : 'en';
+  }
   function render() {
     const lang = getLang();
     const t = T[lang] || T.en;

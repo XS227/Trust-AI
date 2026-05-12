@@ -61,7 +61,12 @@
     en: { useCases:'Use cases', recruitment:'Recruitment', recruitmentSub:'HR & talent agencies', realestate:'Real Estate', realestateSub:'International property', sales:'Sales & Leads', salesSub:'B2B partners', ecommerce:'Ecommerce', ecommerceSub:'Online stores', switchTo:'Switch to Norwegian', vippsCta:'Continue with Vipps', modalTitle:'Continue with Vipps', modalBody:'Use Vipps for secure sign-in and registration. If you already have an account we will send you straight to your dashboard. If not, we will help you complete the registration.', modalCta:'Continue with Vipps', modalMeta:'You must be 18 or older to register.' },
     no: { useCases:'Bruksområder', recruitment:'Rekruttering', recruitmentSub:'HR & talent', realestate:'Eiendom', realestateSub:'Internasjonale prosjekter', sales:'Salg & Leads', salesSub:'B2B-partnere', ecommerce:'E-handel', ecommerceSub:'Nettbutikker', switchTo:'Switch til engelsk', vippsCta:'Fortsett med Vipps', modalTitle:'Fortsett med Vipps', modalBody:'Bruk Vipps for trygg innlogging og registrering. Hvis du allerede har konto sender vi deg rett til dashboardet ditt. Hvis ikke hjelper vi deg å fullføre registreringen.', modalCta:'Fortsett med Vipps', modalMeta:'Du må være 18 år eller eldre for å registrere deg.' },
   };
-  function getLang(){ return localStorage.getItem('trustai_lang') || 'en'; }
+  function getLang(){
+    const stored = localStorage.getItem('trustai_lang');
+    if (stored) return stored;
+    const nav = navigator.language || navigator.userLanguage || '';
+    return (nav.startsWith('no') || nav.startsWith('nb') || nav.startsWith('nn')) ? 'no' : 'en';
+  }
   function applyLang(lang){
     document.documentElement.lang = lang;
     document.querySelectorAll('[data-no]').forEach(el => {
@@ -122,8 +127,8 @@
             <span class="ta-vipps-mark">vipps</span><span>${t.vippsCta}</span>
           </button>
           <div class="ta-header-lang">
-            <button class="ta-lang-btn${lang==='en'?' active':''}" data-lang="en" type="button">EN</button>
-            <button class="ta-lang-btn${lang==='no'?' active':''}" data-lang="no" type="button">NO</button>
+            <button class="ta-lang-btn${lang==='en'?' active':''}" data-lang="en" type="button">🇬🇧 EN</button>
+            <button class="ta-lang-btn${lang==='no'?' active':''}" data-lang="no" type="button">🇳🇴 NO</button>
           </div>
         </nav>
       </div>`;

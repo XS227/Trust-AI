@@ -7,31 +7,21 @@
 <style>
   *{box-sizing:border-box}
   body{font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:linear-gradient(160deg,#0f172a,#111827);color:#e2e8f0;margin:0;min-height:100vh}
-  .login-main{width:100%;min-height:calc(100vh - 180px);display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box}
+  .login-main{width:100%;min-height:calc(100vh - 180px);display:flex;align-items:center;justify-content:center;padding:24px}
   .card{width:100%;max-width:440px;background:#0b1220;border:1px solid #334155;border-radius:16px;padding:28px}
   h1{margin:0 0 8px;font-size:22px;letter-spacing:-.01em}
   p.help{margin:0 0 20px;color:#94a3b8;font-size:14px;line-height:1.55}
   .vipps-mark{display:inline-flex;align-items:center;justify-content:center;background:#fff;color:#ff5b24;border-radius:6px;font-weight:900;font-size:11px;padding:2px 6px;letter-spacing:.04em}
   .vipps-btn{width:100%;padding:14px;border-radius:12px;border:0;background:#ff5b24;color:#fff;font-weight:700;font-size:15px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px}
   .vipps-btn:hover{background:#e64f1f}
-  .meta{margin-top:14px;text-align:center;font-size:13px;color:#94a3b8}
-  .meta a{color:#60a5fa;text-decoration:none}
-  .meta a:hover{text-decoration:underline}
   .hide{display:none !important}
-  .msg{margin-top:14px;padding:11px 13px;border-radius:10px;display:none;font-size:14px;line-height:1.45}
+  .msg{margin-top:12px;padding:11px 13px;border-radius:10px;display:none;font-size:13px;line-height:1.45}
   .msg.show{display:block}
   .ok{background:#102a1a;border:1px solid #14532d;color:#bbf7d0}
   .error{background:#3f1d1d;border:1px solid #7f1d1d;color:#fecaca}
-  /* admin form */
-  label{display:block;margin-top:12px;font-size:13px;color:#94a3b8}
-  input,button.btn{width:100%;padding:11px;border-radius:10px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;box-sizing:border-box;margin-top:6px;font-size:15px}
-  input:focus{outline:none;border-color:#2563eb}
-  button.btn{margin-top:14px;background:#2563eb;color:#fff;border:0;font-weight:600;cursor:pointer}
-  button.btn.secondary{background:#fff;color:#0f172a;margin-top:10px}
-  .divider{display:flex;align-items:center;gap:10px;color:#64748b;font-size:12px;margin:18px 0 4px}
-  .divider:before,.divider:after{content:"";flex:1;height:1px;background:#1f2937}
-  .small{font-size:12px;color:#64748b;margin-top:16px;text-align:center}
-  /* demo section */
+  .small{font-size:12px;color:#64748b;margin-top:14px;text-align:center}
+
+  /* ── Demo section ── */
   .demo-section{margin-top:20px;background:#0c1222;border:1px solid #1e3a5f;border-radius:12px;padding:14px 16px}
   .demo-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
   .demo-badge-top{background:#1e3a5f;color:#60a5fa;font-size:10px;font-weight:800;border-radius:5px;padding:2px 8px;letter-spacing:.06em;text-transform:uppercase}
@@ -42,22 +32,56 @@
   .demo-btn:hover{border-color:#3b82f6;color:#e2e8f0;background:#0f1a2e}
   .demo-btn-icon{font-size:20px;display:block;margin-bottom:4px}
   .demo-badge{display:inline-block;background:#1e3a5f;color:#60a5fa;font-size:9px;font-weight:700;border-radius:4px;padding:1px 5px;letter-spacing:.04em}
+
+  /* ── Email / admin toggle ── */
+  .admin-toggle-wrap{margin-top:20px;text-align:center}
+  .admin-toggle-btn{background:none;border:none;color:#475569;font-size:12px;cursor:pointer;font-family:inherit;padding:4px 8px;border-radius:6px;transition:color .15s;text-decoration:underline;text-underline-offset:3px}
+  .admin-toggle-btn:hover{color:#94a3b8}
+
+  /* ── Collapsible email/admin panel ── */
+  .admin-panel{margin-top:10px;background:#060d18;border:1px solid #1e293b;border-radius:12px;padding:16px;animation:slideDown .18s ease}
+  @keyframes slideDown{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+  .admin-panel-hint{font-size:12px;color:#475569;margin:0 0 14px;line-height:1.5}
+  .admin-panel label{display:block;margin-top:10px;font-size:12px;color:#64748b;font-weight:600}
+  .admin-panel input{width:100%;padding:10px 12px;border-radius:9px;border:1px solid #334155;background:#0b1220;color:#e2e8f0;font-size:14px;font-family:inherit;margin-top:5px}
+  .admin-panel input:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+  .admin-panel .btn{width:100%;padding:11px;border-radius:10px;border:0;background:#2563eb;color:#fff;font-weight:600;font-size:14px;cursor:pointer;font-family:inherit;margin-top:14px;transition:background .15s}
+  .admin-panel .btn:hover{background:#1d4ed8}
+  .admin-panel .btn:disabled{opacity:.55;cursor:not-allowed}
+  .admin-panel-foot{margin-top:10px;text-align:center;font-size:12px}
+  .admin-panel-foot a{color:#334155;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+  .admin-panel-foot a:hover{color:#475569}
+
+  /* ── Legacy admin view (?admin=1) ── */
+  .legacy-label{display:block;margin-top:12px;font-size:13px;color:#94a3b8}
+  .legacy-input{width:100%;padding:11px;border-radius:10px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;box-sizing:border-box;margin-top:6px;font-size:15px;font-family:inherit}
+  .legacy-input:focus{outline:none;border-color:#2563eb}
+  .legacy-btn{width:100%;padding:11px;border-radius:10px;border:0;background:#2563eb;color:#fff;font-weight:600;font-size:15px;cursor:pointer;font-family:inherit;margin-top:14px}
+  .legacy-btn.secondary{background:#fff;color:#0f172a;margin-top:10px}
+  .divider{display:flex;align-items:center;gap:10px;color:#64748b;font-size:12px;margin:18px 0 4px}
+  .divider:before,.divider:after{content:"";flex:1;height:1px;background:#1f2937}
+  .meta{margin-top:14px;text-align:center;font-size:13px;color:#94a3b8}
+  .meta a{color:#60a5fa;text-decoration:none}
+  .meta a:hover{text-decoration:underline}
 </style>
 </head>
 <body>
 <main class="login-main">
   <div class="card">
-    <!-- Public Vipps-first view -->
+
+    <!-- ══ Public / Vipps-first view ══ -->
     <div id="publicView">
       <h1>Logg inn eller registrer deg</h1>
-      <p class="help">Bruk Vipps for trygg innlogging og registrering. Hvis du allerede har konto sender vi deg rett til dashboardet ditt. Hvis ikke hjelper vi deg å fullføre registreringen.</p>
+      <p class="help">Bruk Vipps for trygg innlogging og registrering. Hvis du allerede har konto sender vi deg rett til dashboardet ditt.</p>
+
       <button id="vippsBtn" type="button" class="vipps-btn">
         <span class="vipps-mark">vipps</span><span>Fortsett med Vipps</span>
       </button>
+
       <div id="message" class="msg"></div>
       <div class="small">Du må være 18 år eller eldre for å registrere deg.</div>
 
-      <!-- Demo mode section – shown only when DEMO_MODE is active -->
+      <!-- Demo section – shown only when DEMO_MODE is active -->
       <div id="demoSection" class="demo-section" style="display:none">
         <div class="demo-header">
           <span class="demo-badge-top">Demo-modus aktiv</span>
@@ -82,23 +106,52 @@
           <a href="/api/demo/login-demo-store.php" style="color:#1e3a5f;text-decoration:underline">butikk-dashboard</a>
         </div>
       </div>
+
+      <!-- Email / admin login toggle -->
+      <div class="admin-toggle-wrap">
+        <button type="button" id="adminToggle" class="admin-toggle-btn">Logg inn med e-post</button>
+      </div>
+
+      <!-- Collapsible email/admin panel -->
+      <div id="adminPanel" class="admin-panel" style="display:none">
+        <p class="admin-panel-hint">Administratorer og interne kontoer bruker e-post og passord.</p>
+        <form id="emailLoginForm" autocomplete="on" novalidate>
+          <label for="adminEmail">E-post</label>
+          <input id="adminEmail" type="email" name="email" autocomplete="username" placeholder="din@epost.no" required>
+          <label for="adminPassword">Passord</label>
+          <input id="adminPassword" type="password" name="password" autocomplete="current-password" placeholder="••••••••" required>
+          <button type="submit" class="btn" id="emailLoginBtn">Logg inn</button>
+        </form>
+        <div id="emailLoginMsg" class="msg"></div>
+        <div class="admin-panel-foot">
+          <a id="forgotPwLink">Glemt passord?</a>
+        </div>
+      </div>
     </div>
 
-    <!-- Internal/admin recovery view, shown only with ?admin=1 -->
+    <!-- ══ Legacy admin view — accessible via ?admin=1 ══ -->
     <div id="adminView" class="hide">
       <h1>Intern innlogging</h1>
-      <p class="help">For Super Admin og intern recovery. Vanlige brukere skal bruke Vipps.</p>
+      <p class="help" style="color:#94a3b8;font-size:14px">For Super Admin og intern recovery.</p>
       <form id="loginForm">
-        <label>E-post</label><input id="email" type="email" required>
-        <div id="passwordWrap"><label>Passord</label><input id="password" type="password" required></div>
-        <button id="loginBtn" class="btn">Logg inn</button>
-        <button id="forgotBtn" type="button" class="btn hide">Send passord</button>
+        <label class="legacy-label">E-post</label>
+        <input class="legacy-input" id="email" type="email" required>
+        <div id="passwordWrap">
+          <label class="legacy-label">Passord</label>
+          <input class="legacy-input" id="password" type="password" required>
+        </div>
+        <button id="loginBtn" class="legacy-btn">Logg inn</button>
+        <button id="forgotBtn" type="button" class="legacy-btn hide">Send passord</button>
         <div class="divider">eller</div>
-        <button id="gmailBtn" type="button" class="btn secondary">Logg inn med Google</button>
+        <button id="gmailBtn" type="button" class="legacy-btn secondary">Logg inn med Google</button>
       </form>
       <div id="adminMessage" class="msg"></div>
-      <div class="meta"><a href="#" id="forgotLink">Glemt passord?</a> <a href="#" id="backLink" class="hide">Tilbake til innlogging</a></div>
+      <div class="meta">
+        <a href="#" id="forgotLink">Glemt passord?</a>
+        <a href="#" id="backLink" class="hide">Tilbake til innlogging</a>
+      </div>
     </div>
+
   </div>
 </main>
 <script>
@@ -106,68 +159,163 @@
   const qs = new URLSearchParams(location.search);
   const adminMode = qs.get('admin') === '1';
 
+  // Legacy ?admin=1 view
   const publicView = document.getElementById('publicView');
-  const adminView = document.getElementById('adminView');
-  if (adminMode) { publicView.classList.add('hide'); adminView.classList.remove('hide'); }
+  const adminView  = document.getElementById('adminView');
+  if (adminMode) {
+    publicView.classList.add('hide');
+    adminView.classList.remove('hide');
+  }
 
-  // ---------- Public (Vipps) view ----------
-  const msg = document.getElementById('message');
-  function flash(t, ok) { msg.className = 'msg show ' + (ok ? 'ok' : 'error'); msg.textContent = t; }
+  // ── Vipps error messages ────────────────────────────────────────────────────
+  const msgEl = document.getElementById('message');
+  function flash(t, ok) {
+    msgEl.className = 'msg show ' + (ok ? 'ok' : 'error');
+    msgEl.textContent = t;
+  }
 
   if (qs.get('reset') === 'success') flash('Passordet er oppdatert. Du kan logge inn nå.', true);
+
+  let autoOpenAdmin = false;
   const err = qs.get('error');
   if (err) {
-    const vippsMap = {
-      under_18: 'Du må være over 18 år for å registrere deg hos TrustAI.',
-      vipps_not_configured: 'Vipps Login er ikke konfigurert ennå.',
-      vipps_cancelled: 'Innlogging via Vipps ble avbrutt.',
+    const map = {
+      under_18:               'Du må være over 18 år for å registrere deg hos TrustAI.',
+      vipps_not_configured:   'Vipps Login er ikke konfigurert ennå.',
+      vipps_cancelled:        'Innlogging via Vipps ble avbrutt.',
       vipps_discovery_failed: 'Kunne ikke nå Vipps. Prøv igjen.',
-      vipps_csrf: 'Sikkerhetssjekk feilet (CSRF). Prøv igjen.',
-      vipps_pkce: 'PKCE manglet. Prøv igjen.',
-      vipps_bad_state: 'Ugyldig state fra Vipps.',
-      vipps_missing_code: 'Manglende kode fra Vipps.',
-      vipps_token_failed: 'Vipps token-utveksling feilet.',
-      vipps_userinfo_failed: 'Kunne ikke hente Vipps-profil.',
-      vipps_no_sub: 'Manglet bruker-ID fra Vipps.',
-      vipps_create_failed: 'Kunne ikke opprette Vipps-bruker.',
-      vipps_user_not_found: 'Fant ikke brukeren etter innlogging.',
-      vipps_superadmin_blocked: 'Super admin kan ikke logge inn med Vipps. Bruk passord-innlogging (klikk "Intern innlogging" under Vipps-knappen).',
-      account_inactive: 'Kontoen din er ikke aktiv. Kontakt support.',
-      account_suspended: 'Kontoen er midlertidig sperret. Kontakt support.',
-      account_blocked: 'Kontoen er sperret. Kontakt support.',
-      account_pending: 'Kontoen din er under vurdering.',
+      vipps_csrf:             'Sikkerhetssjekk feilet (CSRF). Prøv igjen.',
+      vipps_pkce:             'PKCE manglet. Prøv igjen.',
+      vipps_bad_state:        'Ugyldig state fra Vipps.',
+      vipps_missing_code:     'Manglende kode fra Vipps.',
+      vipps_token_failed:     'Vipps token-utveksling feilet.',
+      vipps_userinfo_failed:  'Kunne ikke hente Vipps-profil.',
+      vipps_no_sub:           'Manglet bruker-ID fra Vipps.',
+      vipps_create_failed:    'Kunne ikke opprette Vipps-bruker.',
+      vipps_user_not_found:   'Fant ikke brukeren etter innlogging.',
+      vipps_superadmin_blocked: 'Super admin kan ikke logge inn med Vipps. Bruk e-post-innlogging nedenfor.',
+      account_inactive:   'Kontoen din er ikke aktiv. Kontakt support.',
+      account_suspended:  'Kontoen er midlertidig sperret. Kontakt support.',
+      account_blocked:    'Kontoen er sperret. Kontakt support.',
+      account_pending:    'Kontoen din er under vurdering.',
     };
-    let text = vippsMap[err] || (err.startsWith('vipps') ? 'Innlogging via Vipps feilet.' : 'Innlogging feilet. Prøv igjen.');
-    // Append the raw Vipps error code + description if Vipps sent one along.
-    const vErr = qs.get('vipps_error');
+    let text = map[err] || (err.startsWith('vipps') ? 'Innlogging via Vipps feilet.' : 'Innlogging feilet. Prøv igjen.');
+    const vErr  = qs.get('vipps_error');
     const vDesc = qs.get('vipps_error_description');
     if (vErr || vDesc) {
       text += ' (' + [vErr, vDesc].filter(Boolean).join(': ') + ')';
-    } else if (!vippsMap[err] && err !== 'under_18') {
+    } else if (!map[err] && err !== 'under_18') {
       text += ' (' + err + ')';
     }
     flash(text);
+    if (err === 'vipps_superadmin_blocked') autoOpenAdmin = true;
   }
+
+  // ── Vipps + demo buttons ────────────────────────────────────────────────────
   document.getElementById('vippsBtn').onclick = () => {
     location.href = '/api/auth/vipps/login.php?intent=auto';
   };
 
-  // Show demo section if demo mode is active
   fetch('/api/demo/status.php', { credentials: 'include' })
     .then(r => r.json()).catch(() => ({ demo_mode: false }))
     .then(d => {
-      if (d.demo_mode) {
-        document.getElementById('demoSection').style.display = '';
-      }
+      if (d.demo_mode) document.getElementById('demoSection').style.display = '';
     });
-  document.getElementById('demoAmbBtn').onclick = () => {
-    location.href = '/api/demo/start-ambassador-flow.php';
-  };
-  document.getElementById('demoStoreBtn').onclick = () => {
-    location.href = '/api/demo/login-demo-store.php';
+
+  document.getElementById('demoAmbBtn').onclick  = () => { location.href = '/api/demo/start-ambassador-flow.php'; };
+  document.getElementById('demoStoreBtn').onclick = () => { location.href = '/api/demo/login-demo-store.php'; };
+
+  // ── Collapsible email / admin panel ────────────────────────────────────────
+  const adminPanel  = document.getElementById('adminPanel');
+  const adminToggle = document.getElementById('adminToggle');
+
+  function openAdminPanel() {
+    adminPanel.style.display = 'block';
+    adminToggle.textContent  = '↑ Skjul e-post-innlogging';
+    setTimeout(() => {
+      const emailField = document.getElementById('adminEmail');
+      if (emailField && !emailField.value) emailField.focus();
+    }, 50);
+  }
+
+  function closeAdminPanel() {
+    adminPanel.style.display = 'none';
+    adminToggle.textContent  = 'Logg inn med e-post';
+  }
+
+  adminToggle.onclick = () => {
+    adminPanel.style.display === 'none' ? openAdminPanel() : closeAdminPanel();
   };
 
-  // ---------- Admin recovery view ----------
+  if (autoOpenAdmin) openAdminPanel();
+
+  // ── Email login form ────────────────────────────────────────────────────────
+  const emailForm   = document.getElementById('emailLoginForm');
+  const emailMsgEl  = document.getElementById('emailLoginMsg');
+  const emailBtn    = document.getElementById('emailLoginBtn');
+
+  function flashEmail(t, ok) {
+    emailMsgEl.className = 'msg show ' + (ok ? 'ok' : 'error');
+    emailMsgEl.textContent = t;
+  }
+
+  emailForm.onsubmit = async (e) => {
+    e.preventDefault();
+    const email    = document.getElementById('adminEmail').value.trim();
+    const password = document.getElementById('adminPassword').value;
+    if (!email || !password) { flashEmail('Fyll inn e-post og passord.'); return; }
+
+    emailBtn.disabled   = true;
+    emailBtn.textContent = 'Logger inn…';
+    emailMsgEl.className = 'msg';
+
+    try {
+      const res  = await fetch('/api/auth/login.php', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        const errMap = {
+          invalid_credentials: 'Feil e-post eller passord.',
+          account_inactive:    'Kontoen er ikke aktiv. Kontakt support.',
+          account_suspended:   'Kontoen er midlertidig sperret. Kontakt support.',
+          account_blocked:     'Kontoen er sperret. Kontakt support.',
+        };
+        flashEmail(errMap[data.error] || data.message || 'Feil e-post eller passord.');
+      } else {
+        emailBtn.textContent = '✓ Omdirigerer…';
+        location.href = data.redirect || '/super-admin.html';
+      }
+    } catch (_) {
+      flashEmail('Nettverksfeil. Sjekk tilkoblingen og prøv igjen.');
+    } finally {
+      emailBtn.disabled = false;
+      if (emailBtn.textContent !== '✓ Omdirigerer…') emailBtn.textContent = 'Logg inn';
+    }
+  };
+
+  // ── Forgot password (inline panel) ─────────────────────────────────────────
+  document.getElementById('forgotPwLink').onclick = async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('adminEmail').value.trim();
+    if (!email) { flashEmail('Skriv inn e-posten din, så sender vi en tilbakestillingslenke.'); return; }
+    try {
+      const r = await fetch('/api/auth/forgot-password.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const d = await r.json().catch(() => ({}));
+      flashEmail(d.message || 'Hvis e-posten er registrert, sender vi deg en lenke.', true);
+    } catch (_) {
+      flashEmail('Nettverksfeil. Prøv igjen.');
+    }
+  };
+
+  // ── Legacy admin view (?admin=1) ────────────────────────────────────────────
   if (!adminMode) return;
 
   const loginBtn = document.getElementById('loginBtn');
@@ -185,7 +333,7 @@
     document.getElementById('backLink').classList.toggle('hide', !on);
   }
   document.getElementById('forgotLink').onclick = (e) => { e.preventDefault(); setForgot(true); };
-  document.getElementById('backLink').onclick = (e) => { e.preventDefault(); setForgot(false); };
+  document.getElementById('backLink').onclick   = (e) => { e.preventDefault(); setForgot(false); };
 
   forgotBtn.onclick = async () => {
     const email = document.getElementById('email').value.trim();
@@ -204,9 +352,8 @@
       email: document.getElementById('email').value.trim(),
       password: document.getElementById('password').value,
     };
-    const res = await fetch('/api/auth/login.php', {
-      method: 'POST',
-      credentials: 'include',
+    const res  = await fetch('/api/auth/login.php', {
+      method: 'POST', credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });

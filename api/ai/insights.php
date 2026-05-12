@@ -13,6 +13,19 @@ $userId = (int)($user['id'] ?? 0);
 $cacheFile = sys_get_temp_dir() . '/trustai_ai_insights_' . $userId . '.json';
 $cacheMaxAge = 3600; // 1 time
 
+// Return static demo insights immediately when AI is not configured
+if (!trustaiAiIsEnabled()) {
+    $demoPayload = json_encode([
+        'ok'         => true,
+        'insights'   => trustaiDemoInsights($role),
+        'demo'       => true,
+        'updated_at' => date('c'),
+    ]);
+    header('Content-Type: application/json; charset=utf-8');
+    echo $demoPayload;
+    exit;
+}
+
 // Force refresh hvis ?refresh=1
 $forceRefresh = isset($_GET['refresh']) && $_GET['refresh'] === '1';
 
@@ -79,7 +92,16 @@ $messages = [['role' => 'user', 'content' => "Basert på følgende data, gi meg 
 $result = trustaiCallClaude($systemPrompt, $messages, 1500);
 
 if (!$result['ok']) {
-    jsonResponse(500, ['ok' => false, 'error' => $result['error'] ?? 'ai_failed', 'insights' => []]);
+    error_log('ai/insights failed: ' . ($result['error'] ?? 'unknown') . ' | user=' . ($user['id'] ?? '?'));
+    $fallback = json_encode([
+        'ok'         => true,
+        'insights'   => trustaiDemoInsights($role),
+        'demo'       => true,
+        'updated_at' => date('c'),
+    ]);
+    header('Content-Type: application/json; charset=utf-8');
+    echo $fallback;
+    exit;
 }
 
 // Parse JSON-respons

@@ -74,10 +74,16 @@ if (is_array($history)) {
 }
 $messages[] = ['role' => 'user', 'content' => $message];
 
+if (!trustaiAiIsEnabled()) {
+    echo json_encode(['ok' => true, 'reply' => 'AI Coach er ikke aktivert ennå. Besøk trustai.no for mer informasjon om plattformen vår, eller kontakt oss direkte.', 'demo' => true]);
+    exit;
+}
+
 $result = trustaiCallClaude($systemPrompt, $messages, 800);
 
 if (!$result['ok']) {
-    echo json_encode(['ok' => false, 'error' => $result['error'] ?? 'ai_failed', 'reply' => 'Beklager, kan ikke svare akkurat nå. Prøv igjen om litt.']);
+    error_log('ai/public-chat failed: ' . ($result['error'] ?? 'unknown'));
+    echo json_encode(['ok' => true, 'reply' => 'Beklager, kan ikke svare akkurat nå. Prøv igjen om litt.', 'demo' => true]);
     exit;
 }
 

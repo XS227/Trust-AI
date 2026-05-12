@@ -93,10 +93,17 @@ if ($context !== '') {
 }
 $messages[] = ['role' => 'user', 'content' => $userTurn];
 
+// Return demo fallback immediately if AI is not configured
+if (!trustaiAiIsEnabled()) {
+    jsonResponse(200, ['ok' => true, 'reply' => trustaiDemoChat($message, $role), 'demo' => true]);
+}
+
 $result = trustaiCallClaude($systemPrompt, $messages, 1024);
 
 if (!$result['ok']) {
-    jsonResponse(500, ['ok' => false, 'error' => $result['error'] ?? 'ai_failed']);
+    // Log real errors server-side only — never expose them to the client
+    error_log('ai/chat failed: ' . ($result['error'] ?? 'unknown') . ' | user=' . ($user['id'] ?? '?'));
+    jsonResponse(200, ['ok' => true, 'reply' => trustaiDemoChat($message, $role), 'demo' => true]);
 }
 
 jsonResponse(200, ['ok' => true, 'reply' => $result['text']]);

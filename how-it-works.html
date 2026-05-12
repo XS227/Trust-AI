@@ -1,121 +1,232 @@
 <!DOCTYPE html>
-<html lang="no">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hvordan det fungerer | TrustAI</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>How TrustAI works | Referral & ambassador platform</title>
+  <meta name="description" content="TrustAI helps merchants launch and manage referral and ambassador programs. Learn how tracking, commissions and payouts work." />
+  <link rel="icon" type="image/png" href="/logo.png" />
   <style>
-    html { scroll-behavior: smooth; }
-    .soft-grid { background-image: radial-gradient(#e5e7eb 1px, transparent 1px); background-size: 22px 22px; }
-    .glass { background: rgba(255,255,255,.82); backdrop-filter: blur(18px); }
+    :root{--bg:#f8fafc;--text:#0f2233;--muted:#5d6b7c;--line:#dbe7f5;--blue:#2563eb;--green:#10b981;--radius:18px;--shadow:0 16px 48px rgba(15,34,51,.07)}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+    a{color:inherit;text-decoration:none}
+    .wrap{width:min(860px,calc(100% - 40px));margin:0 auto}
+
+    .page-header{padding:28px 0;border-bottom:1px solid var(--line);background:#fff;margin-bottom:0}
+    .page-header-inner{display:flex;align-items:center;justify-content:space-between;gap:20px}
+    .brand-link{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px;letter-spacing:-.01em}
+    .brand-link img{height:36px;width:auto}
+    .back-link{font-size:14px;color:var(--muted);border:1px solid var(--line);padding:7px 14px;border-radius:8px;transition:.15s}
+    .back-link:hover{border-color:#b0c4d8;color:var(--text)}
+
+    .hero-section{padding:52px 0 42px;background:linear-gradient(180deg,#fff 0%,var(--bg) 100%);border-bottom:1px solid var(--line)}
+    .hero-badge{display:inline-flex;align-items:center;gap:7px;background:#eff6ff;color:#1d4ed8;border:1px solid #d7ebff;border-radius:999px;padding:7px 13px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:18px}
+    .hero-badge::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--green)}
+    h1{margin:0 0 16px;font-size:clamp(30px,4vw,44px);line-height:1.08;letter-spacing:-.04em;font-weight:750}
+    .intro{font-size:18px;color:var(--muted);max-width:680px;margin:0}
+
+    .content{padding:52px 0 60px}
+    .section{background:#fff;border:1px solid var(--line);border-radius:22px;padding:32px;margin-bottom:20px;box-shadow:var(--shadow)}
+    .section-badge{display:inline-flex;align-items:center;gap:6px;background:#f1f5f9;color:#475569;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px}
+    .section h2{margin:0 0 8px;font-size:22px;font-weight:750;letter-spacing:-.02em}
+    .section p{color:var(--muted);margin:0 0 0;font-size:15px}
+
+    .steps{display:flex;flex-direction:column;gap:0}
+    .step{display:grid;grid-template-columns:48px 1fr;gap:16px;padding:18px 0;border-bottom:1px solid var(--line)}
+    .step:last-child{border-bottom:0;padding-bottom:0}
+    .step:first-child{padding-top:0}
+    .step-num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#38bdf8);color:#fff;display:grid;place-items:center;font-weight:800;font-size:14px;flex-shrink:0;margin-top:2px}
+    .step-body h3{margin:0 0 5px;font-size:17px;font-weight:700;letter-spacing:-.01em}
+    .step-body p{margin:0;color:var(--muted);font-size:14px}
+
+    .integration-block{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-top:18px}
+    .integration-block h3{margin:0 0 6px;font-size:15px;font-weight:700}
+    .code-block{background:#0f172a;color:#7dd3fc;font-size:12px;font-family:ui-monospace,'Cascadia Code',Menlo,monospace;padding:12px 14px;border-radius:10px;overflow-x:auto;margin:10px 0}
+    .code-block code{color:#86efac}
+
+    .beta-note{background:linear-gradient(135deg,#eff6ff,#f0fdf4);border:1px solid #bfdbfe;border-radius:16px;padding:22px 24px;display:flex;gap:14px;align-items:flex-start}
+    .beta-icon{font-size:24px;flex-shrink:0;margin-top:2px}
+    .beta-note h3{margin:0 0 6px;font-size:16px;font-weight:700;color:#1e40af}
+    .beta-note p{margin:0;color:#475569;font-size:14px;line-height:1.6}
+
+    .faq-grid{display:flex;flex-direction:column;gap:0}
+    .faq-item{padding:16px 0;border-bottom:1px solid var(--line)}
+    .faq-item:last-child{border-bottom:0}
+    .faq-q{font-weight:700;font-size:15px;margin-bottom:6px}
+    .faq-a{color:var(--muted);font-size:14px;margin:0}
+
+    @media(max-width:600px){.section{padding:22px}.step{grid-template-columns:40px 1fr}}
   </style>
 </head>
-<body class="bg-white text-slate-950 antialiased">
-  <header class="sticky top-0 z-50 border-b border-slate-100 glass">
-    <div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
-      <a href="/" class="flex items-center gap-3">
-        <img src="/logo.png" alt="TrustAI" class="h-10 w-auto" style="height:40px;width:auto">
-        <div>
-          <div class="text-xl font-black tracking-tight">TrustAI</div>
-          <div class="text-xs font-semibold text-slate-500">Referral & growth engine</div>
-        </div>
+<body>
+  <div class="page-header">
+    <div class="wrap page-header-inner">
+      <a href="/" class="brand-link">
+        <img src="/logo.png" alt="TrustAI">
+        TrustAI
       </a>
-      <a href="/" class="rounded-full border px-4 py-2 text-sm font-black hover:bg-slate-50">← Tilbake</a>
+      <a href="/" class="back-link" data-en="← Back" data-no="← Tilbake">← Back</a>
     </div>
-  </header>
+  </div>
 
-  <main>
-    <section class="relative overflow-hidden soft-grid px-5 py-16 md:py-24">
-      <div class="absolute left-1/2 top-8 -z-10 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-pink-100 blur-3xl"></div>
-      <div class="mx-auto max-w-4xl rounded-[2rem] border border-slate-200 bg-white p-8 shadow-xl md:p-12">
-        <span class="inline-flex rounded-full bg-pink-100 px-4 py-2 text-sm font-black text-pink-700">🚀 HOW TO – TrustAI</span>
-        <h1 class="mt-5 text-4xl font-black tracking-tight md:text-5xl">Hvordan det fungerer (full guide)</h1>
-        <p class="mt-5 text-lg text-slate-600">Her får du hele prosessen forklart steg for steg – enkelt, visuelt og trygt.</p>
-        <p class="mt-3 text-base text-slate-600">Trenger du hjelp? Teamet vårt er alltid tilgjengelig, fra oppsett til første salg.</p>
+  <div class="hero-section">
+    <div class="wrap">
+      <div class="hero-badge" data-en="Operational Beta · Active" data-no="Operativ beta · Aktiv">Operational Beta · Active</div>
+      <h1 data-en="How TrustAI works" data-no="Slik fungerer TrustAI">How TrustAI works</h1>
+      <p class="intro" data-en="TrustAI helps merchants launch and manage referral and ambassador programs through a simple operational beta platform." data-no="TrustAI hjelper butikker med å starte og administrere referral- og ambassadørprogrammer gjennom en enkel plattform i operativ beta.">TrustAI helps merchants launch and manage referral and ambassador programs through a simple operational beta platform.</p>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="wrap">
+
+      <!-- BETA NOTE -->
+      <div class="beta-note" style="margin-bottom:24px">
+        <div class="beta-icon">🚀</div>
+        <div>
+          <h3 data-en="Active beta platform" data-no="Aktiv betaplattform">Active beta platform</h3>
+          <p data-en="TrustAI is currently operating in active beta. We are refining merchant onboarding, analytics and ambassador workflows with early users." data-no="TrustAI er for øyeblikket i aktiv beta. Vi forbedrer handelsoppsett, analyse og ambassadørarbeidsflyt med tidlige brukere.">TrustAI is currently operating in active beta. We are refining merchant onboarding, analytics and ambassador workflows with early users.</p>
+        </div>
       </div>
-    </section>
 
-    <section class="px-5 py-14 md:py-20">
-      <div class="mx-auto grid max-w-5xl gap-8">
-        <article class="rounded-3xl border p-7 shadow-sm">
-          <h2 class="text-2xl font-black">🧑‍💼 Del 1 – For deg som har nettbutikk (Shopify)</h2>
-          <ol class="mt-5 grid gap-6 text-slate-700">
-            <li>
-              <strong>Steg 1 – Legg til webhook i Shopify:</strong>
-              Gå til Shopify Admin → Innstillinger → Varsler → Webhooks og opprett webhook med riktig hendelse/format. URL skal være:
-              <pre class="mt-2 overflow-auto rounded-2xl bg-slate-950 p-4 text-sm text-emerald-300"><code>https://trustai.no/api/shopify-order-webhook.php</code></pre>
-              <img src="/img/webhook.PNG" alt="Webhook-oppsett i Shopify" class="mt-3 w-full rounded-2xl border border-slate-200" />
-            </li>
-            <li>
-              <strong>Steg 2 – Legg inn TrustAI-script i theme.liquid:</strong>
-              Åpne Shopify Admin → Online Store → Themes → Edit Code → <code>layout/theme.liquid</code>. Lim inn dette rett etter <code>&lt;/script&gt;</code> og før <code>&lt;/body&gt;</code>:
-              <pre class="mt-2 overflow-auto rounded-2xl bg-slate-950 p-4 text-sm text-emerald-300"><code>&lt;script src="https://trustai.no/api/trustai-referral.js?v=2"&gt;&lt;/script&gt;</code></pre>
-              <img src="/img/theme.PNG" alt="Theme.liquid med TrustAI-script" class="mt-3 w-full rounded-2xl border border-slate-200" />
-            </li>
-            <li>
-              <strong>Steg 3 – Verifiser at installasjon er aktiv:</strong>
-              Når webhook og script er på plass, begynner systemet å spore klikk, ordre og provisjon automatisk.
-              <img src="/img/ref.PNG" alt="Verifisering av aktiv installasjon" class="mt-3 w-full rounded-2xl border border-slate-200" />
-            </li>
-          </ol>
-          <p class="mt-5 rounded-2xl bg-slate-50 p-4"><strong>Hvor ser du data?</strong> Gå til <strong>https://trustai.no/login.html</strong> for salg, provisjoner, ambassadører og status i sanntid.</p>
-        </article>
-
-        <article class="rounded-3xl border p-7 shadow-sm">
-          <h2 class="text-2xl font-black">👤 Del 2 – For ambassadører</h2>
-          <ol class="mt-5 grid gap-6 text-slate-700">
-            <li>
-              <strong>Steg 1 – Registrer ny ambassadør:</strong>
-              Nye ambassadører registrerer seg her: <strong>https://trustai.no/ambassador-signup.html</strong>.
-              <img src="/img/register.PNG" alt="Registrering av ny ambassadør" class="mt-3 w-full rounded-2xl border border-slate-200" />
-            </li>
-            <li>
-              <strong>Steg 2 – Admin godkjenner søknaden:</strong>
-              Når søknaden er godkjent av admin, blir ambassadøren aktiv og kan logge inn.
-            </li>
-            <li>
-              <strong>Steg 3 – Logg inn på dashboard:</strong>
-              Ambassadøren logger inn her: <strong>https://trustai.no/login.html</strong>.
-            </li>
-            <li>
-              <strong>Steg 4 – Kopier referansekode eller opprett delingslenker:</strong>
-              Inne på dashboard kan ambassadøren kopiere sin hovedlenke, bruke referansekode og dele via sosiale kanaler.
-              <img src="/img/dashboard.PNG" alt="Dashboard med referanselenke" class="mt-3 w-full rounded-2xl border border-slate-200" />
-            </li>
-            <li>
-              <strong>Steg 5 – Deling starter automatisk tracking:</strong>
-              Så fort noen klikker en referral-lenke, spores reisen frem til salg. Ved gjennomført salg beregnes provisjonen automatisk og vises i ambassadørens oversikt.
-            </li>
-          </ol>
-        </article>
-
-        <article class="rounded-3xl border p-7 shadow-sm">
-          <h2 class="text-2xl font-black">🧠 Hvordan tracking fungerer (enkelt forklart)</h2>
-          <ul class="mt-5 list-disc space-y-2 pl-5 text-slate-700">
-            <li>Hver ambassadør får en unik referansekode og egen lenke.</li>
-            <li>Når en kunde klikker lenken, lagres referansen og følges frem til kjøp.</li>
-            <li>Systemet kobler klikk og ordre automatisk, uten manuelt arbeid.</li>
-            <li>Provisjon beregnes automatisk og vises i dashboard.</li>
-          </ul>
-        </article>
-
-        <article class="rounded-3xl border p-7 shadow-sm">
-          <h2 class="text-2xl font-black">💬 FAQ – ofte stilte spørsmål</h2>
-          <div class="mt-5 grid gap-4 text-slate-700">
-            <p><strong>Hvor mange ambassadører kan vi ha?</strong><br>Du kan ha mange ambassadører samtidig. Løsningen er laget for å skaleres med butikken din.</p>
-            <p><strong>Kan vi bruke TrustAI på flere butikker?</strong><br>Ja. Har du flere Shopify-butikker kan hver butikk kobles opp med eget oppsett.</p>
-            <p><strong>Er det begrensninger på delingslenker eller klikk?</strong><br>Nei, ambassadørene kan dele fritt. Systemet fortsetter å spore automatisk.</p>
-            <p><strong>Hvor fort oppdateres resultater?</strong><br>Klikk, aktivitet og salg vises løpende i dashboardet så du raskt får oversikt.</p>
-            <p><strong>Må vi gjøre mye teknisk selv?</strong><br>Nei. Du trenger kun å legge inn webhook + script én gang, så går resten automatisk.</p>
-            <p><strong>Hva om vi trenger hjelp i oppstarten?</strong><br>Du får hjelp av oss hele veien. Vi kan bistå med både teknisk oppsett og beste praksis for vekst.</p>
+      <!-- HOW IT WORKS STEPS -->
+      <div class="section">
+        <div class="section-badge" data-en="Platform overview" data-no="Plattformoversikt">Platform overview</div>
+        <h2 data-en="Five steps from setup to commission" data-no="Fem steg fra oppsett til provisjon">Five steps from setup to commission</h2>
+        <p style="color:var(--muted);font-size:14px;margin:0 0 24px" data-en="Everything happens automatically once the integration is in place." data-no="Alt skjer automatisk når integrasjonen er på plass.">Everything happens automatically once the integration is in place.</p>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h3 data-en="Connect your store" data-no="Koble til butikken din">Connect your store</h3>
+              <p data-en="Start with Shopify integration and configure your referral rules — commission rate, attribution window and approval settings." data-no="Start med Shopify-integrasjon og konfigurer dine referral-regler — provisjonssats, attribusjonsvindu og godkjenningsinnstillinger.">Start with Shopify integration and configure your referral rules — commission rate, attribution window and approval settings.</p>
+            </div>
           </div>
-        </article>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h3 data-en="Invite ambassadors" data-no="Inviter ambassadører">Invite ambassadors</h3>
+              <p data-en="Ambassadors receive access to their own portal and unique referral links. They can track their own performance in real time." data-no="Ambassadørene får tilgang til sin egen portal og unike referanselenker. De kan spore sin egen ytelse i sanntid.">Ambassadors receive access to their own portal and unique referral links. They can track their own performance in real time.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h3 data-en="Track performance" data-no="Følg ytelse">Track performance</h3>
+              <p data-en="Clicks, referrals, conversions and commissions are tracked in real time across all ambassadors. Every order is attributed to the correct source." data-no="Klikk, referrals, konverteringer og provisjoner spores i sanntid for alle ambassadørene. Hver ordre tilskrives riktig kilde.">Clicks, referrals, conversions and commissions are tracked in real time across all ambassadors. Every order is attributed to the correct source.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <h3 data-en="Review and optimize" data-no="Se gjennom og optimaliser">Review and optimize</h3>
+              <p data-en="Merchants can monitor performance and improve campaigns based on data — which ambassadors convert, which channels work best and when." data-no="Butikkeiere kan overvåke ytelse og forbedre kampanjer basert på data — hvilke ambassadører konverterer, hvilke kanaler fungerer best og når.">Merchants can monitor performance and improve campaigns based on data — which ambassadors convert, which channels work best and when.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">5</div>
+            <div class="step-body">
+              <h3 data-en="Pay commissions" data-no="Betal provisjoner">Pay commissions</h3>
+              <p data-en="Commission data is prepared for transparent payout handling. Ambassadors see exactly what they have earned and what is pending." data-no="Provisjonsdata er klar for transparent utbetalingshåndtering. Ambassadørene ser nøyaktig hva de har tjent og hva som er under behandling.">Commission data is prepared for transparent payout handling. Ambassadors see exactly what they have earned and what is pending.</p>
+            </div>
+          </div>
+        </div>
       </div>
-    </section>
-  </main>
 
-<script src="/global-header.js?v=1778027386"></script>
-<script src="/global-footer.js?v=1778026816"></script>
+      <!-- SHOPIFY SETUP -->
+      <div class="section">
+        <div class="section-badge" data-en="Shopify integration" data-no="Shopify-integrasjon">Shopify integration</div>
+        <h2 data-en="Setting up with Shopify" data-no="Oppsett med Shopify">Setting up with Shopify</h2>
+        <p data-en="Two steps to connect your Shopify store. No app install required — a lightweight script and one webhook." data-no="To steg for å koble til Shopify-butikken din. Ingen app-installasjon nødvendig — et lett skript og én webhook.">Two steps to connect your Shopify store. No app install required — a lightweight script and one webhook.</p>
+
+        <div class="integration-block">
+          <h3 data-en="Step 1 — Add the tracking script to theme.liquid" data-no="Steg 1 — Legg til sporingsskriptet i theme.liquid">Step 1 — Add the tracking script to theme.liquid</h3>
+          <p style="color:var(--muted);font-size:13px;margin:0 0 8px" data-en="In Shopify Admin → Online Store → Themes → Edit Code → layout/theme.liquid, paste before &lt;/body&gt;:" data-no="I Shopify Admin → Nettbutikk → Temaer → Rediger kode → layout/theme.liquid, lim inn før &lt;/body&gt;:">In Shopify Admin → Online Store → Themes → Edit Code → layout/theme.liquid, paste before &lt;/body&gt;:</p>
+          <div class="code-block"><code>&lt;script src="https://trustai.no/api/trustai-referral.js?v=2"&gt;&lt;/script&gt;</code></div>
+        </div>
+
+        <div class="integration-block" style="margin-top:12px">
+          <h3 data-en="Step 2 — Add an order webhook" data-no="Steg 2 — Legg til en ordre-webhook">Step 2 — Add an order webhook</h3>
+          <p style="color:var(--muted);font-size:13px;margin:0 0 8px" data-en="In Shopify Admin → Settings → Notifications → Webhooks, create an orders/create webhook pointing to:" data-no="I Shopify Admin → Innstillinger → Varsler → Webhooks, opprett en orders/create-webhook som peker til:">In Shopify Admin → Settings → Notifications → Webhooks, create an orders/create webhook pointing to:</p>
+          <div class="code-block"><code>https://trustai.no/api/shopify-order-webhook.php</code></div>
+          <p style="color:var(--muted);font-size:13px;margin:8px 0 0" data-en="Once both are in place the system automatically tracks clicks, orders and commissions." data-no="Når begge er på plass, sporer systemet automatisk klikk, ordrer og provisjoner.">Once both are in place the system automatically tracks clicks, orders and commissions.</p>
+        </div>
+      </div>
+
+      <!-- AMBASSADOR SECTION -->
+      <div class="section">
+        <div class="section-badge" data-en="For ambassadors" data-no="For ambassadører">For ambassadors</div>
+        <h2 data-en="Ambassador onboarding" data-no="Ambassadør-onboarding">Ambassador onboarding</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h3 data-en="Apply at ambassador-signup.html" data-no="Søk på ambassador-signup.html">Apply at ambassador-signup.html</h3>
+              <p data-en="New ambassadors fill in the application form and select which store they want to represent." data-no="Nye ambassadører fyller inn søknadsskjemaet og velger hvilken butikk de vil representere.">New ambassadors fill in the application form and select which store they want to represent.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h3 data-en="Merchant approves the application" data-no="Butikkeieren godkjenner søknaden">Merchant approves the application</h3>
+              <p data-en="Once approved, the ambassador receives access and their unique referral link is activated." data-no="Når søknaden er godkjent, får ambassadøren tilgang og deres unike referanselenke aktiveres.">Once approved, the ambassador receives access and their unique referral link is activated.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h3 data-en="Log in and share" data-no="Logg inn og del">Log in and share</h3>
+              <p data-en="Ambassadors log in at login.html, copy their referral link and start sharing across SMS, social media or WhatsApp." data-no="Ambassadørene logger inn på login.html, kopierer referanselenken og begynner å dele via SMS, sosiale medier eller WhatsApp.">Ambassadors log in at login.html, copy their referral link and start sharing across SMS, social media or WhatsApp.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <h3 data-en="Automatic commission tracking" data-no="Automatisk provisjonssporing">Automatic commission tracking</h3>
+              <p data-en="Every click is tracked. When a referred customer completes a purchase, the commission is calculated automatically and appears in the ambassador's dashboard." data-no="Hvert klikk spores. Når en henvist kunde fullfører et kjøp, beregnes provisjonen automatisk og vises i ambassadørens dashboard.">Every click is tracked. When a referred customer completes a purchase, the commission is calculated automatically and appears in the ambassador's dashboard.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <div class="section">
+        <div class="section-badge" data-en="FAQ" data-no="Vanlige spørsmål">FAQ</div>
+        <h2 data-en="Common questions" data-no="Vanlige spørsmål">Common questions</h2>
+        <div class="faq-grid">
+          <div class="faq-item">
+            <div class="faq-q" data-en="How many ambassadors can we have?" data-no="Hvor mange ambassadører kan vi ha?">How many ambassadors can we have?</div>
+            <p class="faq-a" data-en="There is no limit. The platform is built to scale with your store." data-no="Det er ingen grense. Plattformen er bygget for å skaleres med butikken din.">There is no limit. The platform is built to scale with your store.</p>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" data-en="Can we use TrustAI across multiple stores?" data-no="Kan vi bruke TrustAI på flere butikker?">Can we use TrustAI across multiple stores?</div>
+            <p class="faq-a" data-en="Yes. Each Shopify store can be connected with its own setup, ambassadors and commission rules." data-no="Ja. Hver Shopify-butikk kan kobles med eget oppsett, ambassadører og provisjonsregler.">Yes. Each Shopify store can be connected with its own setup, ambassadors and commission rules.</p>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" data-en="Are there limits on referral links or clicks?" data-no="Er det begrensninger på referanselenker eller klikk?">Are there limits on referral links or clicks?</div>
+            <p class="faq-a" data-en="No. Ambassadors can share freely and the system tracks automatically." data-no="Nei. Ambassadørene kan dele fritt og systemet sporer automatisk.">No. Ambassadors can share freely and the system tracks automatically.</p>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" data-en="How quickly does data update?" data-no="Hvor raskt oppdateres data?">How quickly does data update?</div>
+            <p class="faq-a" data-en="Clicks and order data update in real time. Dashboards reflect activity immediately." data-no="Klikk og ordredata oppdateres i sanntid. Dashboards gjenspeiler aktiviteten umiddelbart.">Clicks and order data update in real time. Dashboards reflect activity immediately.</p>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" data-en="How much technical work is required?" data-no="Hvor mye teknisk arbeid kreves?">How much technical work is required?</div>
+            <p class="faq-a" data-en="Very little. You add the tracking script and webhook once. Everything else runs automatically." data-no="Svært lite. Du legger inn sporingsskriptet og webhook én gang. Alt annet kjører automatisk.">Very little. You add the tracking script and webhook once. Everything else runs automatically.</p>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q" data-en="What support is available?" data-no="Hvilken støtte er tilgjengelig?">What support is available?</div>
+            <p class="faq-a" data-en="Direct support from the team throughout setup and launch. Contact us at hello@trustai.no." data-no="Direkte støtte fra teamet gjennom oppsett og lansering. Kontakt oss på hello@trustai.no.">Direct support from the team throughout setup and launch. Contact us at hello@trustai.no.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script src="/global-header.js?v=2"></script>
+<script src="/global-footer.js?v=2"></script>
 </body>
 </html>

@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="no">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>Logg inn | TrustAI</title>
+<title>Log in | TrustAI</title>
 <style>
   *{box-sizing:border-box}
   body{font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;background:linear-gradient(160deg,#0f172a,#111827);color:#e2e8f0;margin:0;min-height:100vh}
@@ -71,37 +71,37 @@
 
     <!-- ══ Public / Vipps-first view ══ -->
     <div id="publicView">
-      <h1>Logg inn eller registrer deg</h1>
-      <p class="help">Bruk Vipps for trygg innlogging og registrering. Hvis du allerede har konto sender vi deg rett til dashboardet ditt.</p>
+      <h1>Log in or register</h1>
+      <p class="help">Use Vipps for secure login and registration. If you already have an account we'll send you straight to your dashboard.</p>
 
       <button id="vippsBtn" type="button" class="vipps-btn">
-        <span class="vipps-mark">vipps</span><span>Fortsett med Vipps</span>
+        <span class="vipps-mark">vipps</span><span>Continue with Vipps</span>
       </button>
 
       <div id="message" class="msg"></div>
-      <div class="small">Du må være 18 år eller eldre for å registrere deg.</div>
+      <div class="small">You must be 18 or older to register.</div>
 
       <!-- Demo section – shown only when DEMO_MODE is active -->
       <div id="demoSection" class="demo-section" style="display:none">
         <div class="demo-header">
-          <span class="demo-badge-top">Demo-modus aktiv</span>
-          <span style="font-size:11px;color:#475569">Ingen ekte data</span>
+          <span class="demo-badge-top">Demo mode active</span>
+          <span style="font-size:11px;color:#475569">No real data</span>
         </div>
-        <p class="demo-intro">Test hele registreringsprosessen med demo-data — ingen Vipps-konto nødvendig.</p>
+        <p class="demo-intro">Test the entire registration process with demo data — no Vipps account needed.</p>
         <div class="demo-btns">
           <button type="button" id="demoAmbBtn" class="demo-btn">
             <span class="demo-btn-icon">🧑‍💼</span>
             <span class="demo-badge">DEMO</span><br>
-            <span style="margin-top:3px;display:block">Test ambassadør-registrering</span>
+            <span style="margin-top:3px;display:block">Test ambassador registration</span>
           </button>
           <button type="button" id="demoStoreBtn" class="demo-btn">
             <span class="demo-btn-icon">🏪</span>
             <span class="demo-badge">DEMO</span><br>
-            <span style="margin-top:3px;display:block">Test butikk-oppsett</span>
+            <span style="margin-top:3px;display:block">Test store setup</span>
           </button>
         </div>
         <div style="margin-top:10px;text-align:center;font-size:11px;color:#1e3a5f">
-          Direkte tilgang (dev):
+          Direct access (dev):
           <a href="/api/demo/login-demo-ambassador.php" style="color:#1e3a5f;text-decoration:underline">amb-dashboard</a> ·
           <a href="/api/demo/login-demo-store.php" style="color:#1e3a5f;text-decoration:underline">butikk-dashboard</a>
         </div>
@@ -109,46 +109,46 @@
 
       <!-- Email / admin login toggle -->
       <div class="admin-toggle-wrap">
-        <button type="button" id="adminToggle" class="admin-toggle-btn">Logg inn med e-post</button>
+        <button type="button" id="adminToggle" class="admin-toggle-btn">Log in with email</button>
       </div>
 
       <!-- Collapsible email/admin panel -->
       <div id="adminPanel" class="admin-panel" style="display:none">
-        <p class="admin-panel-hint">Administratorer og interne kontoer bruker e-post og passord.</p>
+        <p class="admin-panel-hint">Administrators and internal accounts use email and password.</p>
         <form id="emailLoginForm" autocomplete="on" novalidate>
-          <label for="adminEmail">E-post</label>
-          <input id="adminEmail" type="email" name="email" autocomplete="username" placeholder="din@epost.no" required>
-          <label for="adminPassword">Passord</label>
+          <label for="adminEmail">Email</label>
+          <input id="adminEmail" type="email" name="email" autocomplete="username" placeholder="your@email.com" required>
+          <label for="adminPassword">Password</label>
           <input id="adminPassword" type="password" name="password" autocomplete="current-password" placeholder="••••••••" required>
-          <button type="submit" class="btn" id="emailLoginBtn">Logg inn</button>
+          <button type="submit" class="btn" id="emailLoginBtn">Log in</button>
         </form>
         <div id="emailLoginMsg" class="msg"></div>
         <div class="admin-panel-foot">
-          <a id="forgotPwLink">Glemt passord?</a>
+          <a id="forgotPwLink">Forgot password?</a>
         </div>
       </div>
     </div>
 
     <!-- ══ Legacy admin view — accessible via ?admin=1 ══ -->
     <div id="adminView" class="hide">
-      <h1>Intern innlogging</h1>
-      <p class="help" style="color:#94a3b8;font-size:14px">For Super Admin og intern recovery.</p>
+      <h1>Internal login</h1>
+      <p class="help" style="color:#94a3b8;font-size:14px">For Super Admin and internal recovery.</p>
       <form id="loginForm">
-        <label class="legacy-label">E-post</label>
+        <label class="legacy-label">Email</label>
         <input class="legacy-input" id="email" type="email" required>
         <div id="passwordWrap">
-          <label class="legacy-label">Passord</label>
+          <label class="legacy-label">Password</label>
           <input class="legacy-input" id="password" type="password" required>
         </div>
-        <button id="loginBtn" class="legacy-btn">Logg inn</button>
-        <button id="forgotBtn" type="button" class="legacy-btn hide">Send passord</button>
-        <div class="divider">eller</div>
-        <button id="gmailBtn" type="button" class="legacy-btn secondary">Logg inn med Google</button>
+        <button id="loginBtn" class="legacy-btn">Log in</button>
+        <button id="forgotBtn" type="button" class="legacy-btn hide">Send password</button>
+        <div class="divider">or</div>
+        <button id="gmailBtn" type="button" class="legacy-btn secondary">Log in with Google</button>
       </form>
       <div id="adminMessage" class="msg"></div>
       <div class="meta">
-        <a href="#" id="forgotLink">Glemt passord?</a>
-        <a href="#" id="backLink" class="hide">Tilbake til innlogging</a>
+        <a href="#" id="forgotLink">Forgot password?</a>
+        <a href="#" id="backLink" class="hide">Back to login</a>
       </div>
     </div>
 
@@ -174,32 +174,32 @@
     msgEl.textContent = t;
   }
 
-  if (qs.get('reset') === 'success') flash('Passordet er oppdatert. Du kan logge inn nå.', true);
+  if (qs.get('reset') === 'success') flash('Password updated. You can log in now.', true);
 
   let autoOpenAdmin = false;
   const err = qs.get('error');
   if (err) {
     const map = {
-      under_18:               'Du må være over 18 år for å registrere deg hos TrustAI.',
-      vipps_not_configured:   'Vipps Login er ikke konfigurert ennå.',
-      vipps_cancelled:        'Innlogging via Vipps ble avbrutt.',
-      vipps_discovery_failed: 'Kunne ikke nå Vipps. Prøv igjen.',
-      vipps_csrf:             'Sikkerhetssjekk feilet (CSRF). Prøv igjen.',
-      vipps_pkce:             'PKCE manglet. Prøv igjen.',
-      vipps_bad_state:        'Ugyldig state fra Vipps.',
-      vipps_missing_code:     'Manglende kode fra Vipps.',
-      vipps_token_failed:     'Vipps token-utveksling feilet.',
-      vipps_userinfo_failed:  'Kunne ikke hente Vipps-profil.',
-      vipps_no_sub:           'Manglet bruker-ID fra Vipps.',
-      vipps_create_failed:    'Kunne ikke opprette Vipps-bruker.',
-      vipps_user_not_found:   'Fant ikke brukeren etter innlogging.',
-      vipps_superadmin_blocked: 'Super admin kan ikke logge inn med Vipps. Bruk e-post-innlogging nedenfor.',
-      account_inactive:   'Kontoen din er ikke aktiv. Kontakt support.',
-      account_suspended:  'Kontoen er midlertidig sperret. Kontakt support.',
-      account_blocked:    'Kontoen er sperret. Kontakt support.',
-      account_pending:    'Kontoen din er under vurdering.',
+      under_18:               'You must be over 18 to register with TrustAI.',
+      vipps_not_configured:   'Vipps Login is not configured yet.',
+      vipps_cancelled:        'Vipps login was cancelled.',
+      vipps_discovery_failed: 'Could not reach Vipps. Please try again.',
+      vipps_csrf:             'Security check failed (CSRF). Please try again.',
+      vipps_pkce:             'PKCE missing. Please try again.',
+      vipps_bad_state:        'Invalid state from Vipps.',
+      vipps_missing_code:     'Missing code from Vipps.',
+      vipps_token_failed:     'Vipps token exchange failed.',
+      vipps_userinfo_failed:  'Could not fetch Vipps profile.',
+      vipps_no_sub:           'Missing user ID from Vipps.',
+      vipps_create_failed:    'Could not create Vipps user.',
+      vipps_user_not_found:   'User not found after login.',
+      vipps_superadmin_blocked: 'Super admin cannot log in with Vipps. Use email login below.',
+      account_inactive:   'Your account is not active. Contact support.',
+      account_suspended:  'The account is temporarily suspended. Contact support.',
+      account_blocked:    'The account is blocked. Contact support.',
+      account_pending:    'Your account is under review.',
     };
-    let text = map[err] || (err.startsWith('vipps') ? 'Innlogging via Vipps feilet.' : 'Innlogging feilet. Prøv igjen.');
+    let text = map[err] || (err.startsWith('vipps') ? 'Vipps login failed.' : 'Login failed. Please try again.');
     const vErr  = qs.get('vipps_error');
     const vDesc = qs.get('vipps_error_description');
     if (vErr || vDesc) {
@@ -231,7 +231,7 @@
 
   function openAdminPanel() {
     adminPanel.style.display = 'block';
-    adminToggle.textContent  = '↑ Skjul e-post-innlogging';
+    adminToggle.textContent  = '↑ Hide email login';
     setTimeout(() => {
       const emailField = document.getElementById('adminEmail');
       if (emailField && !emailField.value) emailField.focus();
@@ -240,7 +240,7 @@
 
   function closeAdminPanel() {
     adminPanel.style.display = 'none';
-    adminToggle.textContent  = 'Logg inn med e-post';
+    adminToggle.textContent  = 'Log in with email';
   }
 
   adminToggle.onclick = () => {
@@ -263,10 +263,10 @@
     e.preventDefault();
     const email    = document.getElementById('adminEmail').value.trim();
     const password = document.getElementById('adminPassword').value;
-    if (!email || !password) { flashEmail('Fyll inn e-post og passord.'); return; }
+    if (!email || !password) { flashEmail('Please enter email and password.'); return; }
 
     emailBtn.disabled   = true;
-    emailBtn.textContent = 'Logger inn…';
+    emailBtn.textContent = 'Logging in…';
     emailMsgEl.className = 'msg';
 
     try {
@@ -279,12 +279,12 @@
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) {
         const errMap = {
-          invalid_credentials: 'Feil e-post eller passord.',
-          account_inactive:    'Kontoen er ikke aktiv. Kontakt support.',
-          account_suspended:   'Kontoen er midlertidig sperret. Kontakt support.',
-          account_blocked:     'Kontoen er sperret. Kontakt support.',
+          invalid_credentials: 'Incorrect email or password.',
+          account_inactive:    'The account is not active. Contact support.',
+          account_suspended:   'The account is temporarily suspended. Contact support.',
+          account_blocked:     'The account is blocked. Contact support.',
         };
-        flashEmail(errMap[data.error] || data.message || 'Feil e-post eller passord.');
+        flashEmail(errMap[data.error] || data.message || 'Incorrect email or password.');
       } else {
         emailBtn.textContent = '✓ Omdirigerer…';
         location.href = data.redirect || '/super-admin.html';
@@ -293,7 +293,7 @@
       flashEmail('Nettverksfeil. Sjekk tilkoblingen og prøv igjen.');
     } finally {
       emailBtn.disabled = false;
-      if (emailBtn.textContent !== '✓ Omdirigerer…') emailBtn.textContent = 'Logg inn';
+      if (emailBtn.textContent !== '✓ Omdirigerer…') emailBtn.textContent = 'Log in';
     }
   };
 
@@ -301,7 +301,7 @@
   document.getElementById('forgotPwLink').onclick = async (e) => {
     e.preventDefault();
     const email = document.getElementById('adminEmail').value.trim();
-    if (!email) { flashEmail('Skriv inn e-posten din, så sender vi en tilbakestillingslenke.'); return; }
+    if (!email) { flashEmail('Enter your email address and we\'ll send a reset link.'); return; }
     try {
       const r = await fetch('/api/auth/forgot-password.php', {
         method: 'POST',
@@ -309,9 +309,9 @@
         body: JSON.stringify({ email }),
       });
       const d = await r.json().catch(() => ({}));
-      flashEmail(d.message || 'Hvis e-posten er registrert, sender vi deg en lenke.', true);
+      flashEmail(d.message || 'If the email is registered, we\'ll send you a link.', true);
     } catch (_) {
-      flashEmail('Nettverksfeil. Prøv igjen.');
+      flashEmail('Network error. Please try again.');
     }
   };
 
@@ -343,7 +343,7 @@
       body: JSON.stringify({ email }),
     });
     const d = await r.json().catch(() => ({}));
-    flashAdmin(d.message || 'Hvis e-posten er registrert, sender vi deg en melding.', true);
+    flashAdmin(d.message || 'If the email is registered, we\'ll send you a message.', true);
   };
 
   document.getElementById('loginForm').onsubmit = async (e) => {
@@ -358,7 +358,7 @@
       body: JSON.stringify(payload),
     });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok || !data.ok) { flashAdmin(data.message || 'Feil e-post eller passord.'); return; }
+    if (!res.ok || !data.ok) { flashAdmin(data.message || 'Incorrect email or password.'); return; }
     location.href = data.redirect || '/app.html';
   };
 })();

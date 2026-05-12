@@ -39,9 +39,10 @@
     .ta-dropdown-menu a{display:flex;align-items:center;gap:10px;padding:10px 12px;color:#cbd5e1;text-decoration:none;border-radius:8px;font-size:14px}
     .ta-dropdown-menu a:hover{background:rgba(148,163,184,.08);color:#fff}
     .ta-dropdown-menu a .ico{font-size:16px}
-    .ta-header-lang{margin-left:6px;border-left:1px solid rgba(148,163,184,.2);padding-left:10px}
-    .ta-header-lang button{background:transparent;border:1px solid rgba(148,163,184,.18);color:#cbd5e1;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:5px;font-family:inherit;font-weight:600;transition:.15s}
-    .ta-header-lang button:hover{background:rgba(148,163,184,.12);color:#fff;border-color:rgba(148,163,184,.4)}
+    .ta-header-lang{margin-left:6px;border-left:1px solid rgba(148,163,184,.2);padding-left:10px;display:flex;align-items:center;gap:2px}
+    .ta-lang-btn{background:transparent;border:1px solid transparent;color:#94a3b8;padding:5px 9px;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit;font-weight:700;letter-spacing:.05em;transition:.15s}
+    .ta-lang-btn:hover{color:#fff;background:rgba(148,163,184,.1)}
+    .ta-lang-btn.active{color:#fff;background:rgba(148,163,184,.18);border-color:rgba(148,163,184,.35)}
     .ta-header-burger{display:none;background:transparent;border:0;color:#fff;cursor:pointer;font-size:24px;padding:6px 10px;line-height:1}
     @media (max-width:880px){
       .ta-header-burger{display:block}
@@ -51,8 +52,8 @@
       .ta-header-cta{text-align:center}
       .ta-dropdown-btn{justify-content:center;width:100%}
       .ta-dropdown-menu{position:static;width:100%;border:0;background:rgba(148,163,184,.05);box-shadow:none;margin-top:4px}
-      .ta-header-lang{margin-left:0;border-left:0;border-top:1px solid rgba(148,163,184,.2);padding:12px 0 0;text-align:center;margin-top:4px}
-      .ta-header-lang button{width:100%;justify-content:center}
+      .ta-header-lang{margin-left:0;border-left:0;border-top:1px solid rgba(148,163,184,.2);padding:12px 0 0;text-align:center;margin-top:4px;justify-content:center}
+      .ta-lang-btn{flex:1}
     }
   `;
   document.head.appendChild(style);
@@ -60,12 +61,16 @@
     en: { useCases:'Use cases', recruitment:'Recruitment', recruitmentSub:'HR & talent agencies', realestate:'Real Estate', realestateSub:'International property', sales:'Sales & Leads', salesSub:'B2B partners', ecommerce:'Ecommerce', ecommerceSub:'Online stores', switchTo:'Switch to Norwegian', vippsCta:'Continue with Vipps', modalTitle:'Continue with Vipps', modalBody:'Use Vipps for secure sign-in and registration. If you already have an account we will send you straight to your dashboard. If not, we will help you complete the registration.', modalCta:'Continue with Vipps', modalMeta:'You must be 18 or older to register.' },
     no: { useCases:'Bruksområder', recruitment:'Rekruttering', recruitmentSub:'HR & talent', realestate:'Eiendom', realestateSub:'Internasjonale prosjekter', sales:'Salg & Leads', salesSub:'B2B-partnere', ecommerce:'E-handel', ecommerceSub:'Nettbutikker', switchTo:'Switch til engelsk', vippsCta:'Fortsett med Vipps', modalTitle:'Fortsett med Vipps', modalBody:'Bruk Vipps for trygg innlogging og registrering. Hvis du allerede har konto sender vi deg rett til dashboardet ditt. Hvis ikke hjelper vi deg å fullføre registreringen.', modalCta:'Fortsett med Vipps', modalMeta:'Du må være 18 år eller eldre for å registrere deg.' },
   };
-  function getLang(){ return localStorage.getItem('trustai_lang') || 'no'; }
+  function getLang(){ return localStorage.getItem('trustai_lang') || 'en'; }
   function applyLang(lang){
     document.documentElement.lang = lang;
     document.querySelectorAll('[data-no]').forEach(el => {
       const t = el.getAttribute('data-' + lang);
       if(t !== null) el.textContent = t;
+    });
+    // Sync button active states whenever language is applied
+    document.querySelectorAll('.ta-lang-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.lang === lang);
     });
   }
   function setLang(lang){
@@ -87,8 +92,7 @@
   function render() {
     const lang = getLang();
     const t = T[lang] || T.no;
-    const otherLang = lang === 'no' ? 'en' : 'no';
-    const otherFlag = otherLang === 'no' ? '🇳🇴 NO' : '🇬🇧 EN';
+    // lang buttons rendered below — no single-toggle needed
     let header = document.querySelector('.ta-global-header');
     if (!header) {
       header = document.createElement('header');
@@ -118,7 +122,8 @@
             <span class="ta-vipps-mark">vipps</span><span>${t.vippsCta}</span>
           </button>
           <div class="ta-header-lang">
-            <button data-lang="${otherLang}" type="button" title="${t.switchTo}">${otherFlag}</button>
+            <button class="ta-lang-btn${lang==='en'?' active':''}" data-lang="en" type="button">EN</button>
+            <button class="ta-lang-btn${lang==='no'?' active':''}" data-lang="no" type="button">NO</button>
           </div>
         </nav>
       </div>`;
@@ -161,7 +166,7 @@
     const dropBtn = drop.querySelector('.ta-dropdown-btn');
     dropBtn.onclick = (e) => { e.stopPropagation(); drop.classList.toggle('open'); };
     document.addEventListener('click', (e) => { if(!drop.contains(e.target)) drop.classList.remove('open'); });
-    header.querySelectorAll('.ta-header-lang button').forEach(b => {
+    header.querySelectorAll('.ta-lang-btn').forEach(b => {
       b.onclick = (e) => { e.stopPropagation(); setLang(b.dataset.lang); };
     });
   }

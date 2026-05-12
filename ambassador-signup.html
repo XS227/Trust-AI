@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="no">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>Bli ambassadør | TrustAI</title>
+<title>Become an ambassador | TrustAI</title>
 <style>
 *{box-sizing:border-box}
 body{font-family:Inter,Arial,sans-serif;background:linear-gradient(160deg,#0f172a,#111827);color:#e2e8f0;margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
@@ -60,36 +60,36 @@ button:disabled{opacity:.55;cursor:not-allowed}
 <div class="card">
   <!-- Demo banner (shown when ?demo=1) -->
   <div id="demoBanner" style="display:none;background:linear-gradient(90deg,#1e1b4b,#1e2456);border:1px solid #4338ca;border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#a5b4fc;align-items:center;gap:10px;flex-wrap:wrap">
-    <span style="background:#312e81;color:#c7d2fe;font-size:10px;font-weight:800;border-radius:4px;padding:2px 7px;letter-spacing:.06em;text-transform:uppercase;flex-shrink:0">Demo-modus aktiv</span>
-    <span><strong style="color:#c7d2fe">Ingen ekte Vipps-data brukes.</strong> Skjema er forhåndsutfylt med testdata. Velg butikk og send søknad.</span>
+    <span style="background:#312e81;color:#c7d2fe;font-size:10px;font-weight:800;border-radius:4px;padding:2px 7px;letter-spacing:.06em;text-transform:uppercase;flex-shrink:0">Demo mode active</span>
+    <span><strong style="color:#c7d2fe">No real Vipps data is used.</strong> Form is pre-filled with test data. Select a store and submit application.</span>
   </div>
 
-  <h1>Bli ambassadør</h1>
-  <p class="help">Fyll inn domenet til butikken du vil representere. Vi sender søknaden automatisk til riktig butikk.</p>
+  <h1>Become an ambassador</h1>
+  <p class="help">Enter the domain of the store you want to represent. We will send the application automatically to the right store.</p>
 
   <button type="button" id="vippsSignup" class="btn-vipps">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#fff"/><path d="M7 12l3 3 7-7" stroke="#ff5b24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    Registrer deg med Vipps
+    Register with Vipps
   </button>
-  <div class="divider">eller fyll inn manuelt</div>
+  <div class="divider">or fill in manually</div>
 
   <div id="vippsHint" style="display:none;background:#0f1f17;border:1px solid #14532d;border-radius:10px;padding:10px 12px;font-size:13px;color:#bbf7d0;margin-bottom:4px">
-    ✅ Du er logget inn med Vipps. Velg butikk og send søknaden.
+    ✅ You are signed in with Vipps. Select a store and submit your application.
   </div>
 
   <form id="f">
     <div id="contactFields">
-      <label>Navn</label><input id="name" required>
-      <label>E-post</label><input id="email" type="email" required>
-      <label>Telefon</label><input id="phone" required>
+      <label>Name</label><input id="name" required>
+      <label>Email</label><input id="email" type="email" required>
+      <label>Phone</label><input id="phone" required>
     </div>
 
-    <label>Butikkens domene</label>
+    <label>Store domain</label>
     <div class="store-lookup-wrap">
       <div class="domain-input-wrap">
-        <input id="partner" placeholder="eks. butikk.no" required autocomplete="off" oninput="clearStoreCard()">
+        <input id="partner" placeholder="e.g. store.no" required autocomplete="off" oninput="clearStoreCard()">
         <div class="lookup-spinner" id="lookupSpinner"></div>
-        <button type="button" class="lookup-btn" onclick="lookupStore()">Søk →</button>
+        <button type="button" class="lookup-btn" onclick="lookupStore()">Search →</button>
       </div>
       <div class="store-card" id="storeCard">
         <div class="store-card-avatar">🛒</div>
@@ -98,26 +98,26 @@ button:disabled{opacity:.55;cursor:not-allowed}
           <div class="store-card-domain" id="scDomain">—</div>
           <div class="store-card-meta">
             <span class="badge badge-platform" id="scPlatform">—</span>
-            <span class="badge badge-active">● Aktiv</span>
-            <span class="badge badge-comm" id="scComm">—% provisjon</span>
+            <span class="badge badge-active">● Active</span>
+            <span class="badge badge-comm" id="scComm">—% commission</span>
           </div>
         </div>
       </div>
-      <div class="store-error" id="storeError">Fant ingen aktiv butikk med dette domenet.</div>
+      <div class="store-error" id="storeError">No active store found with this domain.</div>
     </div>
 
     <div id="passwordBlock">
       <div class="row">
-        <div><label>Passord</label><input id="password" type="password" minlength="8" required></div>
-        <div><label>Bekreft</label><input id="password2" type="password" minlength="8" required></div>
+        <div><label>Password</label><input id="password" type="password" minlength="8" required></div>
+        <div><label>Confirm</label><input id="password2" type="password" minlength="8" required></div>
       </div>
     </div>
 
-    <button id="submitBtn" type="submit">Send søknad</button>
-    <button type="button" id="gmailSignup" class="btn-secondary">Registrer med Google</button>
+    <button id="submitBtn" type="submit">Submit application</button>
+    <button type="button" id="gmailSignup" class="btn-secondary">Register with Google</button>
   </form>
   <div id="status" class="msg"></div>
-  <div class="meta">Allerede ambassadør? <a href="/login.html">Logg inn her</a></div>
+  <div class="meta">Already an ambassador? <a href="/login.html">Log in here</a></div>
 </div>
 
 <script>
@@ -184,7 +184,7 @@ async function lookupStore() {
       document.getElementById('scName').textContent = r.name;
       document.getElementById('scDomain').textContent = r.domain;
       document.getElementById('scPlatform').textContent = r.platform || 'Nettbutikk';
-      document.getElementById('scComm').textContent = (r.commission_percent || 10) + '% provisjon';
+      document.getElementById('scComm').textContent = (r.commission_percent || 10) + '% commission';
       document.getElementById('storeCard').classList.add('visible');
       storeFound = true;
     } else {
@@ -201,14 +201,14 @@ document.getElementById('f').addEventListener('submit', async e => {
   e.preventDefault();
   const btn = document.getElementById('submitBtn');
   const partner = document.getElementById('partner').value.trim();
-  if (!partner) { flash('Domene til butikk er påkrevd.'); return; }
+  if (!partner) { flash('Store domain is required.'); return; }
   if (!isVipps) {
     const pw = document.getElementById('password').value;
     const pw2 = document.getElementById('password2').value;
-    if (pw !== pw2) { flash('Passordene stemmer ikke overens.'); return; }
-    if (pw.length < 8) { flash('Passordet må være minst 8 tegn.'); return; }
+    if (pw !== pw2) { flash('Passwords do not match.'); return; }
+    if (pw.length < 8) { flash('Password must be at least 8 characters.'); return; }
   }
-  btn.disabled = true; btn.textContent = 'Sender søknad…';
+  btn.disabled = true; btn.textContent = 'Submitting application…';
   try {
     let res;
     if (isDemo) {
@@ -244,20 +244,20 @@ document.getElementById('f').addEventListener('submit', async e => {
     const data = await res.json().catch(() => ({}));
     if (data.ok) {
       if (data.redirect) {
-        flash('Søknad godkjent! Videresender til dashboard…', true);
+        flash('Application approved! Redirecting to dashboard…', true);
         setTimeout(() => { location.href = data.redirect; }, 1200);
       } else {
-        flash('Søknad mottatt! Du kan logge inn så snart butikken godkjenner søknaden din.', true);
+        flash('Application received! You can log in once the store approves your application.', true);
         if (!isVipps && !isDemo) document.getElementById('f').reset();
         clearStoreCard();
       }
     } else {
-      flash('Feil: ' + (data.message || data.error || 'ukjent'));
+      flash('Error: ' + (data.message || data.error || 'unknown'));
     }
   } catch (err) {
-    flash('Nettverksfeil: ' + err.message);
+    flash('Network error: ' + err.message);
   } finally {
-    btn.disabled = false; btn.textContent = 'Send søknad';
+    btn.disabled = false; btn.textContent = 'Submit application';
   }
 });
 </script>

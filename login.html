@@ -131,6 +131,11 @@
       vipps_no_sub: 'Manglet bruker-ID fra Vipps.',
       vipps_create_failed: 'Kunne ikke opprette Vipps-bruker.',
       vipps_user_not_found: 'Fant ikke brukeren etter innlogging.',
+      vipps_superadmin_blocked: 'Super admin kan ikke logge inn med Vipps. Bruk passord-innlogging (klikk "Intern innlogging" under Vipps-knappen).',
+      account_inactive: 'Kontoen din er ikke aktiv. Kontakt support.',
+      account_suspended: 'Kontoen er midlertidig sperret. Kontakt support.',
+      account_blocked: 'Kontoen er sperret. Kontakt support.',
+      account_pending: 'Kontoen din er under vurdering.',
     };
     let text = vippsMap[err] || (err.startsWith('vipps') ? 'Innlogging via Vipps feilet.' : 'Innlogging feilet. Prøv igjen.');
     // Append the raw Vipps error code + description if Vipps sent one along.

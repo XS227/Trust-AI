@@ -193,6 +193,17 @@ if (!$user && $email !== '') {
 }
 
 if ($user) {
+    // Super admin must never be linked to or authenticated via Vipps.
+    // This guards against an email/phone match on a super_admin row.
+    if (strtolower((string)($user['role'] ?? '')) === 'super_admin') {
+        trustaiVippsDebugLog('callback_blocked', [
+            'reason'  => 'super_admin_vipps_denied',
+            'user_id' => (int)$user['id'],
+        ]);
+        header('Location: /login.html?error=vipps_superadmin_blocked');
+        exit;
+    }
+
     $update = $pdo->prepare(
         'UPDATE users
             SET vipps_sub = :sub,
@@ -251,9 +262,26 @@ if (!$user) {
     exit;
 }
 
+// Reactivate accounts marked inactive by cleanup/migration.
+// Hard-blocked (suspended / blocked) stay blocked regardless of Vipps auth.
+$userStatus = strtolower((string)($user['status'] ?? 'active'));
+if ($userStatus === 'inactive' && !trustaiIsHardBlocked($user)) {
+    $pdo->prepare('UPDATE users SET status = "active", updated_at = NOW() WHERE id = :id')
+        ->execute(['id' => (int)$user['id']]);
+    $user['status'] = 'active';
+    $userStatus = 'active';
+    trustaiVippsDebugLog('callback_reactivated', ['user_id' => (int)$user['id']]);
+}
+
 if (!trustaiCanLogin($user)) {
-    $msg = urlencode(trustaiBlockedStatusMessage($user));
-    header('Location: /login.html?error=' . $msg);
+    $errCode = match ($userStatus) {
+        'suspended' => 'account_suspended',
+        'blocked'   => 'account_blocked',
+        'pending'   => 'account_pending',
+        default     => 'account_inactive',
+    };
+    trustaiVippsDebugLog('callback_blocked', ['reason' => $errCode, 'status' => $userStatus, 'user_id' => (int)$user['id']]);
+    header('Location: /login.html?error=' . $errCode);
     exit;
 }
 

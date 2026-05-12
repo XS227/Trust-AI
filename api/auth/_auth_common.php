@@ -25,15 +25,25 @@ function trustaiRoleRedirect(array $user): string
 function trustaiCanLogin(array $user): bool
 {
     $status = strtolower((string)($user['status'] ?? 'active'));
-    return !in_array($status, ['pending', 'paused', 'inactive', 'rejected'], true);
+    return !in_array($status, ['pending', 'paused', 'inactive', 'rejected', 'suspended', 'blocked'], true);
+}
+
+// Hard-blocked accounts cannot be reactivated by any auth flow.
+// suspended = temporary admin action, blocked = permanent ban.
+function trustaiIsHardBlocked(array $user): bool
+{
+    $status = strtolower((string)($user['status'] ?? 'active'));
+    return in_array($status, ['suspended', 'blocked'], true);
 }
 
 function trustaiBlockedStatusMessage(array $user): string
 {
     $status = strtolower((string)($user['status'] ?? 'active'));
     return match ($status) {
-        'pending' => 'Kontoen din er under vurdering.',
-        'paused' => 'Kontoen din er midlertidig pauset. Kontakt support.',
+        'pending'   => 'Kontoen din er under vurdering.',
+        'paused'    => 'Kontoen din er midlertidig pauset. Kontakt support.',
+        'suspended' => 'Kontoen er midlertidig sperret. Kontakt support.',
+        'blocked'   => 'Kontoen er sperret. Kontakt support.',
         'inactive', 'rejected' => 'Kontoen din er ikke aktiv. Kontakt support.',
         default => 'Kontoen din er ikke aktiv.',
     };

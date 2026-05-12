@@ -199,30 +199,24 @@ CREATE TABLE `password_resets` (
   KEY `idx_password_resets_expires_at` (`expires_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Seed super admin login in users table for auth/login API
-INSERT INTO `users` (`email`, `password_hash`, `role`, `status`, `store_id`, `ambassador_id`, `must_change_password`, `created_at`, `updated_at`)
+-- Seed super admin — password set at deployment time via admin panel or
+-- run: php -r "echo password_hash('YOUR_PASSWORD', PASSWORD_BCRYPT, ['cost'=>12]);"
+-- then UPDATE users SET password_hash='...' WHERE email='ks@trustai.no';
+INSERT INTO `users`
+  (`email`, `name`, `full_name`, `password_hash`, `role`, `status`,
+   `provider`, `vipps_sub`, `phone`, `phone_number`, `birth_date`,
+   `store_id`, `ambassador_id`, `is_demo`, `must_change_password`,
+   `created_at`, `updated_at`)
 VALUES (
-  'admin@trustai.no',
-  '$2y$10$qjQ6Sd6yW5ReMYAHCn9NteqFhM4A7ohLxQhwQw1U4GqCGM2spxZ9q',
+  'ks@trustai.no',
+  'Super Admin',
+  'Super Admin',
+  '',          -- hash injected at deploy time; account is inactive until set
   'super_admin',
-  'active',
-  NULL,
-  NULL,
-  0,
-  NOW(),
-  NOW()
-);
-
--- Optional mirrored admin row for legacy admin_users usage
-INSERT INTO `admin_users` (`email`, `password_hash`, `name`, `role`, `status`, `created_at`, `updated_at`)
-VALUES (
-  'admin@trustai.no',
-  '$2y$10$qjQ6Sd6yW5ReMYAHCn9NteqFhM4A7ohLxQhwQw1U4GqCGM2spxZ9q',
-  'TrustAI Super Admin',
-  'super_admin',
-  'active',
-  NOW(),
-  NOW()
+  'inactive',  -- activate after setting password_hash
+  NULL, NULL, NULL, NULL, NULL,
+  NULL, NULL, 0, 0,
+  NOW(), NOW()
 );
 
 -- Demo store

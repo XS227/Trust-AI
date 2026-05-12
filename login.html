@@ -31,6 +31,17 @@
   .divider{display:flex;align-items:center;gap:10px;color:#64748b;font-size:12px;margin:18px 0 4px}
   .divider:before,.divider:after{content:"";flex:1;height:1px;background:#1f2937}
   .small{font-size:12px;color:#64748b;margin-top:16px;text-align:center}
+  /* demo section */
+  .demo-section{margin-top:20px;background:#0c1222;border:1px solid #1e3a5f;border-radius:12px;padding:14px 16px}
+  .demo-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .demo-badge-top{background:#1e3a5f;color:#60a5fa;font-size:10px;font-weight:800;border-radius:5px;padding:2px 8px;letter-spacing:.06em;text-transform:uppercase}
+  .demo-intro{font-size:12px;color:#64748b;margin:0 0 12px;line-height:1.55}
+  .demo-intro b{color:#94a3b8}
+  .demo-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .demo-btn{padding:12px 8px;border-radius:10px;border:1px solid #1e3a5f;background:#0b1220;color:#94a3b8;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;text-align:center}
+  .demo-btn:hover{border-color:#3b82f6;color:#e2e8f0;background:#0f1a2e}
+  .demo-btn-icon{font-size:20px;display:block;margin-bottom:4px}
+  .demo-badge{display:inline-block;background:#1e3a5f;color:#60a5fa;font-size:9px;font-weight:700;border-radius:4px;padding:1px 5px;letter-spacing:.04em}
 </style>
 </head>
 <body>
@@ -45,6 +56,27 @@
       </button>
       <div id="message" class="msg"></div>
       <div class="small">Du må være 18 år eller eldre for å registrere deg.</div>
+
+      <!-- Demo mode section – shown only when DEMO_MODE is active -->
+      <div id="demoSection" class="demo-section" style="display:none">
+        <div class="demo-header">
+          <span class="demo-badge-top">Demo-modus aktiv</span>
+          <span style="font-size:11px;color:#475569">Ingen ekte data</span>
+        </div>
+        <p class="demo-intro">Prøv plattformen med <b>testdata</b> — ingen Vipps-konto nødvendig.</p>
+        <div class="demo-btns">
+          <button type="button" id="demoAmbBtn" class="demo-btn">
+            <span class="demo-btn-icon">🧑‍💼</span>
+            <span class="demo-badge">DEMO</span><br>
+            <span style="margin-top:3px;display:block">Demo som ambassadør</span>
+          </button>
+          <button type="button" id="demoStoreBtn" class="demo-btn">
+            <span class="demo-btn-icon">🏪</span>
+            <span class="demo-badge">DEMO</span><br>
+            <span style="margin-top:3px;display:block">Demo som butikk</span>
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Internal/admin recovery view, shown only with ?admin=1 -->
@@ -108,6 +140,21 @@
   }
   document.getElementById('vippsBtn').onclick = () => {
     location.href = '/api/auth/vipps/login.php?intent=auto';
+  };
+
+  // Show demo section if demo mode is active
+  fetch('/api/demo/status.php', { credentials: 'include' })
+    .then(r => r.json()).catch(() => ({ demo_mode: false }))
+    .then(d => {
+      if (d.demo_mode) {
+        document.getElementById('demoSection').style.display = '';
+      }
+    });
+  document.getElementById('demoAmbBtn').onclick = () => {
+    location.href = '/api/demo/login-demo-ambassador.php';
+  };
+  document.getElementById('demoStoreBtn').onclick = () => {
+    location.href = '/api/demo/login-demo-store.php';
   };
 
   // ---------- Admin recovery view ----------

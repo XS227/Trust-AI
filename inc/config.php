@@ -16,6 +16,13 @@ if (!defined('DB_PASS')) define('DB_PASS', 'NyttPassord123!');
 // Optional: debug mode (sett til false i prod)
 if (!defined('APP_DEBUG')) define('APP_DEBUG', true);
 
+// Environment identifier (local | dev | development | test | production)
+if (!defined('APP_ENV')) define('APP_ENV', 'production');
+
+// Demo/test mode. Enable by setting DEMO_MODE=true in env or config.local.php.
+// Automatically true when APP_ENV is local/dev/development/test.
+if (!defined('DEMO_MODE')) define('DEMO_MODE', false);
+
 // Vipps Login (OIDC). Set in inc/config.local.php or as environment variables.
 if (!defined('VIPPS_ENV')) define('VIPPS_ENV', 'test');
 if (!defined('VIPPS_CLIENT_ID')) define('VIPPS_CLIENT_ID', '');

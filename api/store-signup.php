@@ -137,5 +137,5 @@ jsonResponse(200, [
     'ok' => true,
     'store_id' => $storeId,
     'user_id' => $userId,
-    'redirect' => '/store-admin.html',
+    'redirect' => '/onboarding.html',
 ]);

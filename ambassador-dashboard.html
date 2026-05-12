@@ -276,6 +276,11 @@ button{font-family:inherit;cursor:pointer}
   <!-- MAIN -->
   <main class="main">
     <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰ Meny</button>
+    <!-- Demo mode banner -->
+    <div id="demoBanner" style="display:none;background:linear-gradient(90deg,#1e1b4b,#1e2456);border:1px solid #4338ca;border-radius:12px;padding:12px 18px;margin-bottom:18px;font-size:13px;color:#a5b4fc;align-items:center;gap:12px;flex-wrap:wrap">
+      <span style="background:#312e81;color:#a5b4fc;font-size:10px;font-weight:800;padding:3px 8px;border-radius:5px;letter-spacing:.07em;text-transform:uppercase;flex-shrink:0">Demo-modus aktiv</span>
+      <span><strong style="color:#c7d2fe">Ingen ekte Vipps-data brukes.</strong> Alle tall er testdata og påvirker ingen ekte systemer.</span>
+    </div>
 
     <!-- DASHBOARD TAB -->
     <div class="tab-content active" id="tab-dashboard">
@@ -928,6 +933,12 @@ async function logout(){
 }
 
 loadData();
+
+// Show demo banner when ?demo=1 is present or session has is_demo flag.
+if (new URLSearchParams(location.search).get('demo') === '1') {
+  const b = document.getElementById('demoBanner');
+  if (b) b.style.display = 'flex';
+}
 </script>
 </body>
 </html>

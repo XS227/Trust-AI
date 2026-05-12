@@ -16,7 +16,7 @@ $metricsStmt = $pdo->prepare($metricsSql);
 $metricsStmt->execute(['store_id' => $storeId]);
 $metrics = $metricsStmt->fetch(PDO::FETCH_ASSOC) ?: [];
 
-$storeStmt = $pdo->prepare('SELECT id, name, domain, platform, default_commission_percent, status, created_at FROM stores WHERE id = :id LIMIT 1');
+$storeStmt = $pdo->prepare('SELECT id, name, domain, platform, default_commission_percent, status, onboarding_status, created_at FROM stores WHERE id = :id LIMIT 1');
 $storeStmt->execute(['id' => $storeId]);
 $store = $storeStmt->fetch(PDO::FETCH_ASSOC);
 

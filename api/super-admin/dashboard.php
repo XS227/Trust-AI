@@ -31,20 +31,10 @@ if ($storeId > 0) {
 }
 
 $stores = $pdo->query("SELECT
-    id,
-    name,
-    domain,
-    url,
-    public_url,
-    platform,
-    status,
-    commission_percent,
-    default_commission_percent,
-    contact_name,
-    contact_email,
-    contact_phone,
-    created_at,
-    updated_at
+    id, name, domain, url, public_url, platform, status,
+    commission_percent, default_commission_percent,
+    contact_name, contact_email, contact_phone,
+    is_demo, onboarding_status, created_at, updated_at
 FROM stores
 ORDER BY created_at DESC")->fetchAll(PDO::FETCH_ASSOC);
 

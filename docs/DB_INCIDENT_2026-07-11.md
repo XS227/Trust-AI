@@ -1,0 +1,108 @@
+# DB incident — 2026-07-11 — handoff to whoever has backup/infra access
+
+Found and partially fixed by Claude (Agent B session, working on an
+unrelated SetaLink/RealGram task on the same VPS). Read this in full before
+touching the database — the last step is deliberately left undone.
+
+## What was found
+
+Real user requests were failing in production:
+
+```
+2026-07-11 03:40:31 UTC  GET /api/demo/login-demo-store.php
+2026-07-11 03:51:54 UTC  GET /api/demo/login-demo-ambassador.php
+  -> PDO connection failed: SQLSTATE[HY000] [1045]
+     Access denied for user 'root'@'localhost' (using password: YES)
+```
+(source: `/var/log/nginx/error.log`, PHP-FPM stderr passthrough)
+
+Static pages (homepage, `ambassador-signup.html`) returned 200 the whole
+time — they don't touch the DB, so this was invisible unless something
+actually hit the database.
+
+## What was fixed (done, verified, safe)
+
+1. **MySQL `root`'s password had drifted from every config that references
+   it** (both `inc/config.php`'s hardcoded fallback `NyttPassord123!` — also
+   committed to git, so treat as leaked — and `/etc/mysql/debian.cnf`'s
+   `debian-sys-maint` password). Root cause unknown (manual rotation at some
+   point, restore from an older snapshot, etc. — not established).
+2. **`debian-sys-maint`@`localhost` didn't exist as a MySQL user at all**
+   (this is also why `logrotate.service` had been failing every night since
+   at least 2026-07-09 across the whole VPS, unrelated to TrustAI — that's
+   now fixed too, confirmed `logrotate.service` exits 0).
+3. Reset via a brief `mysqld --skip-grant-tables` maintenance window
+   (~1 minute, Khabat approved in advance): set a new `root` password,
+   created `debian-sys-maint` with the password already on file in
+   `/etc/mysql/debian.cnf` (so that file didn't need changing).
+4. Updated `inc/config.local.php` (gitignored, not this commit) with the
+   new root password so PHP can authenticate again.
+
+## What is NOT fixed — the actual blocker
+
+**There is no `trustai` database on this MySQL server.**
+
+```
+mysql> SHOW DATABASES;
+information_schema, mysql, performance_schema, stapay_test_db, sys
+```
+
+No `trustai` database, no `.sql` dump/backup found anywhere on this VPS's
+filesystem (checked `/var/lib/mysql`, common backup locations, this repo's
+`database/` folder — that folder has schema-definition scripts
+(`trustai_full_reset.sql`, `trustai_clean_schema.sql`) but those create an
+**empty** schema, not restore real data).
+
+**This means one of two things, and it changes what to do next:**
+
+- **(a) There's a real backup somewhere this session didn't find** — a
+  different server, a managed-DB snapshot, an export someone has locally.
+  If so: restore that instead of running the schema scripts, or real
+  ambassador/order/commission data is lost permanently.
+- **(b) There genuinely is no backup / no real production data was ever
+  durably stored here** — e.g. the DB was only ever meant to exist after a
+  migration that didn't fully happen, or this "operational beta" never had
+  real transactional data land in MySQL. If so, running
+  `database/trustai_clean_schema.sql` to create a fresh empty schema is
+  safe and is the actual fix.
+
+**This session stopped here deliberately** — creating a database is a
+one-way action if (a) turns out to be true and gets skipped. Whoever picks
+this up needs to either confirm (a) and restore from it, or get explicit
+confirmation from Khabat that (b) is the case before running the schema
+scripts.
+
+## Task list for whoever has backup/infra access
+
+- [ ] Check for a TrustAI DB backup outside this VPS (another server, a
+      managed MySQL/RDS-style snapshot, local exports Khabat may have) —
+      ask Khabat directly, don't assume.
+- [ ] If a backup exists: restore it (`mysql -u root -p trustai < backup.sql`
+      after `CREATE DATABASE trustai;`), then verify `dashboard.php` and the
+      demo-login endpoints work for a real session, not just a 200 on the
+      homepage.
+- [ ] If no backup exists (confirmed with Khabat, not assumed): run
+      `database/trustai_clean_schema.sql` (or `trustai_full_reset.sql` —
+      check which one this deployment expects; `git log` those two files to
+      see which is current) against a freshly created `trustai` database,
+      then re-run any needed seed/migration scripts in
+      `database/migrations/` in date order.
+- [ ] Either way, once the DB exists: confirm `inc/config.local.php`'s new
+      root password (already set, this commit's neighbor — check
+      `git log --all -- inc/config.local.php`... no, it's gitignored, just
+      read the file directly) still matches, and smoke-test a real login.
+- [ ] Consider whether `inc/config.php`'s hardcoded `root`/`NyttPassord123!`
+      fallback should be removed now that it's stale AND was committed to
+      git (i.e. already-leaked credential) — replacing it with a fallback
+      that fails loudly if `config.local.php` doesn't override it would
+      have caught this incident faster.
+- [ ] Consider a dedicated non-root MySQL user for the `trustai` app
+      instead of connecting as `root` — smaller blast radius than what this
+      incident just showed root access has.
+
+## What was NOT touched
+
+- No table created, no schema run, no data written or deleted.
+- No other app's MySQL access affected (checked: nothing else on this VPS
+  hardcodes `root`/MySQL; `stapay_test_db` has its own separate user/DB,
+  untouched).

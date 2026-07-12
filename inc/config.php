@@ -8,10 +8,19 @@ if (is_readable(__DIR__ . '/config.local.php')) {
 }
 
 // Database config (ProISP)
+// DB_PASS has NO real default on purpose (2026-07-12) — it used to fall
+// back to a hardcoded password, which meant that value was sitting in git
+// history in plaintext, AND meant a misconfigured/unreadable
+// config.local.php failed silently by connecting with a stale password
+// instead of failing loudly (see docs/DB_INCIDENT_2026-07-11.md — that
+// exact failure mode caused a real outage). inc/db.php's
+// $trustAiDbValueIsPlaceholder() check already treats an empty DB_PASS as
+// "not configured" and throws db_not_configured, so leaving it empty here
+// is what makes that fail fast instead of connecting with the wrong thing.
 if (!defined('DB_HOST')) define('DB_HOST', 'localhost');
 if (!defined('DB_NAME')) define('DB_NAME', 'trustai');
 if (!defined('DB_USER')) define('DB_USER', 'root');
-if (!defined('DB_PASS')) define('DB_PASS', 'NyttPassord123!');
+if (!defined('DB_PASS')) define('DB_PASS', '');
 
 // Optional: debug mode (sett til false i prod)
 if (!defined('APP_DEBUG')) define('APP_DEBUG', true);

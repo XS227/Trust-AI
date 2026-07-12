@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/_auth_common.php';
+require_once __DIR__ . '/../../inc/rate_limit.php';
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
     jsonResponse(405, ['ok' => false, 'error' => 'method_not_allowed']);
@@ -57,11 +58,22 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL) || $password === '') {
 ensurePasswordHashColumn($pdo);
 ensureStatusColumn($pdo);
 
+$lockout = rateLimitCheck($pdo, $email);
+if ($lockout !== null) {
+    jsonResponse(429, [
+        'ok' => false,
+        'error' => 'too_many_attempts',
+        'retry_after_seconds' => $lockout['retry_after_seconds'],
+        'message' => 'For mange mislykkede forsøk. Prøv igjen om ' . ceil($lockout['retry_after_seconds'] / 60) . ' minutter.',
+    ]);
+}
+
 $stmt = $pdo->prepare('SELECT id, email, role, status, password_hash, store_id, ambassador_id FROM users WHERE email = :email LIMIT 1');
 $stmt->execute(['email' => $email]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$user || empty($user['password_hash']) || !password_verify($password, (string)$user['password_hash'])) {
+    rateLimitRecordFailure($pdo, $email);
     jsonResponse(401, ['ok' => false, 'error' => 'invalid_credentials']);
 }
 
@@ -69,6 +81,7 @@ if (!trustaiCanLogin($user)) {
     jsonResponse(403, ['ok' => false, 'error' => 'account_inactive', 'message' => trustaiBlockedStatusMessage($user)]);
 }
 
+rateLimitClearOnSuccess($pdo, $email);
 trustaiStartSessionForUser($user);
 
 // Keep legacy and trustai-prefixed session keys explicitly in login flow.

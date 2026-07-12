@@ -1,3 +1,12 @@
-ALTER TABLE ambassadors
-  ADD COLUMN IF NOT EXISTS phone VARCHAR(60) DEFAULT NULL AFTER email,
-  ADD COLUMN IF NOT EXISTS rejected_at DATETIME DEFAULT NULL AFTER approved_at;
+-- 2026-07-12: SUPERSEDED, do not run. `ADD COLUMN IF NOT EXISTS` is not
+-- valid MySQL syntax (it's a MariaDB extension) so this file never actually
+-- ran as committed — but while restoring the trustai database from scratch
+-- (docs/DB_INCIDENT_2026-07-11.md), found that trustai_clean_schema.sql's
+-- `ambassadors` table already has both `phone` and `rejected_at` baked in
+-- (unlike the other 2026-05-* migrations, none of which made it into that
+-- schema file). Running this against that schema now would fail with a
+-- duplicate-column error. Kept for history only.
+--
+-- ALTER TABLE ambassadors
+--   ADD COLUMN phone VARCHAR(60) DEFAULT NULL AFTER email,
+--   ADD COLUMN rejected_at DATETIME DEFAULT NULL AFTER approved_at;

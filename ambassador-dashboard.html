@@ -765,7 +765,7 @@ function render(){
     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:30px">Ingen ordrer enda. Del lenken din for å starte!</td></tr>';
   } else {
     tbody.innerHTML = orders.slice(0,5).map(o => `<tr>
-      <td><b>${o.customer_name||'Anonym'}</b><div style="font-size:11px;color:#94a3b8">${o.customer_email||''}</div></td>
+      <td><b>${esc(o.customer_name||'Anonym')}</b><div style="font-size:11px;color:#94a3b8">${esc(o.customer_email||'')}</div></td>
       <td>Web</td>
       <td><span class="status-pill s-approved">Godkjent</span></td>
       <td>${fmt(o.amount)}</td>

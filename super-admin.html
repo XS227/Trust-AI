@@ -664,6 +664,13 @@ TAB_BTNS.forEach(btn => {
 });
 
 function fmt(n){return new Intl.NumberFormat('nb-NO',{style:'currency',currency:'NOK',maximumFractionDigits:0}).format(n||0).replace('NOK','kr')}
+// SECURITY (2026-07-12): customer_name/store_name come from Shopify order
+// webhooks — a customer's checkout name field, attacker-controlled. This
+// file had no escaping helper at all and interpolated those fields
+// straight into innerHTML (stored XSS in the super-admin's own session).
+// Same helper already exists in ambassador-dashboard.html/store-admin.html;
+// added here to match.
+function esc(s){const d=document.createElement('div');d.textContent=s==null?'':String(s);return d.innerHTML}
 function fmtDate(s){return s?(s+'').split(' ')[0]:'—'}
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
 function openModal(id){document.getElementById(id).classList.add('open')}
@@ -720,8 +727,8 @@ function render(){
       <div class="activity-item">
         <div class="activity-ico">🛒</div>
         <div class="activity-text">
-          <b>${o.customer_name||'Anonym'}</b> kjøpte via ambassadør
-          <div style="color:var(--muted)">${fmt(o.amount)} — ${o.store_name||''}</div>
+          <b>${esc(o.customer_name||'Anonym')}</b> kjøpte via ambassadør
+          <div style="color:var(--muted)">${fmt(o.amount)} — ${esc(o.store_name||'')}</div>
           <div class="activity-time">${fmtDate(o.created_at)}</div>
         </div>
         <div style="font-weight:700;color:#10b981">${fmt(o.commission_amount)}</div>
@@ -791,13 +798,13 @@ function renderLeads(){
   document.getElementById('leadsTbody').innerHTML = rows.length===0
     ?'<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:30px">Ingen leads</td></tr>'
     :rows.map(l=>`<tr data-clickable data-id="${l.id}" onclick="openLeadDetail(${l.id})">
-      <td><b>${l.company_name||'—'}</b><div style="font-size:11px;color:var(--muted)">${l.contact_person||''}</div></td>
-      <td>${l.ambassador_name||'—'}</td>
-      <td>${l.store_name||'—'}</td>
+      <td><b>${esc(l.company_name||'—')}</b><div style="font-size:11px;color:var(--muted)">${esc(l.contact_person||'')}</div></td>
+      <td>${esc(l.ambassador_name||'—')}</td>
+      <td>${esc(l.store_name||'—')}</td>
       <td>${statusPill(l.status)}</td>
       <td>${l.offer_amount?fmt(l.offer_amount):'—'}</td>
       <td>${l.commission_amount?fmt(l.commission_amount):'—'}</td>
-      <td>${l.source||'—'}</td>
+      <td>${esc(l.source||'—')}</td>
       <td>${fmtDate(l.created_at)}</td>
       <td><button class="btn-ghost" onclick="event.stopPropagation();openLeadDetail(${l.id})">Se</button></td>
     </tr>`).join('');
@@ -810,9 +817,9 @@ function renderAmbassadors(){
   document.getElementById('ambTbody').innerHTML = rows.length===0
     ?'<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px">Ingen ambassadører</td></tr>'
     :rows.map(a=>`<tr>
-      <td><b>${a.name||'—'}</b></td>
-      <td>${a.email||'—'}</td>
-      <td>${a.store_name||a.store_id||'—'}</td>
+      <td><b>${esc(a.name||'—')}</b></td>
+      <td>${esc(a.email||'—')}</td>
+      <td>${esc(a.store_name||a.store_id||'—')}</td>
       <td>${statusPill(a.status)}</td>
       <td>${a.commission_percent||'10'}%</td>
       <td>${fmtDate(a.created_at)}</td>
@@ -836,9 +843,9 @@ function renderRevenue(){
     ?'<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">Ingen ordrer</td></tr>'
     :orders.map(o=>`<tr>
       <td>#${o.id||'—'}</td>
-      <td>${o.store_name||o.store_id||'—'}</td>
-      <td>${o.ambassador_name||o.ambassador_id||'—'}</td>
-      <td>${o.customer_name||'Anonym'}</td>
+      <td>${esc(o.store_name||o.store_id||'—')}</td>
+      <td>${esc(o.ambassador_name||o.ambassador_id||'—')}</td>
+      <td>${esc(o.customer_name||'Anonym')}</td>
       <td>${fmt(o.amount)}</td>
       <td>${fmt(o.commission_amount)}</td>
       <td>${statusPill(o.payout_status||o.status||'open')}</td>
@@ -852,8 +859,8 @@ function renderPayouts(){
     ?'<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px">Ingen utbetalinger</td></tr>'
     :payouts.map(p=>`<tr>
       <td>#${p.id}</td>
-      <td>${p.ambassador_name||p.ambassador_id||'—'}</td>
-      <td>${p.store_name||p.store_id||'—'}</td>
+      <td>${esc(p.ambassador_name||p.ambassador_id||'—')}</td>
+      <td>${esc(p.store_name||p.store_id||'—')}</td>
       <td>${fmt(p.amount)}</td>
       <td>${statusPill(p.status)}</td>
       <td>${fmtDate(p.created_at)}</td>
@@ -865,7 +872,7 @@ function renderPayouts(){
 
 function populateStoreSelect(){
   const sel = document.getElementById('na_store');
-  sel.innerHTML = DATA.stores.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  sel.innerHTML = DATA.stores.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
 }
 
 // Filter pills
@@ -887,7 +894,7 @@ document.querySelectorAll('#ambFilters .filter-pill').forEach(btn=>{
 function populateLeadStoreSelect(){
   const sel = document.getElementById('lm_store_id');
   if(!sel) return;
-  sel.innerHTML = (DATA.stores||[]).map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  sel.innerHTML = (DATA.stores||[]).map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
 }
 
 async function openLeadDetail(id){
@@ -933,11 +940,11 @@ function renderHistory(history){
   list.innerHTML = history.map(h=>{
     const label = labels[h.action_type]||h.action_type;
     let detail = '';
-    if(h.action_type==='status_change') detail = `${h.old_value||'—'} → <b>${h.new_value||'—'}</b>`;
-    else if(h.action_type==='field_update') detail = `${h.field_name}: ${h.old_value||'—'} → ${h.new_value||'—'}`;
-    else if(h.action_type==='note_added') detail = (h.new_value||'').slice(0,120);
-    const cmt = h.comment ? `<div style="color:var(--muted);font-size:12px;margin-top:2px">💬 ${h.comment}</div>` : '';
-    return `<div class="changelog-item"><div class="changelog-dot"></div><div><b>${label}</b><div style="font-size:12px;color:var(--muted)">${detail}</div>${cmt}<div class="activity-time">${fmtDate(h.created_at)} · ${h.user_email||''}</div></div></div>`;
+    if(h.action_type==='status_change') detail = `${esc(h.old_value||'—')} → <b>${esc(h.new_value||'—')}</b>`;
+    else if(h.action_type==='field_update') detail = `${esc(h.field_name)}: ${esc(h.old_value||'—')} → ${esc(h.new_value||'—')}`;
+    else if(h.action_type==='note_added') detail = esc((h.new_value||'').slice(0,120));
+    const cmt = h.comment ? `<div style="color:var(--muted);font-size:12px;margin-top:2px">💬 ${esc(h.comment)}</div>` : '';
+    return `<div class="changelog-item"><div class="changelog-dot"></div><div><b>${esc(label)}</b><div style="font-size:12px;color:var(--muted)">${detail}</div>${cmt}<div class="activity-time">${fmtDate(h.created_at)} · ${esc(h.user_email||'')}</div></div></div>`;
   }).join('');
 }
 
@@ -946,7 +953,7 @@ function renderNotes(notes){
   if(!notes.length){ list.innerHTML = '<div style="color:var(--muted);font-size:12px">Ingen notater enda.</div>'; return; }
   list.innerHTML = notes.map(n=>{
     const vis = n.visible_to_ambassador==1 || n.visible_to_ambassador===true ? '<span class="tag-live" style="margin-left:6px">Synlig for ambassadør</span>' : '';
-    return `<div style="background:var(--bg-2);padding:10px 12px;border-radius:10px;border:1px solid var(--line);margin-bottom:8px"><div style="font-size:13px;white-space:pre-wrap">${(n.note_text||'').replace(/</g,'&lt;')}</div><div style="font-size:11px;color:var(--muted);margin-top:6px">${fmtDate(n.created_at)} · ${n.user_email||''}${vis}</div></div>`;
+    return `<div style="background:var(--bg-2);padding:10px 12px;border-radius:10px;border:1px solid var(--line);margin-bottom:8px"><div style="font-size:13px;white-space:pre-wrap">${esc(n.note_text||'')}</div><div style="font-size:11px;color:var(--muted);margin-top:6px">${fmtDate(n.created_at)} · ${esc(n.user_email||'')}${vis}</div></div>`;
   }).join('');
 }
 

@@ -151,10 +151,33 @@ the task list above. What was actually involved, in order:
    `/api/demo/login-demo-ambassador.php` redirect to their real success
    pages.
 
-**Still open, not addressed here:** removing the leaked hardcoded
-root/`NyttPassord123!` fallback in `inc/config.php`, and moving off a
-root-connected app DB user to something scoped. Both are hardening, not
-blockers.
+**Both hardening items closed out 2026-07-12:**
+
+- Leaked `root`/`NyttPassord123!` fallback removed from `inc/config.php`
+  (commit `76ea6ea`) — `DB_PASS` now defaults to `''`, which `db.php`'s
+  existing placeholder check already treats as `db_not_configured` and
+  throws on, so a broken `config.local.php` now fails loud instead of
+  quietly connecting with a stale password.
+- App no longer connects as `root`. New MySQL user `trustai_app`@`localhost`,
+  scoped to `SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX` on the
+  `trustai` database only (CREATE/ALTER kept because
+  `api/auth/forgot-password.php` runs its own
+  `CREATE TABLE IF NOT EXISTS` at request time) — no access to any other
+  database on this instance, no admin/grant privileges. `config.local.php`
+  updated to match (gitignored, no commit — value only exists on this VPS).
+
+**⚠️ Recurring gotcha, hit twice while doing this work:** editing
+`inc/config.local.php` with an external tool (this session used an
+automated editor) resets its group ownership from `root:www-data` to
+`root:root`. PHP-FPM runs as `www-data` and can't read a `root:root` file
+at all — `config.php`'s `is_readable()` guard then silently skips the
+override and falls through to defaults, which now throws
+`db_not_configured` (good — loud, not the old silent-wrong-password
+failure) but still means the site is briefly down until someone notices.
+**After ANY edit to this file, always run:**
+`chown root:www-data inc/config.local.php` **and verify with
+`ls -la` before assuming the change took effect** — `php -l`/CLI checks
+will NOT catch this, only a real HTTP request through PHP-FPM will.
 
 ## What was NOT touched
 

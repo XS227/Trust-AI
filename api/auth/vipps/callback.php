@@ -143,6 +143,84 @@ if ($fullName === '') {
     $fullName = trim($given . ' ' . $family);
 }
 $phone = trustaiVippsNormalizePhone((string)($ui['phone_number'] ?? ''));
+
+if ((string)($decoded['app'] ?? '') === 'bilvaskexpress') {
+    $next = (string)($decoded['next'] ?? '/booking/');
+    if ($next === '' || $next[0] !== '/' || str_starts_with($next, '//')) {
+        $next = '/booking/';
+    }
+    $payload = json_encode([
+        'profile' => [
+            'sub' => $vippsSub,
+            'name' => $fullName,
+            'given_name' => (string)($ui['given_name'] ?? ''),
+            'family_name' => (string)($ui['family_name'] ?? ''),
+            'phone_number' => $phone,
+            'email' => $email,
+        ],
+        'next' => $next,
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    $ch = curl_init('http://127.0.0.1:3088/booking-api/auth/vipps/broker');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => $payload,
+        CURLOPT_TIMEOUT => 8,
+        CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Host: 127.0.0.1:3088'],
+    ]);
+    $bridgeBody = curl_exec($ch);
+    $bridgeHttp = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    $bridge = json_decode((string)$bridgeBody, true);
+    if ($bridgeHttp >= 200 && $bridgeHttp < 300 && is_array($bridge) && !empty($bridge['completion_url'])) {
+        trustaiVippsDebugLog('bilvask_bridge_ok', ['has_sub' => true, 'has_phone' => $phone !== '', 'has_email' => $email !== '']);
+        header('Location: ' . (string)$bridge['completion_url']);
+        exit;
+    }
+    trustaiVippsDebugLog('bilvask_bridge_failed', ['http' => $bridgeHttp]);
+    header('Location: https://bilvaskexpress.no/booking/?login=bridge_failed');
+    exit;
+}
+
+if ((string)($decoded['app'] ?? '') === 'numerologist') {
+    $next = (string)($decoded['next'] ?? '/min-side/');
+    if ($next === '' || $next[0] !== '/' || str_starts_with($next, '//')) {
+        $next = '/min-side/';
+    }
+    $payload = json_encode([
+        'profile' => [
+            'sub' => $vippsSub,
+            'name' => $fullName,
+            'given_name' => (string)($ui['given_name'] ?? ''),
+            'family_name' => (string)($ui['family_name'] ?? ''),
+            'phone_number' => $phone,
+            'email' => $email,
+        ],
+        'next' => $next,
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+    $ch = curl_init('http://127.0.0.1:8010/konto/vipps/broker/');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => $payload,
+        CURLOPT_TIMEOUT => 8,
+        CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Host: numerologist.setai.no'],
+    ]);
+    $bridgeBody = curl_exec($ch);
+    $bridgeHttp = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    $bridge = json_decode((string)$bridgeBody, true);
+    if ($bridgeHttp >= 200 && $bridgeHttp < 300 && is_array($bridge) && !empty($bridge['completion_url'])) {
+        trustaiVippsDebugLog('numerologist_bridge_ok', ['has_sub' => true, 'has_phone' => $phone !== '', 'has_email' => $email !== '']);
+        header('Location: ' . (string)$bridge['completion_url']);
+        exit;
+    }
+    trustaiVippsDebugLog('numerologist_bridge_failed', ['http' => $bridgeHttp]);
+    header('Location: https://numerologist.setai.no/min-side/login/?error=vipps_bridge_failed');
+    exit;
+}
+
 $birthDate = trustaiVippsParseBirthDate((string)($ui['birthdate'] ?? $ui['birth_date'] ?? ''));
 $age = trustaiVippsAgeFromBirthDate($birthDate);
 $ageVerified = false; // true only when Vipps gave us birthdate AND age >= 18

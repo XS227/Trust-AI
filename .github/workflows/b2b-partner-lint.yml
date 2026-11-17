@@ -6,6 +6,8 @@ on:
   pull_request:
     paths:
       - 'api/partner-network/**'
+      - 'ambassador-signup.html'
+      - 'database/migrations/2026-11-17_b2b_partner_applications_invoices.sql'
       - 'partner-network.html'
       - 'api/auth/vipps/**'
       - 'database/migrations/2026-11-17_b2b_partner_network.sql'
@@ -19,9 +21,12 @@ jobs:
       - name: PHP syntax validation
         run: |
           php -l api/partner-network/index.php
+          php -l api/partner-network/invoice-upload.php
+          php -l api/partner-network/invoice-file.php
           php -l api/auth/vipps/login.php
           php -l api/auth/vipps/callback.php
           php -l api/auth/vipps/set-role.php
+          php -l api/auth/route.php
       - name: JavaScript syntax validation
         run: |
           node - <<'NODE'
@@ -31,7 +36,8 @@ jobs:
           const js = html.match(/<script>([\s\S]*?)<\/script>/);
           if (!js) throw new Error('Inline script not found');
           new vm.Script(js[1], {filename:'partner-network-inline.js'});
-          console.log('Partner Network inline JavaScript syntax OK');
+          new vm.Script(fs.readFileSync('ambassador-signup.html','utf8').match(/<script>([\s\S]*?)<\/script>/)[1],{filename:'ambassador-signup.js'});
+          console.log('Partner Network and ambassador signup JavaScript syntax OK');
           NODE
 
   schema:
@@ -60,6 +66,7 @@ jobs:
           MYSQL_PWD: trustai_ci_only
         run: |
           mariadb --skip-ssl -h127.0.0.1 -uroot trustai_ci < database/migrations/2026-11-17_b2b_partner_network.sql
+          mariadb --skip-ssl -h127.0.0.1 -uroot trustai_ci < database/migrations/2026-11-17_b2b_partner_applications_invoices.sql
           mariadb --skip-ssl -h127.0.0.1 -uroot trustai_ci < database/seeds/2026-11-17_setaei_rawscales_stenhuset.sql
           mariadb --skip-ssl -h127.0.0.1 -uroot trustai_ci < database/seeds/2026-11-17_setaei_rawscales_stenhuset.sql
           COUNT=$(mariadb --skip-ssl -h127.0.0.1 -uroot trustai_ci --batch --skip-column-names -e "SELECT COUNT(*) FROM b2b_reserved_referrals WHERE org_number='992214341' AND approval_status='approved' AND partner_label='RAWScales / Thomas Hannaas' AND suggested_fixed_commission=3000.00;")
@@ -68,4 +75,8 @@ jobs:
           test "$USER_COUNT" = "0"
           PAY_COUNT=$(mariadb --skip-ssl -h127.0.0.1 -uroot trustai_ci --batch --skip-column-names -e "SELECT COUNT(*) FROM b2b_commissions;")
           test "$PAY_COUNT" = "0"
-          echo "Approved reservation exists once; no fake Vipps user and no payable commission."
+          APP_TABLE=$(mariadb --skip-ssl -h127.0.0.1 -uroot trustai_ci --batch --skip-column-names -e "SHOW TABLES LIKE 'b2b_partner_applications';")
+          INVOICE_TABLE=$(mariadb --skip-ssl -h127.0.0.1 -uroot trustai_ci --batch --skip-column-names -e "SHOW TABLES LIKE 'b2b_partner_invoices';")
+          test "$APP_TABLE" = "b2b_partner_applications"
+          test "$INVOICE_TABLE" = "b2b_partner_invoices"
+          echo "Approved reservation exists once; applications/invoice tables exist; no fake Vipps account and no payable commission."

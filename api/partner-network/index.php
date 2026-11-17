@@ -350,7 +350,7 @@ try {
     if ($action==='mark_commission_paid') {
         if (!$admin) b2bFail(403,'admin_only');
         $id=(int)($body['commission_id'] ?? 0);
-        $s=$pdo->prepare('UPDATE b2b_commissions c JOIN b2b_sales s ON s.id=c.sale_id SET c.status="paid",c.paid_at=NOW() WHERE c.id=? AND s.program_id=? AND c.status="ready" AND s.stage="paid" AND s.approved=1');
+        $s=$pdo->prepare('UPDATE b2b_commissions c JOIN b2b_sales s ON s.id=c.sale_id SET c.status="paid",c.paid_at=NOW() WHERE c.id=? AND s.program_id=? AND c.status="ready" AND s.stage="paid" AND s.approved=1 AND s.costs_verified=1');
         $s->execute([$id,$programId]);
         if (!$s->rowCount()) b2bFail(409,'commission_not_ready');
         b2bAudit($pdo,$uid,'mark_paid','commission',$id);

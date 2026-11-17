@@ -39,6 +39,13 @@ function b2bString($v, int $limit = 160): string {
     if (!is_string($v)) return '';
     return mb_substr(trim($v),0,$limit);
 }
+function b2bNorwegianVippsPhone($value): string {
+    if (!is_string($value)) return '';
+    $digits = preg_replace('/[^0-9]/','',$value);
+    if (strpos($digits,'0047')===0) $digits=substr($digits,2);
+    if (strlen($digits)===8) $digits='47'.$digits;
+    return preg_match('/^47[0-9]{8}$/D',$digits) ? '+'.$digits : '';
+}
 function b2bOrgValid(string $org): bool {
     if (!preg_match('/^\d{9}$/D',$org)) return false;
     $weights = [3,2,7,6,5,4,3,2];
@@ -123,7 +130,7 @@ function b2bCommissionRows(PDO $db, array $sale, array $referral, array $program
 // Strict server-side authenticated session, not the legacy X-User-Id header fallback.
 $sessionUserId=(int)($_SESSION['trustai_user_id'] ?? $_SESSION['user_id'] ?? 0);
 if ($sessionUserId<=0) b2bFail(401,'login_required');
-$s=$pdo->prepare('SELECT id,email,role,status,vipps_sub FROM users WHERE id=? LIMIT 1');
+$s=$pdo->prepare('SELECT id,email,role,status,vipps_sub,phone_number FROM users WHERE id=? LIMIT 1');
 $s->execute([$sessionUserId]);
 $actor=$s->fetch(PDO::FETCH_ASSOC);
 if (!$actor || in_array(strtolower((string)$actor['status']),['blocked','suspended','inactive'],true)) {
@@ -243,6 +250,13 @@ try {
         $s->execute([hash('sha256',$token)]);
         $invite=$s->fetch(PDO::FETCH_ASSOC);
         if (!$invite) { $pdo->rollBack(); b2bFail(410,'invite_expired_or_used'); }
+        // A private admin-supplied phone (when known) must match the phone returned by verified Vipps login.
+        // Never trust a phone parameter supplied by the client while accepting an invitation.
+        $expectedPhone=(string)($invite['expected_vipps_phone'] ?? '');
+        if ($expectedPhone !== '' && !hash_equals($expectedPhone,b2bNorwegianVippsPhone((string)($actor['phone_number'] ?? '')))) {
+            $pdo->rollBack();
+            b2bFail(403,'vipps_phone_not_verified_for_invitation');
+        }
         $pid=(int)$invite['program_id'];
         b2bProgram($pdo,$pid);
         $s=$pdo->prepare('SELECT id FROM b2b_partners WHERE user_id=? AND program_id=?');
@@ -322,14 +336,18 @@ try {
         }
         $reservedReferralId=(int)($body['reserved_referral_id'] ?? 0);
         if ($reservedReferralId>0 && !$admin) b2bFail(403,'admin_only_reservation');
+        $phoneInput=trim((string)($body['expected_vipps_phone'] ?? ''));
+        if ($phoneInput!=='' && !$admin) b2bFail(403,'admin_only_phone_binding');
+        $expectedPhone=$phoneInput!=='' ? b2bNorwegianVippsPhone($phoneInput) : null;
+        if ($phoneInput!=='' && $expectedPhone==='') b2bFail(422,'invalid_vipps_phone');
         $label=b2bString($body['label'] ?? '',160);
         $partnerType=(string)($body['partner_type'] ?? 'partner');
         if (!in_array($partnerType,['partner','seller','ambassador'],true)) b2bFail(422,'invalid_partner_type');
         if (mb_strlen($label)<2) b2bFail(422,'label_required');
         $token=rtrim(strtr(base64_encode(random_bytes(32)),'+/','-_'),'=');
         $pdo->beginTransaction();
-        $s=$pdo->prepare('INSERT INTO b2b_invites (program_id,parent_partner_id,invited_label,member_type,token_hash,created_by_user_id,expires_at) VALUES (?,?,?,?,?,?,DATE_ADD(NOW(),INTERVAL 14 DAY))');
-        $s->execute([$programId,$parentId ?: null,$label,$partnerType,hash('sha256',$token),$uid]);
+        $s=$pdo->prepare('INSERT INTO b2b_invites (program_id,parent_partner_id,invited_label,member_type,expected_vipps_phone,token_hash,created_by_user_id,expires_at) VALUES (?,?,?,?,?,?,?,DATE_ADD(NOW(),INTERVAL 14 DAY))');
+        $s->execute([$programId,$parentId ?: null,$label,$partnerType,$expectedPhone,hash('sha256',$token),$uid]);
         $id=(int)$pdo->lastInsertId();
         if ($reservedReferralId>0) {
             $s=$pdo->prepare('UPDATE b2b_reserved_referrals SET invite_id=? WHERE id=? AND program_id=? AND invite_id IS NULL AND claimed_at IS NULL');

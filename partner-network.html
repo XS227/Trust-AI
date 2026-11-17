@@ -71,6 +71,17 @@ footer{padding:36px 0;color:#6c8193;text-align:center;font-size:12px}
   <div class="form"><div class="field full"><label data-i18n="inviteCode">Invitation token</label><input id="joinToken" autocomplete="off" placeholder="Paste your private invitation token"></div>
   <div><button class="btn" id="acceptBtn" data-i18n="acceptInvite">Activate partner profile</button></div></div>
 </div>
+<div id="applyGate" class="panel hidden">
+ <h2 data-i18n="applyHeadline">Become a SETAEI business partner</h2>
+ <p data-i18n="applyCopy">No store domain is needed. Sign in with Vipps, request access to SETAEI and wait for approval. Existing referrals are assigned after verification.</p>
+ <div id="applicationState" class="note hidden"></div>
+ <form id="applicationForm" class="form">
+  <div class="field"><label data-i18n="yourName">Your name</label><input id="applicationName" maxlength="180" required placeholder="Thomas Hannaas"></div>
+  <div class="field"><label data-i18n="businessName">Business / partner company</label><input id="applicationBusiness" maxlength="200" required placeholder="RAWScales"></div>
+  <div class="field full"><label data-i18n="applicationNote">Message for SETAEI (optional)</label><textarea id="applicationNote" maxlength="1000"></textarea></div>
+  <div class="field full"><button type="submit" class="btn" data-i18n="applyBtn">Request access to SETAEI</button></div>
+ </form>
+</div>
 <div id="adminCreate" class="panel hidden"><h2 data-i18n="createProgram">Create your first partner program</h2><p data-i18n="programDesc">Set up a company program before inviting your first partner.</p>
   <form id="programForm" class="form"><div class="field"><label data-i18n="programLabel">Program name</label><input id="newProgramName" value="SETAEI" required></div>
   <div class="field" style="justify-content:flex-end"><button class="btn" type="submit" data-i18n="create">Create program</button></div></form>
@@ -109,6 +120,12 @@ footer{padding:36px 0;color:#6c8193;text-align:center;font-size:12px}
    <div class="field full"><button type="submit" class="btn" data-i18n="generateLink">Generate secure invitation link</button></div>
   </form><div id="inviteResult" class="hidden" style="margin-top:16px"><div class="copybox" id="inviteUrl"></div><p data-i18n="invitePrivate">This single-use link expires in 14 days. Share privately with your partner.</p><button class="btn secondary" id="copyInvite" data-i18n="copyLink">Copy link</button></div>
  </div>
+ <div class="panel hidden" data-admin id="applicationPanel">
+  <h2 data-i18n="applicationsHead">Vipps-verified SETAEI partner applications</h2>
+  <p data-i18n="applicationsDesc">Verify the applicant's identity before approval. Only assign an existing introduction to the correct partner.</p>
+  <div class="field"><label data-i18n="assignReserved">Approved introduction to assign (optional)</label><select id="approveReserved"><option value="">None</option></select></div>
+  <div class="table-wrap"><table><thead><tr><th data-i18n="yourName">Name</th><th data-i18n="businessName">Company</th><th>Verified contact</th><th data-i18n="status">Status</th><th data-i18n="action">Action</th></tr></thead><tbody id="applicationRows"></tbody></table></div>
+ </div>
  <div class="panel hidden" data-admin id="pendingIntros"><h2>Approved introductions ready for onboarding</h2>
   <p>Admin-only reservations. An approved introduction is not a paid sale or an active Vipps account.</p>
   <div class="table-wrap"><table><thead><tr><th>Partner</th><th>Customer</th><th>Suggested commission</th><th>Reservation</th></tr></thead><tbody id="reservedRows"></tbody></table></div>
@@ -116,6 +133,20 @@ footer{padding:36px 0;color:#6c8193;text-align:center;font-size:12px}
  <div class="panel"><h2 data-i18n="partnerTeam">Partner network</h2><div class="table-wrap"><table><thead><tr><th data-i18n="partnerName">Partner</th><th data-i18n="role">Role</th><th data-i18n="status">Status</th></tr></thead><tbody id="teamRows"></tbody></table></div></div>
 </section>
 <section data-pane="commissions" class="hidden">
+ <div class="panel hidden" id="invoiceUploadPanel">
+  <h2 data-i18n="invoiceUploadTitle">Submit a commission invoice to SETAEI</h2>
+  <p data-i18n="invoiceUploadHint">Upload a real PDF invoice. It will be reviewed by SETAEI. Submitting a document does not mean the commission is approved or paid.</p>
+  <form id="invoiceUploadForm" class="form" enctype="multipart/form-data">
+    <div class="field"><label data-i18n="referral">Referred company</label><select id="invoiceReferral" required></select></div>
+    <div class="field"><label data-i18n="invoiceNumber">Invoice number</label><input id="invoiceNumber" required maxlength="100" placeholder="2026-001"></div>
+    <div class="field"><label data-i18n="invoiceAmount">Amount (NOK ex. VAT, if applicable)</label><input id="invoiceAmount" type="number" min=".01" step=".01" required placeholder="3000"></div>
+    <div class="field"><label data-i18n="invoicePdf">Invoice PDF (max 8 MB)</label><input id="invoicePdf" type="file" accept="application/pdf,.pdf" required></div>
+    <div class="field full"><button type="submit" class="btn" id="submitInvoice" data-i18n="submitInvoice">Send invoice for review</button></div>
+  </form>
+ </div>
+ <div class="panel"><h2 data-i18n="submittedInvoices">Partner invoices</h2><p data-i18n="invoiceProgress">Received, review, approved and paid invoice status in one place.</p>
+  <div class="table-wrap"><table><thead><tr><th data-i18n="invoiceNumber">Invoice</th><th data-i18n="companyName">Company</th><th data-i18n="amount">Amount</th><th data-i18n="status">Status</th><th data-i18n="action">Action</th></tr></thead><tbody id="partnerInvoiceRows"></tbody></table></div>
+ </div>
  <div class="panel"><h2 data-i18n="commissionLedger">Commission ledger</h2><p data-i18n="ledgerHint">Amounts appear after the business owner enters actual sales and expenses. Payments are confirmed manually.</p>
  <div class="table-wrap"><table><thead><tr><th data-i18n="companyName">Company</th><th data-i18n="commissionType">Type</th><th data-i18n="amount">Amount</th><th data-i18n="status">Status</th><th class="admin-col hidden" data-i18n="action">Action</th></tr></thead><tbody id="commissionRows"></tbody></table></div></div>
 </section>

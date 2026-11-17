@@ -9,6 +9,7 @@ on:
       - 'partner-network.html'
       - 'api/auth/vipps/**'
       - 'database/migrations/2026-11-17_b2b_partner_network.sql'
+      - 'database/seeds/2026-11-17_setaei_rawscales_stenhuset.sql'
       - '.github/workflows/b2b-partner-lint.yml'
 jobs:
   syntax:
@@ -32,3 +33,39 @@ jobs:
           new vm.Script(js[1], {filename:'partner-network-inline.js'});
           console.log('Partner Network inline JavaScript syntax OK');
           NODE
+
+  schema:
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: trustai_ci_only
+          MARIADB_DATABASE: trustai_ci
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "healthcheck.sh --connect --innodb_initialized"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install MySQL client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq mariadb-client
+      - name: Apply B2B schema and duplicate-safe RAWScales bootstrap
+        env:
+          MYSQL_PWD: trustai_ci_only
+        run: |
+          mariadb -h127.0.0.1 -uroot trustai_ci < database/migrations/2026-11-17_b2b_partner_network.sql
+          mariadb -h127.0.0.1 -uroot trustai_ci < database/seeds/2026-11-17_setaei_rawscales_stenhuset.sql
+          mariadb -h127.0.0.1 -uroot trustai_ci < database/seeds/2026-11-17_setaei_rawscales_stenhuset.sql
+          COUNT=$(mariadb -h127.0.0.1 -uroot trustai_ci --batch --skip-column-names -e "SELECT COUNT(*) FROM b2b_reserved_referrals WHERE org_number='992214341' AND approval_status='approved' AND partner_label='RAWScales / Thomas Hannaas' AND suggested_fixed_commission=3000.00;")
+          test "$COUNT" = "1"
+          USER_COUNT=$(mariadb -h127.0.0.1 -uroot trustai_ci --batch --skip-column-names -e "SELECT COUNT(*) FROM b2b_partners;")
+          test "$USER_COUNT" = "0"
+          PAY_COUNT=$(mariadb -h127.0.0.1 -uroot trustai_ci --batch --skip-column-names -e "SELECT COUNT(*) FROM b2b_commissions;")
+          test "$PAY_COUNT" = "0"
+          echo "Approved reservation exists once; no fake Vipps user and no payable commission."

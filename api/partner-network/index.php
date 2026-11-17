@@ -78,6 +78,11 @@ function b2bProgram(PDO $db, int $id): array {
     if (!$r) b2bFail(404,'program_not_found');
     return $r;
 }
+function b2bGrantTrustedOne(PDO $db, int $programId, int $partnerId, int $referralId): void {
+    // Once per program/partner: recognition, not an instruction to pay commission.
+    $s=$db->prepare('INSERT INTO b2b_welcome_events (program_id,partner_id,referral_id,event_type) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE id=id');
+    $s->execute([$programId,$partnerId,$referralId,'trusted_one_first_approved']);
+}
 function b2bMember(PDO $db, int $programId, int $userId): array {
     $s=$db->prepare('SELECT * FROM b2b_partners WHERE program_id=? AND user_id=? AND status="active"');
     $s->execute([$programId,$userId]);
@@ -151,7 +156,7 @@ if ($method==='GET') {
     } elseif ($programId<=0) {
         $programId=(int)$pdo->query('SELECT id FROM b2b_programs WHERE status="active" ORDER BY id LIMIT 1')->fetchColumn();
     }
-    $base=['ok'=>true,'is_admin'=>$admin,'csrf'=>$_SESSION['b2b_csrf'],'joined'=>false,'program'=>null,'partners'=>[],'referrals'=>[],'sales'=>[],'commissions'=>[],'invites'=>[]];
+    $base=['ok'=>true,'is_admin'=>$admin,'csrf'=>$_SESSION['b2b_csrf'],'joined'=>false,'program'=>null,'partners'=>[],'referrals'=>[],'sales'=>[],'commissions'=>[],'invites'=>[],'reserved_referrals'=>[],'welcome'=>null,'badge'=>null];
     if (!$programId) jsonResponse(200,$base);
     $program=b2bProgram($pdo,$programId);
     $base['program']=['id'=>(int)$program['id'],'name'=>$program['name'],'currency'=>$program['currency'],
@@ -168,7 +173,14 @@ if ($method==='GET') {
         $s=$pdo->prepare('SELECT id,user_id,parent_partner_id,display_name,type,status,upline_share_percent FROM b2b_partners WHERE program_id=? ORDER BY id');
         $s->execute([$programId]);
         $base['partners']=$s->fetchAll(PDO::FETCH_ASSOC);
-        $s=$pdo->prepare('SELECT r.id,r.partner_id,r.org_number,r.company_name,r.brand_name,r.status,r.partner_note,r.created_at,p.display_name AS partner_name FROM b2b_referrals r JOIN b2b_partners p ON p.id=r.partner_id WHERE r.program_id=? ORDER BY r.created_at DESC LIMIT 300');
+        // Phone is copied from the user's *verified* Vipps login; never from GitHub seed data.
+        $s=$pdo->prepare('SELECT p.id, u.phone_number AS vipps_phone, (u.vipps_sub IS NOT NULL AND u.vipps_sub <> "") AS vipps_verified FROM b2b_partners p JOIN users u ON u.id=p.user_id WHERE p.program_id=?');
+        $s->execute([$programId]);
+        $base['partner_identity']=$s->fetchAll(PDO::FETCH_ASSOC);
+        $s=$pdo->prepare('SELECT id,partner_label,org_number,company_name,brand_name,referral_status,approval_status,suggested_fixed_commission,invite_id,claimed_at FROM b2b_reserved_referrals WHERE program_id=? ORDER BY id');
+        $s->execute([$programId]);
+        $base['reserved_referrals']=$s->fetchAll(PDO::FETCH_ASSOC);
+        $s=$pdo->prepare('SELECT r.id,r.partner_id,r.org_number,r.company_name,r.brand_name,r.status,r.approval_status,r.partner_note,r.created_at,p.display_name AS partner_name FROM b2b_referrals r JOIN b2b_partners p ON p.id=r.partner_id WHERE r.program_id=? ORDER BY r.created_at DESC LIMIT 300');
         $s->execute([$programId]);
         $base['referrals']=$s->fetchAll(PDO::FETCH_ASSOC);
         $s=$pdo->prepare('SELECT s.*,r.company_name,r.brand_name, GREATEST(0,s.revenue_ex_vat-s.direct_cost_ex_vat) AS profit FROM b2b_sales s JOIN b2b_referrals r ON r.id=s.referral_id WHERE s.program_id=? ORDER BY s.id DESC LIMIT 300');
@@ -178,7 +190,7 @@ if ($method==='GET') {
         $s->execute([$programId]);
         $base['commissions']=$s->fetchAll(PDO::FETCH_ASSOC);
     } else {
-        $s=$pdo->prepare('SELECT id,partner_id,org_number,company_name,brand_name,status,created_at FROM b2b_referrals WHERE program_id=? AND partner_id=? ORDER BY id DESC LIMIT 200');
+        $s=$pdo->prepare('SELECT id,partner_id,org_number,company_name,brand_name,status,approval_status,created_at FROM b2b_referrals WHERE program_id=? AND partner_id=? ORDER BY id DESC LIMIT 200');
         $s->execute([$programId,(int)$member['id']]);
         $base['referrals']=$s->fetchAll(PDO::FETCH_ASSOC);
         $s=$pdo->prepare('SELECT c.id,c.kind,c.amount,c.status,c.paid_at,r.company_name,r.brand_name,s.invoice_reference FROM b2b_commissions c JOIN b2b_sales s ON s.id=c.sale_id JOIN b2b_referrals r ON r.id=s.referral_id WHERE c.partner_id=? AND s.program_id=? ORDER BY c.id DESC LIMIT 200');
@@ -187,6 +199,19 @@ if ($method==='GET') {
         $s=$pdo->prepare('SELECT id,display_name,type,status,created_at FROM b2b_partners WHERE parent_partner_id=? AND program_id=? ORDER BY id DESC');
         $s->execute([(int)$member['id'],$programId]);
         $base['partners']=$s->fetchAll(PDO::FETCH_ASSOC);
+        $s=$pdo->prepare('SELECT id,referral_id,seen_at FROM b2b_welcome_events WHERE program_id=? AND partner_id=? AND event_type="trusted_one_first_approved" LIMIT 1');
+        $s->execute([$programId,(int)$member['id']]);
+        $welcome=$s->fetch(PDO::FETCH_ASSOC);
+        if ($welcome) {
+            $base['badge']='Trusted One';
+            if ($welcome['seen_at']===null) {
+                $s=$pdo->prepare('SELECT company_name,brand_name FROM b2b_referrals WHERE id=? AND program_id=? AND partner_id=?');
+                $s->execute([(int)$welcome['referral_id'],$programId,(int)$member['id']]);
+                $company=$s->fetch(PDO::FETCH_ASSOC);
+                $base['welcome']=['id'=>(int)$welcome['id'],'type'=>'trusted_one_first_approved',
+                    'company_name'=>$company['brand_name'] ?: ($company['company_name'] ?? 'din første kunde')];
+            }
+        }
     }
     jsonResponse(200,$base);
 }
@@ -232,6 +257,20 @@ try {
         $s->execute([$pid,$uid,$invite['parent_partner_id'],(string)$invite['invited_label'],(string)$invite['member_type']]);
         $id=(int)$pdo->lastInsertId();
         $pdo->prepare('UPDATE b2b_invites SET claimed_at=NOW(),claimed_user_id=? WHERE id=?')->execute([$uid,(int)$invite['id']]);
+        // Claim only the previously admin-linked introduction, in the same transaction.
+        $s=$pdo->prepare('SELECT * FROM b2b_reserved_referrals WHERE invite_id=? AND program_id=? AND claimed_at IS NULL FOR UPDATE');
+        $s->execute([(int)$invite['id'],$pid]);
+        $reserved=$s->fetch(PDO::FETCH_ASSOC);
+        if ($reserved) {
+            $s=$pdo->prepare('INSERT INTO b2b_referrals (program_id,partner_id,org_number,company_name,brand_name,status,approval_status,approved_at,partner_note) VALUES (?,?,?,?,?,?,?,?,?)');
+            $s->execute([$pid,$id,(string)$reserved['org_number'],(string)$reserved['company_name'],$reserved['brand_name'],
+                (string)$reserved['referral_status'],(string)$reserved['approval_status'],
+                $reserved['approval_status']==='approved' ? date('Y-m-d H:i:s') : null,'Godkjent introduksjon registrert av SETAEI']);
+            $refId=(int)$pdo->lastInsertId();
+            $pdo->prepare('UPDATE b2b_reserved_referrals SET claimed_partner_id=?,claimed_at=NOW() WHERE id=?')->execute([$id,(int)$reserved['id']]);
+            if ($reserved['approval_status']==='approved') b2bGrantTrustedOne($pdo,$pid,$id,$refId);
+            b2bAudit($pdo,$uid,'claim_reserved','referral',$refId);
+        }
         b2bAudit($pdo,$uid,'join','partner',$id);
         $pdo->commit();
         jsonResponse(201,['ok'=>true,'id'=>$id,'program_id'=>$pid]);
@@ -239,6 +278,30 @@ try {
     $program=b2bProgram($pdo,$programId);
     $member=$admin ? null : b2bMember($pdo,$programId,$uid);
 
+    if ($action==='acknowledge_welcome') {
+        if ($admin) b2bFail(403,'partner_only');
+        $welcomeId=(int)($body['welcome_id'] ?? 0);
+        $s=$pdo->prepare('UPDATE b2b_welcome_events SET seen_at=COALESCE(seen_at,NOW()) WHERE id=? AND partner_id=? AND program_id=?');
+        $s->execute([$welcomeId,(int)$member['id'],$programId]);
+        jsonResponse(200,['ok'=>true]);
+    }
+    if ($action==='set_referral_approval') {
+        if (!$admin) b2bFail(403,'admin_only');
+        $refId=(int)($body['referral_id'] ?? 0);
+        $approval=(string)($body['approval_status'] ?? '');
+        if (!in_array($approval,['pending','approved','rejected'],true)) b2bFail(422,'invalid_approval_status');
+        $pdo->beginTransaction();
+        $s=$pdo->prepare('SELECT id,partner_id FROM b2b_referrals WHERE id=? AND program_id=? FOR UPDATE');
+        $s->execute([$refId,$programId]);
+        $ref=$s->fetch(PDO::FETCH_ASSOC);
+        if (!$ref) {$pdo->rollBack();b2bFail(404,'referral_not_found');}
+        $s=$pdo->prepare('UPDATE b2b_referrals SET approval_status=?, approved_at=? WHERE id=? AND program_id=?');
+        $s->execute([$approval,$approval==='approved' ? date('Y-m-d H:i:s') : null,$refId,$programId]);
+        if ($approval==='approved') b2bGrantTrustedOne($pdo,$programId,(int)$ref['partner_id'],$refId);
+        b2bAudit($pdo,$uid,'approve_referral','referral',$refId);
+        $pdo->commit();
+        jsonResponse(200,['ok'=>true]);
+    }
     if ($action==='set_upline_share') {
         if (!$admin) b2bFail(403,'admin_only');
         $partnerId=(int)($body['partner_id'] ?? 0);
@@ -257,15 +320,24 @@ try {
             $s->execute([$parentId,$programId]);
             if (!$s->fetchColumn()) b2bFail(422,'invalid_parent');
         }
+        $reservedReferralId=(int)($body['reserved_referral_id'] ?? 0);
+        if ($reservedReferralId>0 && !$admin) b2bFail(403,'admin_only_reservation');
         $label=b2bString($body['label'] ?? '',160);
         $partnerType=(string)($body['partner_type'] ?? 'partner');
         if (!in_array($partnerType,['partner','seller','ambassador'],true)) b2bFail(422,'invalid_partner_type');
         if (mb_strlen($label)<2) b2bFail(422,'label_required');
         $token=rtrim(strtr(base64_encode(random_bytes(32)),'+/','-_'),'=');
+        $pdo->beginTransaction();
         $s=$pdo->prepare('INSERT INTO b2b_invites (program_id,parent_partner_id,invited_label,member_type,token_hash,created_by_user_id,expires_at) VALUES (?,?,?,?,?,?,DATE_ADD(NOW(),INTERVAL 14 DAY))');
         $s->execute([$programId,$parentId ?: null,$label,$partnerType,hash('sha256',$token),$uid]);
         $id=(int)$pdo->lastInsertId();
+        if ($reservedReferralId>0) {
+            $s=$pdo->prepare('UPDATE b2b_reserved_referrals SET invite_id=? WHERE id=? AND program_id=? AND invite_id IS NULL AND claimed_at IS NULL');
+            $s->execute([$id,$reservedReferralId,$programId]);
+            if (!$s->rowCount()) { $pdo->rollBack(); b2bFail(409,'reservation_not_available'); }
+        }
         b2bAudit($pdo,$uid,'invite','invite',$id);
+        $pdo->commit();
         jsonResponse(201,['ok'=>true,'invite_url'=>'https://trustai.no/partner-network.html?invite='.$token,'expires_in_days'=>14]);
     }
     if ($action==='create_referral') {

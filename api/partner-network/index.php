@@ -250,6 +250,11 @@ try {
         $s->execute([hash('sha256',$token)]);
         $invite=$s->fetch(PDO::FETCH_ASSOC);
         if (!$invite) { $pdo->rollBack(); b2bFail(410,'invite_expired_or_used'); }
+        $expectedEmail=strtolower(trim((string)($invite['expected_vipps_email'] ?? '')));
+        if ($expectedEmail!=='' && !hash_equals($expectedEmail,strtolower(trim((string)($actor['email'] ?? ''))))) {
+            $pdo->rollBack();
+            b2bFail(403,'vipps_email_not_verified_for_invitation');
+        }
         // A private admin-supplied phone (when known) must match the phone returned by verified Vipps login.
         // Never trust a phone parameter supplied by the client while accepting an invitation.
         $expectedPhone=(string)($invite['expected_vipps_phone'] ?? '');
@@ -340,14 +345,18 @@ try {
         if ($phoneInput!=='' && !$admin) b2bFail(403,'admin_only_phone_binding');
         $expectedPhone=$phoneInput!=='' ? b2bNorwegianVippsPhone($phoneInput) : null;
         if ($phoneInput!=='' && $expectedPhone==='') b2bFail(422,'invalid_vipps_phone');
+        $expectedEmail=strtolower(trim((string)($body['expected_vipps_email'] ?? '')));
+        if ($expectedEmail!=='' && !filter_var($expectedEmail,FILTER_VALIDATE_EMAIL)) b2bFail(422,'invalid_vipps_email');
+        if ($expectedEmail!=='' && !$admin) b2bFail(403,'admin_only_email_binding');
+        if ($reservedReferralId>0 && $expectedEmail==='' && !$expectedPhone) b2bFail(422,'vipps_identity_binding_required');
         $label=b2bString($body['label'] ?? '',160);
         $partnerType=(string)($body['partner_type'] ?? 'partner');
         if (!in_array($partnerType,['partner','seller','ambassador'],true)) b2bFail(422,'invalid_partner_type');
         if (mb_strlen($label)<2) b2bFail(422,'label_required');
         $token=rtrim(strtr(base64_encode(random_bytes(32)),'+/','-_'),'=');
         $pdo->beginTransaction();
-        $s=$pdo->prepare('INSERT INTO b2b_invites (program_id,parent_partner_id,invited_label,member_type,expected_vipps_phone,token_hash,created_by_user_id,expires_at) VALUES (?,?,?,?,?,?,?,DATE_ADD(NOW(),INTERVAL 14 DAY))');
-        $s->execute([$programId,$parentId ?: null,$label,$partnerType,$expectedPhone,hash('sha256',$token),$uid]);
+        $s=$pdo->prepare('INSERT INTO b2b_invites (program_id,parent_partner_id,invited_label,member_type,expected_vipps_email,expected_vipps_phone,token_hash,created_by_user_id,expires_at) VALUES (?,?,?,?,?,?,?,?,DATE_ADD(NOW(),INTERVAL 14 DAY))');
+        $s->execute([$programId,$parentId ?: null,$label,$partnerType,$expectedEmail ?: null,$expectedPhone,hash('sha256',$token),$uid]);
         $id=(int)$pdo->lastInsertId();
         if ($reservedReferralId>0) {
             $s=$pdo->prepare('UPDATE b2b_reserved_referrals SET invite_id=? WHERE id=? AND program_id=? AND invite_id IS NULL AND claimed_at IS NULL');

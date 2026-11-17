@@ -7,6 +7,15 @@ declare(strict_types=1);
 require_once __DIR__ . '/../_auth.php';
 header('Cache-Control: no-store');
 header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
+header('Referrer-Policy: no-referrer');
+// Legacy _auth.php reflects arbitrary CORS origins; financial B2B data must not.
+header_remove('Access-Control-Allow-Origin');
+header_remove('Access-Control-Allow-Credentials');
+$incomingOrigin = (string)($_SERVER['HTTP_ORIGIN'] ?? '');
+if ($incomingOrigin !== '' && $incomingOrigin !== 'https://trustai.no') {
+    jsonResponse(403, ['ok' => false, 'error' => 'origin_denied']);
+}
 
 if (!$pdo instanceof PDO) {
     jsonResponse(503, ['ok' => false, 'error' => 'database_unavailable']);
@@ -183,11 +192,7 @@ if ($method==='GET') {
 }
 
 if ($method!=='POST') b2bFail(405,'method_not_allowed');
-$origin=(string)($_SERVER['HTTP_ORIGIN'] ?? '');
-if ($origin!=='') {
-    $expectedOrigin='https://' . (string)($_SERVER['HTTP_HOST'] ?? 'trustai.no');
-    if (!hash_equals($expectedOrigin,$origin)) b2bFail(403,'origin_denied');
-}
+// Same-origin checks are applied above for both reads and writes.
 $body=readJsonBody();
 if (!hash_equals((string)$_SESSION['b2b_csrf'],(string)($_SERVER['HTTP_X_CSRF_TOKEN'] ?? ''))) {
     b2bFail(403,'invalid_csrf');
@@ -335,7 +340,7 @@ try {
         }
         b2bAudit($pdo,$uid,$ready?'approve_sale':'save_sale','sale',$saleId);
         $pdo->commit();
-        jsonResponse(200,['ok'=>true,'sale_id'=>$saleId,'commission_total'=>round(array_sum(array_column($rows,'amount')),2),'status'=>$ready?'ready':'pending']);
+        jsonResponse(200,['ok'=>true,'sale_id'=>$saleId,'commission_total'=>$stage==='cancelled' ? 0 : round(array_sum(array_column($rows,'amount')),2),'status'=>$ready?'ready':'pending']);
     }
     if ($action==='mark_commission_paid') {
         if (!$admin) b2bFail(403,'admin_only');

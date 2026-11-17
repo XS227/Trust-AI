@@ -61,9 +61,15 @@ if ($currentRole === '' && $role !== '') {
 
 unset($_SESSION['vipps_pending_user_id']);
 
-$redirect = $effectiveRole === 'ambassador'
-    ? '/ambassador-signup.html?vipps=1'
-    : ($effectiveRole === 'store_admin' ? '/store-signup.html?vipps=1' : '/app.html');
+$partnerInvite = (string)($_SESSION['vipps_partner_invite'] ?? '');
+if ($effectiveRole === 'ambassador' && preg_match('/^[A-Za-z0-9_-]{43}$/D', $partnerInvite)) {
+    unset($_SESSION['vipps_partner_invite']);
+    $redirect = '/partner-network.html?invite=' . rawurlencode($partnerInvite);
+} else {
+    $redirect = $effectiveRole === 'ambassador'
+        ? '/ambassador-signup.html?vipps=1'
+        : ($effectiveRole === 'store_admin' ? '/store-signup.html?vipps=1' : '/app.html');
+}
 
 trustaiVippsDebugLog('set_role_ok', [
     'role' => $effectiveRole,

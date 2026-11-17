@@ -288,8 +288,8 @@ if ($user) {
                 provider = COALESCE(provider, "vipps"),
                 provider_id = COALESCE(provider_id, :sub2),
                 full_name = COALESCE(NULLIF(full_name, ""), :full_name),
-                phone_number = COALESCE(NULLIF(phone_number, ""), :phone),
-                phone = COALESCE(NULLIF(phone, ""), :phone2),
+                phone_number = COALESCE(NULLIF(:phone, ""), phone_number),
+                phone = COALESCE(NULLIF(:phone2, ""), phone),
                 birth_date = COALESCE(birth_date, :bdate)
           WHERE id = :id'
     );
@@ -386,6 +386,10 @@ if ($currentRole === 'ambassador') {
 }
 
 trustaiStartSessionForUser($user);
+// Only the phone returned by this Vipps OIDC userinfo call may be used to verify
+// a B2B invitation's optional expected mobile. Stored CRM phones are not proof.
+$_SESSION['vipps_verified_phone'] = $phone;
+$_SESSION['vipps_verified_at'] = time();
 
 // Carry the age-verification status into the post-login session. The role
 // picker / role-setting endpoint enforces it before any role is committed.

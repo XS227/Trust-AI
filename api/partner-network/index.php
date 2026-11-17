@@ -318,6 +318,79 @@ try {
         jsonResponse(201,['ok'=>true,'id'=>$id,'program_id'=>$pid]);
     }
     $program=b2bProgram($pdo,$programId);
+    if ($action==='apply_to_program') {
+        if ($admin || !$vipps || $actor['role']!=='ambassador') b2bFail(403,'vipps_ambassador_required');
+        // Self-service application is currently enabled only for the SETAEI program.
+        if ((string)$program['name']!=='SETAEI') b2bFail(403,'invitation_required');
+        $company=b2bString($body['company_name'] ?? '',200);
+        $name=b2bString($body['display_name'] ?? '',180);
+        $note=b2bString($body['note'] ?? '',1000);
+        if (mb_strlen($company)<2 || mb_strlen($name)<2) b2bFail(422,'name_and_company_required');
+        $s=$pdo->prepare('SELECT id FROM b2b_partners WHERE program_id=? AND user_id=?');
+        $s->execute([$programId,$uid]);
+        if ($s->fetchColumn()) b2bFail(409,'already_partner');
+        try {
+            $s=$pdo->prepare('INSERT INTO b2b_partner_applications (program_id,user_id,display_name,company_name,note) VALUES (?,?,?,?,?)');
+            $s->execute([$programId,$uid,$name,$company,$note ?: null]);
+        } catch (PDOException $e) {
+            if (($e->errorInfo[1] ?? null)==1062) b2bFail(409,'application_already_exists');
+            throw $e;
+        }
+        $id=(int)$pdo->lastInsertId();
+        b2bAudit($pdo,$uid,'apply','partner_application',$id);
+        jsonResponse(201,['ok'=>true,'id'=>$id,'status'=>'pending']);
+    }
+    if ($action==='decide_application') {
+        if (!$admin) b2bFail(403,'admin_only');
+        $appId=(int)($body['application_id'] ?? 0);
+        $decision=(string)($body['decision'] ?? '');
+        $reservedId=(int)($body['reserved_referral_id'] ?? 0);
+        if ($appId<1 || !in_array($decision,['approved','rejected'],true)) b2bFail(422,'invalid_decision');
+        // Explicit human verification before giving an applicant control over an existing account.
+        if ($decision==='approved' && empty($body['identity_confirmed'])) b2bFail(422,'verify_vipps_identity_before_approval');
+        $pdo->beginTransaction();
+        $s=$pdo->prepare('SELECT a.*,u.role,u.vipps_sub,u.status AS user_status FROM b2b_partner_applications a JOIN users u ON u.id=a.user_id WHERE a.id=? AND a.program_id=? FOR UPDATE');
+        $s->execute([$appId,$programId]);
+        $app=$s->fetch(PDO::FETCH_ASSOC);
+        if (!$app) { $pdo->rollBack(); b2bFail(404,'application_not_found'); }
+        if ($app['status']!=='pending') { $pdo->rollBack(); b2bFail(409,'application_already_decided'); }
+        if ($decision==='approved') {
+            if ($app['role']!=='ambassador' || empty($app['vipps_sub']) || $app['user_status']!=='active') {
+                $pdo->rollBack(); b2bFail(403,'applicant_not_active_vipps_user');
+            }
+            $s=$pdo->prepare('SELECT id FROM b2b_partners WHERE program_id=? AND user_id=?');
+            $s->execute([$programId,(int)$app['user_id']]);
+            if ($s->fetchColumn()) { $pdo->rollBack(); b2bFail(409,'already_partner'); }
+            $reserved=null;
+            if ($reservedId>0) {
+                $s=$pdo->prepare('SELECT * FROM b2b_reserved_referrals WHERE id=? AND program_id=? AND invite_id IS NULL AND claimed_at IS NULL FOR UPDATE');
+                $s->execute([$reservedId,$programId]);
+                $reserved=$s->fetch(PDO::FETCH_ASSOC);
+                if (!$reserved) { $pdo->rollBack(); b2bFail(409,'reservation_not_available'); }
+                $s=$pdo->prepare('SELECT id FROM b2b_referrals WHERE org_number=? AND program_id=?');
+                $s->execute([(string)$reserved['org_number'],$programId]);
+                if ($s->fetchColumn()) { $pdo->rollBack(); b2bFail(409,'customer_already_assigned'); }
+            }
+            $label=$reserved ? (string)$reserved['partner_label'] : ((string)$app['company_name']);
+            $s=$pdo->prepare('INSERT INTO b2b_partners (program_id,user_id,parent_partner_id,display_name,type) VALUES (?,?,NULL,?,"partner")');
+            $s->execute([$programId,(int)$app['user_id'],$label]);
+            $partnerId=(int)$pdo->lastInsertId();
+            if ($reserved) {
+                $s=$pdo->prepare('INSERT INTO b2b_referrals (program_id,partner_id,org_number,company_name,brand_name,status,approval_status,approved_at,partner_note) VALUES (?,?,?,?,?,?,?,?,?)');
+                $s->execute([$programId,$partnerId,$reserved['org_number'],$reserved['company_name'],$reserved['brand_name'],$reserved['referral_status'],$reserved['approval_status'],$reserved['approval_status']==='approved'?date('Y-m-d H:i:s'):null,'Godkjent henvisning overført etter verifisert Vipps-søknad']);
+                $refId=(int)$pdo->lastInsertId();
+                $pdo->prepare('UPDATE b2b_reserved_referrals SET claimed_partner_id=?,claimed_at=NOW() WHERE id=?')->execute([$partnerId,$reservedId]);
+                if ($reserved['approval_status']==='approved') b2bGrantTrustedOne($pdo,$programId,$partnerId,$refId);
+                b2bAudit($pdo,$uid,'assign_reserved','referral',$refId);
+            }
+        } elseif ($reservedId>0) {
+            $pdo->rollBack(); b2bFail(422,'cannot_assign_to_rejected_application');
+        }
+        $pdo->prepare('UPDATE b2b_partner_applications SET status=?,decided_by_user_id=?,decided_at=NOW() WHERE id=? AND program_id=?')->execute([$decision,$uid,$appId,$programId]);
+        b2bAudit($pdo,$uid,'decide_'.$decision,'partner_application',$appId);
+        $pdo->commit();
+        jsonResponse(200,['ok'=>true,'status'=>$decision]);
+    }
     $member=$admin ? null : b2bMember($pdo,$programId,$uid);
 
     if ($action==='acknowledge_welcome') {

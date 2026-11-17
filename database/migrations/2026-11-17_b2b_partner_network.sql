@@ -70,6 +70,7 @@ CREATE TABLE IF NOT EXISTS b2b_sales (
   fixed_commission DECIMAL(13,2) NULL,
   stage ENUM('draft','invoiced','paid','cancelled') NOT NULL DEFAULT 'draft',
   approved TINYINT(1) NOT NULL DEFAULT 0,
+  costs_verified TINYINT(1) NOT NULL DEFAULT 0,
   updated_by_user_id INT NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

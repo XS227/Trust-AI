@@ -236,6 +236,48 @@ $('welcomeContinue').onclick=async()=>{
   }catch(e){notice('Could not confirm welcome: '+e.message,true)}
   finally{$('welcomeContinue').disabled=false}
 };
+
+$('applicationForm').onsubmit=async e=>{
+ e.preventDefault();
+ const buttonEl=$('applicationForm').querySelector('button[type=submit]');
+ buttonEl.disabled=true;
+ try{
+  const r=await post('apply_to_program',{
+    program_id:pid(),display_name:$('applicationName').value.trim(),
+    company_name:$('applicationBusiness').value.trim(),note:$('applicationNote').value.trim()
+  });
+  notice(state.lang==='no'?'Søknaden er sendt. SETAEI godkjenner den i administrasjonen.':'Your application was submitted. SETAEI will review it.');
+  await load(r.program_id||pid());
+ }catch(err){notice(err.message,true)}
+ finally{buttonEl.disabled=false}
+};
+$('invoiceUploadForm').onsubmit=async e=>{
+ e.preventDefault();
+ const buttonEl=$('submitInvoice');
+ const file=$('invoicePdf').files[0];
+ if(!file || file.size>8*1024*1024 || file.size<100){notice('Choose a valid PDF under 8 MB',true);return}
+ if(file.type && file.type!=='application/pdf'){notice('Only PDF invoices are accepted',true);return}
+ const data=new FormData();
+ data.append('program_id',String(pid()));
+ data.append('referral_id',$('invoiceReferral').value);
+ data.append('invoice_number',$('invoiceNumber').value.trim());
+ data.append('claimed_amount',$('invoiceAmount').value);
+ data.append('invoice_pdf',file);
+ const editId=Number($('invoiceUploadForm').dataset.editId||0);
+ if(editId)data.append('invoice_id',String(editId));
+ buttonEl.disabled=true;
+ const controller=new AbortController();
+ const stop=setTimeout(()=>controller.abort(),45000);
+ try{
+  const response=await fetch('/api/partner-network/invoice-upload.php',{method:'POST',credentials:'include',headers:{'X-CSRF-Token':state.data.csrf},body:data,signal:controller.signal});
+  const result=await response.json().catch(()=>({ok:false,error:'invalid_response'}));
+  if(!response.ok||!result.ok)throw new Error(result.error||'upload_failed');
+  $('invoiceUploadForm').reset();delete $('invoiceUploadForm').dataset.editId;
+  notice(state.lang==='no'?'Fakturaen er mottatt og venter på kontroll. Ingen automatisk betaling.':'Invoice uploaded for administrator review. No automatic payout.');
+  await load();
+ }catch(err){notice(err.name==='AbortError'?'Upload took too long; check invoice status before retrying.':err.message,true)}
+ finally{clearTimeout(stop);buttonEl.disabled=false}
+};
 function render(){
  const d=state.data;show('loginGate',false);show('joinGate',false);show('adminCreate',false);show('workspace',!!d.program&&!!d.joined);
  if(!d.program){show('adminCreate',d.is_admin);show('joinGate',!d.is_admin);return}

@@ -65,3 +65,15 @@ Cancelled sales create no commission; edits are blocked when the sale has a paid
 - Stenhuset organisation number is verified (992 214 341); project-specific cost inputs still need confirmation before live registration.
 - Earlier 13 October email to Thomas offered 20% of billed revenue; clarify the new 30% *net-profit* model / NOK 3,000 Stenhuset exception in writing before financial settlement.
 - VAT, invoicing and privacy terms need accounting/legal review. No automatic transfer is implemented.
+
+## RAWScales reserved first referral and Trusted One
+
+The idempotent SQL file database/seeds/2026-11-17_setaei_rawscales_stenhuset.sql reserves the approved Stenhuset introduction for RAWScales / Thomas Hannaas under the SETAEI program. Legal customer: STENPROSJEKT AS, organisation no. 992 214 341; trading name Stenhuset. Suggested fixed commission NOK 3,000, strictly subject to actual verified positive margin and separate admin approval. The referral itself is approved, but neither the customer invoice nor any commission is marked paid.
+
+To claim the reserved customer, a super admin creates an invite and explicitly chooses the Stenhuset reservation. This invitation must now be restricted to the intended Vipps account: enter the email known to be associated with Thomas's Vipps login or his actual Norwegian Vipps mobile in the private admin form. An approved reserved referral cannot be attached to an unrestricted invitation. The server checks the verified Vipps user profile against those expected identifiers on redemption.
+
+Thomas's actual Vipps phone is NOT available in previously exchanged emails and MUST NOT be invented or committed. The authenticated phone_number from the Vipps login callback is stored in the private users table only after he consents, and is readable by super admin via the protected partner identity API. The invite URL remains single-use, 14 days, and must be shared privately.
+
+Successful verified redemption atomically links Stenhuset to Thomas's personal portfolio and creates a one-time Trusted One recognition event. The Norwegian modal says: Gratulerer med din første godkjente anbefaling! Din første anbefaling er nå godkjent i TrustAI. Du er nå en Trusted One. The modal is acknowledged server-side once (seen_at), and the Trusted One badge remains on the account.
+
+This code has not been deployed or migrated, since the authorized remote VPS connections are offline. Last inventory: TrustAI was at /var/www/trustai on server 1431514. A documented 26 October 2026 DNS check recorded trustai.no at 5.249.255.116. Check live server/DB location before applying any changes.

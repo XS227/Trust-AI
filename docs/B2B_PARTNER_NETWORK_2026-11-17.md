@@ -22,7 +22,7 @@ Default = 30% × max(0, actual revenue after discount - attributable direct cost
 
 Fixed agreed commission overrides are supported per sale, but must not exceed actual positive profit. Standard commission for loss/zero-margin sales is zero.
 
-Stenhuset: proposed RAWScales payout is NOK 3,000 as a fixed exception, subject to verifying costs/positive margin. No actual Stenhuset invoice, expenses or partner payout has been registered.
+Stenhuset is the trading brand of STENPROSJEKT AS (organisation no. 992 214 341), verified against official registry and Stenhuset's own purchase terms. Proposed RAWScales payout is NOK 3,000 as a fixed exception, subject to verifying actual cost/positive margin. No actual Stenhuset invoice, expenses or partner payout has been registered.
 
 The parent gets a configurable direct-child commission share (default 10% of the commission pool), taken from the child's commission rather than adding costs for SETAEI. A partner network may be nested, but only a directly sponsoring parent receives an upline share on each sale. Example: commission pool NOK 3,000, child NOK 2,700, parent NOK 300. A root RAWScales partner with no parent receives the entire NOK 3,000.
 
@@ -51,13 +51,13 @@ Cancelled sales create no commission; edits are blocked when the sale has a paid
 3. Apply migration once. Never run demo seed in production.
 4. Deploy, test HTTPS portal, Vipps login, age verification and API. Verify one unique org per program, parent invitation, costs hidden, payout lock, expiry, admin permissions.
 5. Admin creates SETAEI program and privately invites RAWScales. Only real Vipps-authenticated person claims it. Do not make up a password or store a public invitation token in GitHub.
-6. Register Stenhuset with its verified organisation number, real paid invoice, attributed costs, and fixed NOK 3,000 only if sufficient margin. First confirmed customer payment, then partner invoicing/payout.
+6. Register Stenhuset (trade name) / STENPROSJEKT AS (legal name), org. 992 214 341, real invoice, attributable costs, and fixed NOK 3,000 only if sufficient margin. First confirmed customer payment, then partner invoicing/payout.
 7. Check a low-profit sale rejects excess fixed payout and a cancelled sale has no payout.
 8. Verify CORS/CSRF and no forged header identity; each partner sees only own clients/commissions.
 
 ## Outstanding
 
 - All servers in current Remote Desktop connection are offline. No live database migration, account creation, payout or production deploy has been performed.
-- Stenhuset organisation number and project-specific cost inputs still need confirmation in the admin panel.
+- Stenhuset organisation number is verified (992 214 341); project-specific cost inputs still need confirmation before live registration.
 - Earlier 13 October email to Thomas offered 20% of billed revenue; clarify the new 30% *net-profit* model / NOK 3,000 Stenhuset exception in writing before financial settlement.
 - VAT, invoicing and privacy terms need accounting/legal review. No automatic transfer is implemented.

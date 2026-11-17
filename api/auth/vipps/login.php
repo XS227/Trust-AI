@@ -45,6 +45,7 @@ $_SESSION['trustai_epoch'] = TRUSTAI_SESSION_EPOCH;
 $_SESSION['vipps_csrf'] = $csrf;
 $_SESSION['vipps_pkce_verifier'] = $verifier;
 $_SESSION['vipps_intent'] = $intent;
+$_SESSION['vipps_b2b_requested'] = ($intent === 'b2b');
 $_SESSION['vipps_desired_role'] = $desiredRole;
 
 $statePayload = [

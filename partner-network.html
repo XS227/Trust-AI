@@ -279,10 +279,21 @@ $('invoiceUploadForm').onsubmit=async e=>{
  finally{clearTimeout(stop);buttonEl.disabled=false}
 };
 function render(){
- const d=state.data;show('loginGate',false);show('joinGate',false);show('adminCreate',false);show('workspace',!!d.program&&!!d.joined);
- if(!d.program){show('adminCreate',d.is_admin);show('joinGate',!d.is_admin);return}
+ const d=state.data;show('loginGate',false);show('joinGate',false);show('adminCreate',false);show('applyGate',false);show('workspace',!!d.program&&!!d.joined);
+ if(!d.program){show('adminCreate',d.is_admin);show('joinGate',!d.is_admin&&!!state.token);if(!d.is_admin&&!state.token)notice('SETAEI partnerprogrammet er ikke aktivert på denne serveren ennå.',true);return}
  $('programName').textContent=d.program.name;
- if(!d.joined){show('joinGate',true);return}
+ if(!d.joined){
+   show('joinGate',!!state.token);
+   const applyAvailable=d.program.name==='SETAEI'&&!d.is_admin;
+   show('applyGate',applyAvailable);
+   if(applyAvailable){
+      const app=d.application;
+      $('applicationForm').classList.toggle('hidden',!!app);
+      show('applicationState',!!app);
+      if(app)$('applicationState').textContent=app.status==='pending'?'Partnersøknad sendt til SETAEI. Venter på godkjenning.':(app.status==='approved'?'Partnergodkjenningen er registrert. Logg inn på nytt.':'Søknaden ble avvist. Kontakt SETAEI.');
+   }
+   return;
+ }
  if(state.token) show('joinGate',true); // Allow an existing partner to accept an invite to a second program.
  document.querySelectorAll('[data-admin],.admin-col').forEach(el=>el.classList.toggle('hidden',!d.is_admin));
  const commissions=d.commissions||[],refs=d.referrals||[],partners=d.partners||[];
@@ -296,15 +307,36 @@ function render(){
    show('trustedWelcome',true);
    $('welcomeContinue').focus();
  }
- clear('refRows');clear('teamRows');clear('commissionRows');clear('saleRows');clear('reservedRows');$('refPartner').replaceChildren();$('inviteParent').replaceChildren();$('inviteReservation').replaceChildren();$('saleRef').replaceChildren();
+ clear('refRows');clear('teamRows');clear('commissionRows');clear('saleRows');clear('reservedRows');clear('applicationRows');clear('partnerInvoiceRows');$('refPartner').replaceChildren();$('inviteParent').replaceChildren();$('inviteReservation').replaceChildren();$('approveReserved').replaceChildren();$('saleRef').replaceChildren();$('invoiceReferral').replaceChildren();
  option($('inviteReservation'),'','No reserved customer');
+ option($('approveReserved'),'','No customer to assign');
  if(d.is_admin)(d.reserved_referrals||[]).forEach(r=>{
    const linked=r.claimed_at?'Claimed':(r.invite_id?'Linked to invitation':'Available');
    tableRow($('reservedRows'),[r.partner_label,displayCompany(r),money(r.suggested_fixed_commission),linked]);
-   if(!r.claimed_at&&!r.invite_id)option($('inviteReservation'),r.id,r.partner_label+' — '+displayCompany(r));
+   if(!r.claimed_at&&!r.invite_id){option($('inviteReservation'),r.id,r.partner_label+' — '+displayCompany(r));option($('approveReserved'),r.id,r.partner_label+' — '+displayCompany(r));}
  });
 
- if(d.is_admin){option($('inviteParent'),'','Root / no upline');partners.forEach(p=>{option($('refPartner'),p.id,p.display_name);option($('inviteParent'),p.id,p.display_name)})}
+ if(d.is_admin){
+   option($('inviteParent'),'','Root / no upline');
+   partners.forEach(p=>{option($('refPartner'),p.id,p.display_name);option($('inviteParent'),p.id,p.display_name)});
+   (d.applications||[]).forEach(a=>{
+      const controls=document.createElement('div');controls.className='actions';
+      if(a.status==='pending'){
+        controls.appendChild(button('Godkjenn',async()=>{
+          const reservedId=Number($('approveReserved').value||0);
+          const msg='Verify that the Vipps account really belongs to this person/company:\n'+a.display_name+' / '+a.company_name+'\n'+a.email+'\n'+(a.phone_number||'No Vipps phone available')+
+            (reservedId?'\n\nIMPORTANT: You are assigning an EXISTING approved customer to this account.':'\n\nNo customer will be assigned automatically.');
+          if(!confirm(msg))return;
+          try{await post('decide_application',{program_id:pid(),application_id:a.id,decision:'approved',reserved_referral_id:reservedId,identity_confirmed:true});notice('Partner approved. Portfolio assigned if selected.');await load()}catch(e){notice(e.message,true)}
+        }));
+        controls.appendChild(button('Avslå',async()=>{
+          if(!confirm('Reject this application?'))return;
+          try{await post('decide_application',{program_id:pid(),application_id:a.id,decision:'rejected'});notice('Application rejected');await load()}catch(e){notice(e.message,true)}
+        }));
+      }
+      tableRow($('applicationRows'),[a.display_name||'',a.company_name||'',(a.vipps_verified?'Vipps ✓ · ':'')+(a.email||'')+(a.phone_number?' · '+a.phone_number:''),a.status],controls);
+   });
+ }
  refs.forEach(r=>{
    const change=d.is_admin?button(r.approval_status==='approved'?'Approved':'Approve',async()=>{
       const approval=r.approval_status==='approved'?'pending':'approved';
@@ -313,6 +345,7 @@ function render(){
    }):null;
    tableRow($('refRows'),[displayCompany(r),r.org_number,r.status+' · '+r.approval_status,(r.created_at||'').slice(0,10)],change);
    if(d.is_admin)option($('saleRef'),r.id,displayCompany(r)+' ('+r.org_number+')');
+   else if(r.approval_status==='approved')option($('invoiceReferral'),r.id,displayCompany(r));
  });
  partners.forEach(p=>{
    const adminAction=d.is_admin?button('Share '+Number(p.upline_share_percent||0)+'%',async()=>{
@@ -321,6 +354,49 @@ function render(){
       try{await post('set_upline_share',{program_id:pid(),partner_id:p.id,upline_share_percent:Number(input)});notice('Share updated');await load()}catch(e){notice(e.message,true)}
    }):null;
    tableRow($('teamRows'),[p.display_name,p.type,p.status],adminAction);
+ });
+ show('invoiceUploadPanel',!d.is_admin&&!!$('invoiceReferral').options.length);
+ (d.partner_invoices||[]).forEach(inv=>{
+   const buttons=document.createElement('div');buttons.className='actions';
+   buttons.appendChild(button('PDF',()=>{
+     location.href='/api/partner-network/invoice-file.php?id='+encodeURIComponent(inv.id);
+   }));
+   if(d.is_admin && inv.status==='submitted'){
+     buttons.appendChild(button('Approve',async()=>{
+       const matching=(d.commissions||[]).filter(c=>
+          c.partner_id==inv.partner_id && c.status==='ready' &&
+          c.company_name===inv.company_name &&
+          Math.round(Number(c.amount)*100)===Math.round(Number(inv.claimed_amount)*100));
+       if(!matching.length){notice('No matching approved earned commission. Verify customer payment, costs and payout first.',true);return}
+       const id=matching.length===1?matching[0].id:Number(prompt('Select ready commission ID: '+matching.map(m=>m.id).join(', '),matching[0].id));
+       if(!matching.some(m=>Number(m.id)===Number(id))){notice('Invalid commission choice',true);return}
+       if(!confirm('Approve this invoice against verified, customer-paid commission #'+id+'?'))return;
+       try{await post('review_partner_invoice',{program_id:pid(),invoice_id:inv.id,decision:'approve',commission_id:id});notice('Invoice approved. Still unpaid until bank transfer confirmed.');await load()}catch(e){notice(e.message,true)}
+     }));
+     buttons.appendChild(button('Revision',async()=>{
+       const reason=prompt('Reason to request a revised PDF invoice (visible to partner)?');
+       if(!reason)return;
+       try{await post('review_partner_invoice',{program_id:pid(),invoice_id:inv.id,decision:'needs_revision',note:reason});notice('Revision requested');await load()}catch(e){notice(e.message,true)}
+     }));
+   }
+   if(d.is_admin && inv.status==='approved'){
+     buttons.appendChild(button('Mark paid',async()=>{
+       if(!confirm('Only continue if the bank transfer was actually sent and verified. Mark invoice and commission PAID?'))return;
+       try{await post('mark_partner_invoice_paid',{program_id:pid(),invoice_id:inv.id,confirmed_external_payment:true});notice('Invoice and commission marked paid');await load()}catch(e){notice(e.message,true)}
+     }));
+   }
+   if(!d.is_admin && inv.status==='needs_revision'){
+     buttons.appendChild(button('Send revised PDF',()=>{
+       $('invoiceUploadForm').dataset.editId=inv.id;
+       $('invoiceReferral').value=inv.referral_id;
+       $('invoiceNumber').value=inv.invoice_number;
+       $('invoiceAmount').value=inv.claimed_amount;
+       switchTab('commissions');
+       $('invoiceUploadPanel').scrollIntoView({behavior:'smooth',block:'start'});
+       notice('Upload a corrected PDF for invoice '+inv.invoice_number);
+     }));
+   }
+   tableRow($('partnerInvoiceRows'),[inv.invoice_number,displayCompany(inv),money(inv.claimed_amount),inv.status],buttons);
  });
  commissions.forEach(c=>{
    const action=d.is_admin&&c.status==='ready'?button('Mark paid',async()=>{if(!confirm('Confirm external payout was actually made?'))return;try{await post('mark_commission_paid',{program_id:pid(),commission_id:c.id});notice('Marked paid');await load()}catch(e){notice(e.message,true)}}):null;

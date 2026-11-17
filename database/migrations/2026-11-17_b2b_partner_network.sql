@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS b2b_invites (
   program_id INT UNSIGNED NOT NULL,
   parent_partner_id INT UNSIGNED NULL,
   invited_label VARCHAR(160) NOT NULL,
+  member_type ENUM('partner','seller','ambassador') NOT NULL DEFAULT 'partner',
   token_hash CHAR(64) NOT NULL,
   created_by_user_id INT NOT NULL,
   expires_at DATETIME NOT NULL,

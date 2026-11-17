@@ -59,13 +59,13 @@ jobs:
         env:
           MYSQL_PWD: trustai_ci_only
         run: |
-          mariadb -h127.0.0.1 -uroot trustai_ci < database/migrations/2026-11-17_b2b_partner_network.sql
-          mariadb -h127.0.0.1 -uroot trustai_ci < database/seeds/2026-11-17_setaei_rawscales_stenhuset.sql
-          mariadb -h127.0.0.1 -uroot trustai_ci < database/seeds/2026-11-17_setaei_rawscales_stenhuset.sql
-          COUNT=$(mariadb -h127.0.0.1 -uroot trustai_ci --batch --skip-column-names -e "SELECT COUNT(*) FROM b2b_reserved_referrals WHERE org_number='992214341' AND approval_status='approved' AND partner_label='RAWScales / Thomas Hannaas' AND suggested_fixed_commission=3000.00;")
+          mariadb --skip-ssl -h127.0.0.1 -uroot trustai_ci < database/migrations/2026-11-17_b2b_partner_network.sql
+          mariadb --skip-ssl -h127.0.0.1 -uroot trustai_ci < database/seeds/2026-11-17_setaei_rawscales_stenhuset.sql
+          mariadb --skip-ssl -h127.0.0.1 -uroot trustai_ci < database/seeds/2026-11-17_setaei_rawscales_stenhuset.sql
+          COUNT=$(mariadb --skip-ssl -h127.0.0.1 -uroot trustai_ci --batch --skip-column-names -e "SELECT COUNT(*) FROM b2b_reserved_referrals WHERE org_number='992214341' AND approval_status='approved' AND partner_label='RAWScales / Thomas Hannaas' AND suggested_fixed_commission=3000.00;")
           test "$COUNT" = "1"
-          USER_COUNT=$(mariadb -h127.0.0.1 -uroot trustai_ci --batch --skip-column-names -e "SELECT COUNT(*) FROM b2b_partners;")
+          USER_COUNT=$(mariadb --skip-ssl -h127.0.0.1 -uroot trustai_ci --batch --skip-column-names -e "SELECT COUNT(*) FROM b2b_partners;")
           test "$USER_COUNT" = "0"
-          PAY_COUNT=$(mariadb -h127.0.0.1 -uroot trustai_ci --batch --skip-column-names -e "SELECT COUNT(*) FROM b2b_commissions;")
+          PAY_COUNT=$(mariadb --skip-ssl -h127.0.0.1 -uroot trustai_ci --batch --skip-column-names -e "SELECT COUNT(*) FROM b2b_commissions;")
           test "$PAY_COUNT" = "0"
           echo "Approved reservation exists once; no fake Vipps user and no payable commission."

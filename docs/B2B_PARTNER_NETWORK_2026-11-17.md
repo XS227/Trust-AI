@@ -13,7 +13,7 @@ Extend TrustAI's existing ambassador infrastructure to SETAEI B2B development an
 4. Partners register companies by Norwegian organisation number. Checksum is verified and official Brønnøysund register lookup prefills the company name. One organisation number can be claimed only once per merchant program.
 5. SETAEI admin records the invoice number, real revenue after any discount (ex VAT), attributable costs (ex VAT), payout model and invoice stage.
 6. Partner can view the referral stage and commission but not internal revenue, expenses or margins.
-7. Commission is pending until the client invoice is marked paid and approved; then it is ready. The partner invoices SETAEI separately; admin manually marks payout paid after actually paying it.
+7. Commission remains pending until the client invoice is paid, the admin explicitly verifies attributable costs and approves the sale; then it is ready. The partner invoices SETAEI separately; admin manually marks payout paid after actually paying it.
 8. Partners can invite additional sellers/partners/ambassadors underneath them. Direct sponsors can receive a share from an actual completed sale by their direct recruit. No fee to join and no commission for recruitment alone.
 
 ## Commission
@@ -24,7 +24,7 @@ Fixed agreed commission overrides are supported per sale, but must not exceed ac
 
 Stenhuset is the trading brand of STENPROSJEKT AS (organisation no. 992 214 341), verified against official registry and Stenhuset's own purchase terms. Proposed RAWScales payout is NOK 3,000 as a fixed exception, subject to verifying actual cost/positive margin. No actual Stenhuset invoice, expenses or partner payout has been registered.
 
-The parent gets a configurable direct-child commission share (default 10% of the commission pool), taken from the child's commission rather than adding costs for SETAEI. A partner network may be nested, but only a directly sponsoring parent receives an upline share on each sale. Example: commission pool NOK 3,000, child NOK 2,700, parent NOK 300. A root RAWScales partner with no parent receives the entire NOK 3,000.
+The parent gets a configurable direct-child commission share (default 10% of the commission pool, admin-adjustable from 0–30%), taken from the child's commission rather than adding costs for SETAEI. A partner network may be nested, but only a directly sponsoring parent receives an upline share on each sale. Example: commission pool NOK 3,000, child NOK 2,700, parent NOK 300. A root RAWScales partner with no parent receives the entire NOK 3,000.
 
 Cancelled sales create no commission; edits are blocked when the sale has a paid commission.
 

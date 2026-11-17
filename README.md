@@ -1,6 +1,12 @@
 # TRUSTai
 Intellegence referal system
 
+## Next agent: SETAEI B2B Partner Network (November 2026)
+
+**START HERE:** [AGENT_HANDOFF.md](AGENT_HANDOFF.md). Source branch: `feature/b2b-partner-network-20261117`; draft review: [PR #36](https://github.com/XS227/Trust-AI/pull/36).
+
+This branch implements independent Vipps-based SETAEI partner onboarding, RAWScales/Stenhuset reserved first referral, one-time Trusted One popup, profit-protected commissions, and private PDF commission invoice review. **Source work only — not deployed to trustai.no.** Before production: audit/backup the historic ProISP VPS `1431514`, apply both B2B migrations and the reviewed idempotent reservation seed, configure private PDF storage, run live Vipps/permission/E2E tests, and log exact deployment evidence. **Do not create a fake Thomas Vipps user or treat the suggested NOK 3,000 as paid.**
+
 ## Multi-tenant SaaS (super_admin / store_admin / ambassador)
 
 

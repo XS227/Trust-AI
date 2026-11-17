@@ -228,8 +228,8 @@ try {
             $s->execute([(int)$invite['parent_partner_id'],$pid]);
             if (!$s->fetchColumn()) { $pdo->rollBack(); b2bFail(409,'inviter_inactive'); }
         }
-        $s=$pdo->prepare('INSERT INTO b2b_partners (program_id,user_id,parent_partner_id,display_name) VALUES (?,?,?,?)');
-        $s->execute([$pid,$uid,$invite['parent_partner_id'],(string)$invite['invited_label']]);
+        $s=$pdo->prepare('INSERT INTO b2b_partners (program_id,user_id,parent_partner_id,display_name,type) VALUES (?,?,?,?,?)');
+        $s->execute([$pid,$uid,$invite['parent_partner_id'],(string)$invite['invited_label'],(string)$invite['member_type']]);
         $id=(int)$pdo->lastInsertId();
         $pdo->prepare('UPDATE b2b_invites SET claimed_at=NOW(),claimed_user_id=? WHERE id=?')->execute([$uid,(int)$invite['id']]);
         b2bAudit($pdo,$uid,'join','partner',$id);
@@ -247,10 +247,12 @@ try {
             if (!$s->fetchColumn()) b2bFail(422,'invalid_parent');
         }
         $label=b2bString($body['label'] ?? '',160);
+        $partnerType=(string)($body['partner_type'] ?? 'partner');
+        if (!in_array($partnerType,['partner','seller','ambassador'],true)) b2bFail(422,'invalid_partner_type');
         if (mb_strlen($label)<2) b2bFail(422,'label_required');
         $token=rtrim(strtr(base64_encode(random_bytes(32)),'+/','-_'),'=');
-        $s=$pdo->prepare('INSERT INTO b2b_invites (program_id,parent_partner_id,invited_label,token_hash,created_by_user_id,expires_at) VALUES (?,?,?,?,?,DATE_ADD(NOW(),INTERVAL 14 DAY))');
-        $s->execute([$programId,$parentId ?: null,$label,hash('sha256',$token),$uid]);
+        $s=$pdo->prepare('INSERT INTO b2b_invites (program_id,parent_partner_id,invited_label,member_type,token_hash,created_by_user_id,expires_at) VALUES (?,?,?,?,?,?,DATE_ADD(NOW(),INTERVAL 14 DAY))');
+        $s->execute([$programId,$parentId ?: null,$label,$partnerType,hash('sha256',$token),$uid]);
         $id=(int)$pdo->lastInsertId();
         b2bAudit($pdo,$uid,'invite','invite',$id);
         jsonResponse(201,['ok'=>true,'invite_url'=>'https://trustai.no/partner-network.html?invite='.$token,'expires_in_days'=>14]);

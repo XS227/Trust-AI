@@ -239,6 +239,17 @@ try {
     $program=b2bProgram($pdo,$programId);
     $member=$admin ? null : b2bMember($pdo,$programId,$uid);
 
+    if ($action==='set_upline_share') {
+        if (!$admin) b2bFail(403,'admin_only');
+        $partnerId=(int)($body['partner_id'] ?? 0);
+        $pct=$body['upline_share_percent'] ?? null;
+        if ($partnerId<=0 || !is_numeric($pct) || !is_finite((float)$pct) || (float)$pct<0 || (float)$pct>30) b2bFail(422,'invalid_upline_percent');
+        $s=$pdo->prepare('UPDATE b2b_partners SET upline_share_percent=? WHERE id=? AND program_id=?');
+        $s->execute([round((float)$pct,2),$partnerId,$programId]);
+        if (!$s->rowCount()) b2bFail(404,'partner_not_found_or_unchanged');
+        b2bAudit($pdo,$uid,'upline_percent','partner',$partnerId);
+        jsonResponse(200,['ok'=>true]);
+    }
     if ($action==='create_invite') {
         $parentId=$admin ? (int)($body['parent_partner_id'] ?? 0) : (int)$member['id'];
         if ($parentId) {

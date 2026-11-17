@@ -304,10 +304,12 @@ try {
         $fixed=$mode==='fixed' ? b2bMoney($body['fixed_commission'] ?? null) : null;
         $stage=(string)($body['stage'] ?? 'draft');
         $approved=!empty($body['approved']) ? 1 : 0;
+        $costsVerified=!empty($body['costs_verified']) ? 1 : 0;
         if (!in_array($mode,['profit_percent','fixed'],true) ||
             !in_array($stage,['draft','invoiced','paid','cancelled'],true) ||
             $invoice==='' || $refId<=0) b2bFail(422,'invalid_sale');
         if ($approved && $stage!=='paid') b2bFail(422,'approval_requires_paid_invoice');
+        if ($approved && !$costsVerified) b2bFail(422,'approval_requires_verified_costs');
         $s=$pdo->prepare('SELECT * FROM b2b_referrals WHERE id=? AND program_id=?');
         $s->execute([$refId,$programId]);
         $ref=$s->fetch(PDO::FETCH_ASSOC);
@@ -324,12 +326,12 @@ try {
             $s=$pdo->prepare('SELECT id FROM b2b_commissions WHERE sale_id=? AND status="paid" LIMIT 1');
             $s->execute([$saleId]);
             if ($s->fetchColumn()) { $pdo->rollBack(); b2bFail(409,'paid_commission_locked'); }
-            $s=$pdo->prepare('UPDATE b2b_sales SET invoice_reference=?,revenue_ex_vat=?,direct_cost_ex_vat=?,commission_mode=?,fixed_commission=?,stage=?,approved=?,updated_by_user_id=? WHERE id=? AND program_id=?');
-            $s->execute([$invoice,$revenue,$cost,$mode,$fixed,$stage,$approved,$uid,$saleId,$programId]);
+            $s=$pdo->prepare('UPDATE b2b_sales SET invoice_reference=?,revenue_ex_vat=?,direct_cost_ex_vat=?,commission_mode=?,fixed_commission=?,stage=?,approved=?,costs_verified=?,updated_by_user_id=? WHERE id=? AND program_id=?');
+            $s->execute([$invoice,$revenue,$cost,$mode,$fixed,$stage,$approved,$costsVerified,$uid,$saleId,$programId]);
             $pdo->prepare('DELETE FROM b2b_commissions WHERE sale_id=?')->execute([$saleId]);
         } else {
-            $s=$pdo->prepare('INSERT INTO b2b_sales (program_id,referral_id,invoice_reference,revenue_ex_vat,direct_cost_ex_vat,commission_mode,fixed_commission,stage,approved,updated_by_user_id) VALUES (?,?,?,?,?,?,?,?,?,?)');
-            $s->execute([$programId,$refId,$invoice,$revenue,$cost,$mode,$fixed,$stage,$approved,$uid]);
+            $s=$pdo->prepare('INSERT INTO b2b_sales (program_id,referral_id,invoice_reference,revenue_ex_vat,direct_cost_ex_vat,commission_mode,fixed_commission,stage,approved,costs_verified,updated_by_user_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)');
+            $s->execute([$programId,$refId,$invoice,$revenue,$cost,$mode,$fixed,$stage,$approved,$costsVerified,$uid]);
             $saleId=(int)$pdo->lastInsertId();
         }
         $ready=$stage==='paid' && $approved;

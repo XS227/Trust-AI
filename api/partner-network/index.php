@@ -39,6 +39,29 @@ function b2bOrgValid(string $org): bool {
     if ($check === 11) $check = 0;
     return $check !== 10 && $check === (int)$org[8];
 }
+/**
+ * Exact, public Norwegian company-register lookup (fixed host + numeric identifier).
+ * Avoids the need to trust a partner-supplied company name.
+ */
+function b2bRegistryName(string $org): ?string {
+    if (!b2bOrgValid($org)) return null;
+    $ch = curl_init('https://data.brreg.no/enhetsregisteret/api/enheter/' . $org);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => false,
+        CURLOPT_TIMEOUT => 8,
+        CURLOPT_CONNECTTIMEOUT => 4,
+        CURLOPT_HTTPHEADER => ['Accept: application/json'],
+        CURLOPT_USERAGENT => 'TrustAI-B2B/1.0 (trustai.no)'
+    ]);
+    $raw = curl_exec($ch);
+    $http = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    if ($http !== 200 || !is_string($raw)) return null;
+    $data = json_decode($raw,true);
+    return is_array($data) && !empty($data['navn']) && is_string($data['navn'])
+        ? b2bString($data['navn'],200) : null;
+}
 function b2bProgram(PDO $db, int $id): array {
     $s=$db->prepare('SELECT * FROM b2b_programs WHERE id=? AND status="active"');
     $s->execute([$id]);
@@ -101,6 +124,13 @@ $method=(string)($_SERVER['REQUEST_METHOD'] ?? 'GET');
 if (empty($_SESSION['b2b_csrf'])) $_SESSION['b2b_csrf']=bin2hex(random_bytes(24));
 
 if ($method==='GET') {
+    if ($action==='company_lookup') {
+        $org=(string)($_GET['org_number'] ?? '');
+        if (!b2bOrgValid($org)) b2bFail(422,'invalid_norwegian_org_number');
+        $name=b2bRegistryName($org);
+        if (!$name) b2bFail(404,'company_not_found_or_registry_unavailable');
+        jsonResponse(200,['ok'=>true,'org_number'=>$org,'name'=>$name]);
+    }
     if ($action!=='dashboard') b2bFail(404,'unknown_action');
     $programId=(int)($_GET['program_id'] ?? 0);
     if (!$admin) {
@@ -229,6 +259,9 @@ try {
         $company=b2bString($body['company_name'] ?? '',200);
         $note=b2bString($body['note'] ?? '',1000);
         if (!b2bOrgValid($org)) b2bFail(422,'invalid_norwegian_org_number');
+        // Prefer the verified registered company name whenever the registry responds.
+        $registeredName=b2bRegistryName($org);
+        if ($registeredName!==null) $company=$registeredName;
         if (mb_strlen($company)<2) b2bFail(422,'company_name_required');
         try {
             $s=$pdo->prepare('INSERT INTO b2b_referrals (program_id,partner_id,org_number,company_name,partner_note) VALUES (?,?,?,?,?)');
@@ -294,7 +327,7 @@ try {
         $ready=$stage==='paid' && $approved;
         $s=$pdo->prepare('INSERT INTO b2b_commissions (sale_id,partner_id,source_partner_id,kind,amount,status) VALUES (?,?,?,?,?,?)');
         foreach ($rows as $row) {
-            if ($row['amount']<=0) continue;
+            if ($stage==='cancelled' || $row['amount']<=0) continue;
             $s->execute([$saleId,$row['partner_id'],(int)$ref['partner_id'],$row['kind'],$row['amount'],$ready?'ready':'pending']);
         }
         if ($ready) {

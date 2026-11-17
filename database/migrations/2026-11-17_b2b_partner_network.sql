@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS b2b_invites (
   parent_partner_id INT UNSIGNED NULL,
   invited_label VARCHAR(160) NOT NULL,
   expected_vipps_email VARCHAR(255) NULL,
-  expected_vipps_phone VARCHAR(32) NULL,
+
   member_type ENUM('partner','seller','ambassador') NOT NULL DEFAULT 'partner',
   expected_vipps_phone VARCHAR(24) NULL COMMENT 'Private server-side verification only; never committed',
   token_hash CHAR(64) NOT NULL,

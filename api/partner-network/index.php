@@ -258,7 +258,7 @@ try {
         // A private admin-supplied phone (when known) must match the phone returned by verified Vipps login.
         // Never trust a phone parameter supplied by the client while accepting an invitation.
         $expectedPhone=(string)($invite['expected_vipps_phone'] ?? '');
-        if ($expectedPhone !== '' && !hash_equals($expectedPhone,b2bNorwegianVippsPhone((string)($actor['phone_number'] ?? '')))) {
+        if ($expectedPhone !== '' && !hash_equals($expectedPhone,b2bNorwegianVippsPhone((string)($_SESSION['vipps_verified_phone'] ?? '')))) {
             $pdo->rollBack();
             b2bFail(403,'vipps_phone_not_verified_for_invitation');
         }

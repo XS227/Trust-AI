@@ -10,6 +10,15 @@ if (!in_array($intent, ['auto', 'login', 'ambassador', 'store'], true)) {
     $intent = 'auto';
 }
 
+// Single-use B2B partner invite: keep the token server-side across the Vipps callback.
+// It is never used as proof of identity; a verified Vipps login is still required.
+$invite = (string)($_GET['partner_invite'] ?? '');
+if (preg_match('/^[A-Za-z0-9_-]{43}$/D', $invite)) {
+    $_SESSION['vipps_partner_invite'] = $invite;
+} else {
+    unset($_SESSION['vipps_partner_invite']);
+}
+
 $desiredRole = strtolower(trim((string)($_GET['role'] ?? '')));
 if (!in_array($desiredRole, ['ambassador', 'store_admin'], true)) {
     $desiredRole = '';

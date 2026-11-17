@@ -133,7 +133,7 @@ if ($sessionUserId<=0) b2bFail(401,'login_required');
 $s=$pdo->prepare('SELECT id,email,role,status,vipps_sub,phone_number FROM users WHERE id=? LIMIT 1');
 $s->execute([$sessionUserId]);
 $actor=$s->fetch(PDO::FETCH_ASSOC);
-if (!$actor || in_array(strtolower((string)$actor['status']),['blocked','suspended','inactive'],true)) {
+if (!$actor || strtolower((string)$actor['status'])!=='active') {
     b2bFail(401,'login_required');
 }
 $admin=$actor['role']==='super_admin';
@@ -610,6 +610,7 @@ try {
     }
     if ($action==='mark_commission_paid') {
         if (!$admin) b2bFail(403,'admin_only');
+        if ((string)$program['name']==='SETAEI') b2bFail(409,'partner_invoice_required_for_setaei');
         $id=(int)($body['commission_id'] ?? 0);
         $s=$pdo->prepare('UPDATE b2b_commissions c JOIN b2b_sales s ON s.id=c.sale_id SET c.status="paid",c.paid_at=NOW() WHERE c.id=? AND s.program_id=? AND c.status="ready" AND s.stage="paid" AND s.approved=1 AND s.costs_verified=1 AND NOT EXISTS (SELECT 1 FROM b2b_partner_invoices i WHERE i.commission_id=c.id)');
         $s->execute([$id,$programId]);

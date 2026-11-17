@@ -49,6 +49,7 @@ CREATE TABLE IF NOT EXISTS b2b_referrals (
   partner_id INT UNSIGNED NOT NULL,
   org_number CHAR(9) NOT NULL,
   company_name VARCHAR(200) NOT NULL,
+  brand_name VARCHAR(160) NULL,
   status ENUM('new','contacted','meeting','offer','won','lost') NOT NULL DEFAULT 'new',
   partner_note VARCHAR(1000) NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -159,18 +159,32 @@ if ($method==='GET') {
             $s=$pdo->prepare('SELECT program_id FROM b2b_partners WHERE user_id=? AND status="active" ORDER BY id LIMIT 1');
             $s->execute([$uid]);
             $programId=(int)$s->fetchColumn();
+            // A signed-in B2B applicant without an existing membership can request SETAEI.
+            if (!$programId) {
+                $s=$pdo->query('SELECT id FROM b2b_programs WHERE status="active" AND name="SETAEI" ORDER BY id LIMIT 1');
+                $programId=(int)$s->fetchColumn();
+            }
         }
     } elseif ($programId<=0) {
         $programId=(int)$pdo->query('SELECT id FROM b2b_programs WHERE status="active" ORDER BY id LIMIT 1')->fetchColumn();
     }
-    $base=['ok'=>true,'is_admin'=>$admin,'csrf'=>$_SESSION['b2b_csrf'],'joined'=>false,'program'=>null,'partners'=>[],'referrals'=>[],'sales'=>[],'commissions'=>[],'invites'=>[],'reserved_referrals'=>[],'welcome'=>null,'badge'=>null];
+    $base=['ok'=>true,'is_admin'=>$admin,'csrf'=>$_SESSION['b2b_csrf'],'joined'=>false,'program'=>null,'partners'=>[],'referrals'=>[],'sales'=>[],'commissions'=>[],'invites'=>[],'reserved_referrals'=>[],'welcome'=>null,'badge'=>null,'application'=>null,'applications'=>[],'partner_invoices'=>[]];
     if (!$programId) jsonResponse(200,$base);
     $program=b2bProgram($pdo,$programId);
     $base['program']=['id'=>(int)$program['id'],'name'=>$program['name'],'currency'=>$program['currency'],
         'default_commission_percent'=>(float)$program['default_commission_percent']];
     $member=null;
     if (!$admin) {
-        $member=b2bMember($pdo,$programId,$uid);
+        $s=$pdo->prepare('SELECT * FROM b2b_partners WHERE program_id=? AND user_id=? AND status="active" LIMIT 1');
+        $s->execute([$programId,$uid]);
+        $member=$s->fetch(PDO::FETCH_ASSOC) ?: null;
+        if (!$member) {
+            $s=$pdo->prepare('SELECT id,display_name,company_name,status,created_at FROM b2b_partner_applications WHERE program_id=? AND user_id=? LIMIT 1');
+            $s->execute([$programId,$uid]);
+            $base['application']=$s->fetch(PDO::FETCH_ASSOC) ?: null;
+            // Not a registered partner yet: no customer, sale, or invoice data is disclosed.
+            jsonResponse(200,$base);
+        }
         $base['joined']=true;
         $base['membership']=['id'=>(int)$member['id'],'display_name'=>$member['display_name'],
             'type'=>$member['type'],'parent_partner_id'=>$member['parent_partner_id']];
@@ -180,6 +194,12 @@ if ($method==='GET') {
         $s=$pdo->prepare('SELECT id,user_id,parent_partner_id,display_name,type,status,upline_share_percent FROM b2b_partners WHERE program_id=? ORDER BY id');
         $s->execute([$programId]);
         $base['partners']=$s->fetchAll(PDO::FETCH_ASSOC);
+        $s=$pdo->prepare('SELECT a.id,a.user_id,a.display_name,a.company_name,a.note,a.status,a.created_at,u.email,u.full_name,u.phone_number,u.vipps_sub IS NOT NULL AND u.vipps_sub <> "" AS vipps_verified FROM b2b_partner_applications a JOIN users u ON u.id=a.user_id WHERE a.program_id=? ORDER BY FIELD(a.status,"pending","approved","rejected"),a.id DESC LIMIT 150');
+        $s->execute([$programId]);
+        $base['applications']=$s->fetchAll(PDO::FETCH_ASSOC);
+        $s=$pdo->prepare('SELECT i.id,i.partner_id,i.referral_id,i.commission_id,i.invoice_number,i.claimed_amount,i.original_filename,i.status,i.admin_note,i.created_at,i.reviewed_at,i.paid_at,p.display_name AS partner_name,r.company_name,r.brand_name FROM b2b_partner_invoices i JOIN b2b_partners p ON p.id=i.partner_id JOIN b2b_referrals r ON r.id=i.referral_id WHERE i.program_id=? ORDER BY i.id DESC LIMIT 250');
+        $s->execute([$programId]);
+        $base['partner_invoices']=$s->fetchAll(PDO::FETCH_ASSOC);
         // Phone is copied from the user's *verified* Vipps login; never from GitHub seed data.
         $s=$pdo->prepare('SELECT p.id, u.phone_number AS vipps_phone, (u.vipps_sub IS NOT NULL AND u.vipps_sub <> "") AS vipps_verified FROM b2b_partners p JOIN users u ON u.id=p.user_id WHERE p.program_id=?');
         $s->execute([$programId]);
@@ -206,6 +226,9 @@ if ($method==='GET') {
         $s=$pdo->prepare('SELECT id,display_name,type,status,created_at FROM b2b_partners WHERE parent_partner_id=? AND program_id=? ORDER BY id DESC');
         $s->execute([(int)$member['id'],$programId]);
         $base['partners']=$s->fetchAll(PDO::FETCH_ASSOC);
+        $s=$pdo->prepare('SELECT i.id,i.referral_id,i.commission_id,i.invoice_number,i.claimed_amount,i.original_filename,i.status,i.created_at,i.reviewed_at,i.paid_at,r.company_name,r.brand_name FROM b2b_partner_invoices i JOIN b2b_referrals r ON r.id=i.referral_id WHERE i.program_id=? AND i.partner_id=? ORDER BY i.id DESC LIMIT 150');
+        $s->execute([$programId,(int)$member['id']]);
+        $base['partner_invoices']=$s->fetchAll(PDO::FETCH_ASSOC);
         $s=$pdo->prepare('SELECT id,referral_id,seen_at FROM b2b_welcome_events WHERE program_id=? AND partner_id=? AND event_type="trusted_one_first_approved" LIMIT 1');
         $s->execute([$programId,(int)$member['id']]);
         $welcome=$s->fetch(PDO::FETCH_ASSOC);

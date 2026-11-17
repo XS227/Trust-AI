@@ -394,6 +394,13 @@ if ($currentRole === '') {
     // confirmation, since their role is already set).
     $target = '/vipps-role.html?confirm_age=1';
     $reason = 'existing_role_age_unverified';
+} elseif ($currentRole === 'ambassador'
+    && preg_match('/^[A-Za-z0-9_-]{43}$/D', (string)($_SESSION['vipps_partner_invite'] ?? ''))) {
+    // A B2B invite takes priority over the ecommerce store-specific ambassador signup.
+    $token = (string)$_SESSION['vipps_partner_invite'];
+    unset($_SESSION['vipps_partner_invite']);
+    $target = '/partner-network.html?invite=' . rawurlencode($token);
+    $reason = 'b2b_partner_invite';
 } elseif ($currentRole === 'ambassador' && empty($user['ambassador_id'])) {
     $target = '/ambassador-signup.html?vipps=1';
     $reason = 'ambassador_missing_application';

@@ -396,7 +396,7 @@ function render(){
        notice('Upload a corrected PDF for invoice '+inv.invoice_number);
      }));
    }
-   tableRow($('partnerInvoiceRows'),[inv.invoice_number,displayCompany(inv),money(inv.claimed_amount),inv.status],buttons);
+   tableRow($('partnerInvoiceRows'),[inv.invoice_number,displayCompany(inv),money(inv.claimed_amount),inv.status+(inv.status==='needs_revision'&&inv.admin_note?' · '+inv.admin_note:'')],buttons);
  });
  commissions.forEach(c=>{
    const action=d.is_admin&&c.status==='ready'?button('Mark paid',async()=>{if(!confirm('Confirm external payout was actually made?'))return;try{await post('mark_commission_paid',{program_id:pid(),commission_id:c.id});notice('Marked paid');await load()}catch(e){notice(e.message,true)}}):null;

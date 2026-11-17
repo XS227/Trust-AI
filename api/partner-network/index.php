@@ -553,10 +553,65 @@ try {
         $pdo->commit();
         jsonResponse(200,['ok'=>true,'sale_id'=>$saleId,'commission_total'=>$stage==='cancelled' ? 0 : round(array_sum(array_column($rows,'amount')),2),'status'=>$ready?'ready':'pending']);
     }
+    if ($action==='review_partner_invoice') {
+        if (!$admin) b2bFail(403,'admin_only');
+        $invoiceId=(int)($body['invoice_id'] ?? 0);
+        $decision=(string)($body['decision'] ?? '');
+        if ($invoiceId<=0 || !in_array($decision,['approve','needs_revision'],true)) b2bFail(422,'invalid_invoice_decision');
+        $pdo->beginTransaction();
+        $s=$pdo->prepare('SELECT * FROM b2b_partner_invoices WHERE id=? AND program_id=? FOR UPDATE');
+        $s->execute([$invoiceId,$programId]);
+        $invoice=$s->fetch(PDO::FETCH_ASSOC);
+        if (!$invoice) { $pdo->rollBack(); b2bFail(404,'invoice_not_found'); }
+        if ($invoice['status']!=='submitted') { $pdo->rollBack(); b2bFail(409,'invoice_already_reviewed'); }
+        if ($decision==='needs_revision') {
+            $note=b2bString($body['note'] ?? '',1000);
+            if (mb_strlen($note)<5) { $pdo->rollBack(); b2bFail(422,'revision_reason_required'); }
+            $s=$pdo->prepare('UPDATE b2b_partner_invoices SET status="needs_revision",admin_note=?,reviewed_by_user_id=?,reviewed_at=NOW() WHERE id=?');
+            $s->execute([$note,$uid,$invoiceId]);
+        } else {
+            $commissionId=(int)($body['commission_id'] ?? 0);
+            if ($commissionId<=0) { $pdo->rollBack(); b2bFail(422,'select_ready_commission'); }
+            $s=$pdo->prepare('SELECT c.id,c.amount,c.status,c.partner_id,s.referral_id,s.stage,s.approved,s.costs_verified FROM b2b_commissions c JOIN b2b_sales s ON s.id=c.sale_id WHERE c.id=? AND s.program_id=? FOR UPDATE');
+            $s->execute([$commissionId,$programId]);
+            $eligible=$s->fetch(PDO::FETCH_ASSOC);
+            if (!$eligible
+                || (int)$eligible['partner_id']!==(int)$invoice['partner_id']
+                || (int)$eligible['referral_id']!==(int)$invoice['referral_id']
+                || $eligible['status']!=='ready' || $eligible['stage']!=='paid'
+                || (int)$eligible['approved']!==1 || (int)$eligible['costs_verified']!==1
+                || (int)round((float)$eligible['amount']*100)!==(int)round((float)$invoice['claimed_amount']*100)) {
+                $pdo->rollBack(); b2bFail(409,'invoice_does_not_match_ready_commission');
+            }
+            $s=$pdo->prepare('UPDATE b2b_partner_invoices SET commission_id=?,status="approved",admin_note=NULL,reviewed_by_user_id=?,reviewed_at=NOW() WHERE id=?');
+            $s->execute([$commissionId,$uid,$invoiceId]);
+        }
+        b2bAudit($pdo,$uid,'invoice_'.$decision,'partner_invoice',$invoiceId);
+        $pdo->commit();
+        jsonResponse(200,['ok'=>true,'status'=>$decision==='approve'?'approved':'needs_revision']);
+    }
+    if ($action==='mark_partner_invoice_paid') {
+        if (!$admin || empty($body['confirmed_external_payment'])) b2bFail(403,'admin_payment_confirmation_required');
+        $invoiceId=(int)($body['invoice_id'] ?? 0);
+        $pdo->beginTransaction();
+        $s=$pdo->prepare('SELECT * FROM b2b_partner_invoices WHERE id=? AND program_id=? FOR UPDATE');
+        $s->execute([$invoiceId,$programId]);
+        $invoice=$s->fetch(PDO::FETCH_ASSOC);
+        if (!$invoice || $invoice['status']!=='approved' || !$invoice['commission_id']) {
+            $pdo->rollBack(); b2bFail(409,'invoice_not_approved');
+        }
+        $s=$pdo->prepare('UPDATE b2b_commissions c JOIN b2b_sales s ON s.id=c.sale_id SET c.status="paid",c.paid_at=NOW() WHERE c.id=? AND s.program_id=? AND c.status="ready" AND s.stage="paid" AND s.approved=1 AND s.costs_verified=1');
+        $s->execute([(int)$invoice['commission_id'],$programId]);
+        if (!$s->rowCount()) { $pdo->rollBack(); b2bFail(409,'commission_no_longer_payable'); }
+        $pdo->prepare('UPDATE b2b_partner_invoices SET status="paid",paid_at=NOW() WHERE id=?')->execute([$invoiceId]);
+        b2bAudit($pdo,$uid,'invoice_paid','partner_invoice',$invoiceId);
+        $pdo->commit();
+        jsonResponse(200,['ok'=>true,'status'=>'paid']);
+    }
     if ($action==='mark_commission_paid') {
         if (!$admin) b2bFail(403,'admin_only');
         $id=(int)($body['commission_id'] ?? 0);
-        $s=$pdo->prepare('UPDATE b2b_commissions c JOIN b2b_sales s ON s.id=c.sale_id SET c.status="paid",c.paid_at=NOW() WHERE c.id=? AND s.program_id=? AND c.status="ready" AND s.stage="paid" AND s.approved=1 AND s.costs_verified=1');
+        $s=$pdo->prepare('UPDATE b2b_commissions c JOIN b2b_sales s ON s.id=c.sale_id SET c.status="paid",c.paid_at=NOW() WHERE c.id=? AND s.program_id=? AND c.status="ready" AND s.stage="paid" AND s.approved=1 AND s.costs_verified=1 AND NOT EXISTS (SELECT 1 FROM b2b_partner_invoices i WHERE i.commission_id=c.id)');
         $s->execute([$id,$programId]);
         if (!$s->rowCount()) b2bFail(409,'commission_not_ready');
         b2bAudit($pdo,$uid,'mark_paid','commission',$id);

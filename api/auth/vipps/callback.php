@@ -372,6 +372,19 @@ if ($currentRole === '' && in_array($desiredRole, ['ambassador', 'store_admin'],
     $currentRole = $desiredRole;
 }
 
+// Detect members of the independent B2B network; these accounts do not require
+// a Shopify ambassador_id. Keep Vipps login working before the optional migration.
+$isB2bPartner = false;
+if ($currentRole === 'ambassador') {
+    try {
+        $s = $pdo->prepare('SELECT p.id FROM b2b_partners p JOIN b2b_programs g ON g.id=p.program_id WHERE p.user_id=? AND p.status="active" AND g.status="active" LIMIT 1');
+        $s->execute([(int)$user['id']]);
+        $isB2bPartner = (bool)$s->fetchColumn();
+    } catch (Throwable $e) {
+        $isB2bPartner = false;
+    }
+}
+
 trustaiStartSessionForUser($user);
 
 // Carry the age-verification status into the post-login session. The role
@@ -401,6 +414,9 @@ if ($currentRole === '') {
     unset($_SESSION['vipps_partner_invite']);
     $target = '/partner-network.html?invite=' . rawurlencode($token);
     $reason = 'b2b_partner_invite';
+} elseif ($currentRole === 'ambassador' && $isB2bPartner && empty($user['ambassador_id'])) {
+    $target = '/partner-network.html';
+    $reason = 'b2b_existing_partner';
 } elseif ($currentRole === 'ambassador' && empty($user['ambassador_id'])) {
     $target = '/ambassador-signup.html?vipps=1';
     $reason = 'ambassador_missing_application';

@@ -6,7 +6,7 @@ require_once __DIR__ . '/_vipps_common.php';
 $cfg = trustaiVippsRequireConfig();
 
 $intent = strtolower(trim((string)($_GET['intent'] ?? 'auto')));
-if (!in_array($intent, ['auto', 'login', 'ambassador', 'store'], true)) {
+if (!in_array($intent, ['auto', 'login', 'ambassador', 'store', 'b2b'], true)) {
     $intent = 'auto';
 }
 
@@ -22,7 +22,7 @@ if (preg_match('/^[A-Za-z0-9_-]{43}$/D', $invite)) {
 $desiredRole = strtolower(trim((string)($_GET['role'] ?? '')));
 if (!in_array($desiredRole, ['ambassador', 'store_admin'], true)) {
     $desiredRole = '';
-    if ($intent === 'ambassador') {
+    if ($intent === 'ambassador' || $intent === 'b2b') {
         $desiredRole = 'ambassador';
     } elseif ($intent === 'store') {
         $desiredRole = 'store_admin';

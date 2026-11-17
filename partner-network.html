@@ -399,7 +399,7 @@ function render(){
    tableRow($('partnerInvoiceRows'),[inv.invoice_number,displayCompany(inv),money(inv.claimed_amount),inv.status+(inv.status==='needs_revision'&&inv.admin_note?' · '+inv.admin_note:'')],buttons);
  });
  commissions.forEach(c=>{
-   const action=d.is_admin&&c.status==='ready'?button('Mark paid',async()=>{if(!confirm('Confirm external payout was actually made?'))return;try{await post('mark_commission_paid',{program_id:pid(),commission_id:c.id});notice('Marked paid');await load()}catch(e){notice(e.message,true)}}):null;
+   const action=d.is_admin&&c.status==='ready'&&d.program.name!=='SETAEI'?button('Mark paid',async()=>{if(!confirm('Confirm external payout was actually made?'))return;try{await post('mark_commission_paid',{program_id:pid(),commission_id:c.id});notice('Marked paid');await load()}catch(e){notice(e.message,true)}}):null;
    tableRow($('commissionRows'),[displayCompany(c),c.kind+(d.is_admin?' · '+c.partner_name:''),money(c.amount),c.status],action);
  });
  (d.sales||[]).forEach(s=>{

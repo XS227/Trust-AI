@@ -226,7 +226,7 @@ if ($method==='GET') {
         $s=$pdo->prepare('SELECT id,display_name,type,status,created_at FROM b2b_partners WHERE parent_partner_id=? AND program_id=? ORDER BY id DESC');
         $s->execute([(int)$member['id'],$programId]);
         $base['partners']=$s->fetchAll(PDO::FETCH_ASSOC);
-        $s=$pdo->prepare('SELECT i.id,i.referral_id,i.commission_id,i.invoice_number,i.claimed_amount,i.original_filename,i.status,i.created_at,i.reviewed_at,i.paid_at,r.company_name,r.brand_name FROM b2b_partner_invoices i JOIN b2b_referrals r ON r.id=i.referral_id WHERE i.program_id=? AND i.partner_id=? ORDER BY i.id DESC LIMIT 150');
+        $s=$pdo->prepare('SELECT i.id,i.referral_id,i.commission_id,i.invoice_number,i.claimed_amount,i.original_filename,i.status,i.admin_note,i.created_at,i.reviewed_at,i.paid_at,r.company_name,r.brand_name FROM b2b_partner_invoices i JOIN b2b_referrals r ON r.id=i.referral_id WHERE i.program_id=? AND i.partner_id=? ORDER BY i.id DESC LIMIT 150');
         $s->execute([$programId,(int)$member['id']]);
         $base['partner_invoices']=$s->fetchAll(PDO::FETCH_ASSOC);
         $s=$pdo->prepare('SELECT id,referral_id,seen_at FROM b2b_welcome_events WHERE program_id=? AND partner_id=? AND event_type="trusted_one_first_approved" LIMIT 1');

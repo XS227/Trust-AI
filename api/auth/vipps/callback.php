@@ -391,6 +391,9 @@ trustaiStartSessionForUser($user);
 $_SESSION['vipps_verified_phone'] = $phone;
 $_SESSION['vipps_verified_at'] = time();
 
+// Preserve explicit B2B selection for the 18+ role-picker redirect.
+$_SESSION['vipps_b2b_requested'] = ($intent === 'b2b');
+
 // Carry the age-verification status into the post-login session. The role
 // picker / role-setting endpoint enforces it before any role is committed.
 $_SESSION['vipps_age_verified'] = $ageVerified;

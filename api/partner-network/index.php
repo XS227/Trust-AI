@@ -168,20 +168,20 @@ if ($method==='GET') {
         $s=$pdo->prepare('SELECT id,user_id,parent_partner_id,display_name,type,status,upline_share_percent FROM b2b_partners WHERE program_id=? ORDER BY id');
         $s->execute([$programId]);
         $base['partners']=$s->fetchAll(PDO::FETCH_ASSOC);
-        $s=$pdo->prepare('SELECT r.id,r.partner_id,r.org_number,r.company_name,r.status,r.partner_note,r.created_at,p.display_name AS partner_name FROM b2b_referrals r JOIN b2b_partners p ON p.id=r.partner_id WHERE r.program_id=? ORDER BY r.created_at DESC LIMIT 300');
+        $s=$pdo->prepare('SELECT r.id,r.partner_id,r.org_number,r.company_name,r.brand_name,r.status,r.partner_note,r.created_at,p.display_name AS partner_name FROM b2b_referrals r JOIN b2b_partners p ON p.id=r.partner_id WHERE r.program_id=? ORDER BY r.created_at DESC LIMIT 300');
         $s->execute([$programId]);
         $base['referrals']=$s->fetchAll(PDO::FETCH_ASSOC);
-        $s=$pdo->prepare('SELECT s.*,r.company_name, GREATEST(0,s.revenue_ex_vat-s.direct_cost_ex_vat) AS profit FROM b2b_sales s JOIN b2b_referrals r ON r.id=s.referral_id WHERE s.program_id=? ORDER BY s.id DESC LIMIT 300');
+        $s=$pdo->prepare('SELECT s.*,r.company_name,r.brand_name, GREATEST(0,s.revenue_ex_vat-s.direct_cost_ex_vat) AS profit FROM b2b_sales s JOIN b2b_referrals r ON r.id=s.referral_id WHERE s.program_id=? ORDER BY s.id DESC LIMIT 300');
         $s->execute([$programId]);
         $base['sales']=$s->fetchAll(PDO::FETCH_ASSOC);
-        $s=$pdo->prepare('SELECT c.id,c.sale_id,c.partner_id,c.kind,c.amount,c.status,c.paid_at,r.company_name,p.display_name AS partner_name FROM b2b_commissions c JOIN b2b_sales s ON s.id=c.sale_id JOIN b2b_referrals r ON r.id=s.referral_id JOIN b2b_partners p ON p.id=c.partner_id WHERE s.program_id=? ORDER BY c.id DESC LIMIT 400');
+        $s=$pdo->prepare('SELECT c.id,c.sale_id,c.partner_id,c.kind,c.amount,c.status,c.paid_at,r.company_name,r.brand_name,p.display_name AS partner_name FROM b2b_commissions c JOIN b2b_sales s ON s.id=c.sale_id JOIN b2b_referrals r ON r.id=s.referral_id JOIN b2b_partners p ON p.id=c.partner_id WHERE s.program_id=? ORDER BY c.id DESC LIMIT 400');
         $s->execute([$programId]);
         $base['commissions']=$s->fetchAll(PDO::FETCH_ASSOC);
     } else {
-        $s=$pdo->prepare('SELECT id,partner_id,org_number,company_name,status,created_at FROM b2b_referrals WHERE program_id=? AND partner_id=? ORDER BY id DESC LIMIT 200');
+        $s=$pdo->prepare('SELECT id,partner_id,org_number,company_name,brand_name,status,created_at FROM b2b_referrals WHERE program_id=? AND partner_id=? ORDER BY id DESC LIMIT 200');
         $s->execute([$programId,(int)$member['id']]);
         $base['referrals']=$s->fetchAll(PDO::FETCH_ASSOC);
-        $s=$pdo->prepare('SELECT c.id,c.kind,c.amount,c.status,c.paid_at,r.company_name,s.invoice_reference FROM b2b_commissions c JOIN b2b_sales s ON s.id=c.sale_id JOIN b2b_referrals r ON r.id=s.referral_id WHERE c.partner_id=? AND s.program_id=? ORDER BY c.id DESC LIMIT 200');
+        $s=$pdo->prepare('SELECT c.id,c.kind,c.amount,c.status,c.paid_at,r.company_name,r.brand_name,s.invoice_reference FROM b2b_commissions c JOIN b2b_sales s ON s.id=c.sale_id JOIN b2b_referrals r ON r.id=s.referral_id WHERE c.partner_id=? AND s.program_id=? ORDER BY c.id DESC LIMIT 200');
         $s->execute([(int)$member['id'],$programId]);
         $base['commissions']=$s->fetchAll(PDO::FETCH_ASSOC);
         $s=$pdo->prepare('SELECT id,display_name,type,status,created_at FROM b2b_partners WHERE parent_partner_id=? AND program_id=? ORDER BY id DESC');
@@ -264,6 +264,7 @@ try {
         if (!$s->fetchColumn()) b2bFail(422,'invalid_partner');
         $org=preg_replace('/\s+/','',(string)($body['org_number'] ?? ''));
         $company=b2bString($body['company_name'] ?? '',200);
+        $brand=b2bString($body['brand_name'] ?? '',160);
         $note=b2bString($body['note'] ?? '',1000);
         if (!b2bOrgValid($org)) b2bFail(422,'invalid_norwegian_org_number');
         // Prefer the verified registered company name whenever the registry responds.
@@ -271,8 +272,8 @@ try {
         if ($registeredName!==null) $company=$registeredName;
         if (mb_strlen($company)<2) b2bFail(422,'company_name_required');
         try {
-            $s=$pdo->prepare('INSERT INTO b2b_referrals (program_id,partner_id,org_number,company_name,partner_note) VALUES (?,?,?,?,?)');
-            $s->execute([$programId,$partnerId,$org,$company,$note ?: null]);
+            $s=$pdo->prepare('INSERT INTO b2b_referrals (program_id,partner_id,org_number,company_name,brand_name,partner_note) VALUES (?,?,?,?,?,?)');
+            $s->execute([$programId,$partnerId,$org,$company,$brand ?: null,$note ?: null]);
         } catch (PDOException $e) {
             if (($e->errorInfo[1] ?? null)==1062) b2bFail(409,'company_already_referred');
             throw $e;

@@ -148,6 +148,17 @@ const pid=()=>state.data.program?.id||0;
 $('loginBtn').onclick=()=>{let url='/api/auth/vipps/login.php?intent=ambassador';if(state.token)url+='&partner_invite='+encodeURIComponent(state.token);location.href=url};
 $('acceptBtn').onclick=async()=>{try{const token=$('joinToken').value.trim();const r=await post('accept_invite',{token});sessionStorage.removeItem('trustai_partner_invite');state.token='';notice('Partner profile activated');await load(r.program_id)}catch(e){notice(e.message,true)}};
 $('programForm').onsubmit=async e=>{e.preventDefault();try{await post('create_program',{name:$('newProgramName').value.trim()});notice('Program created');await load()}catch(e){notice(e.message,true)}};
+// Look up the registered company name from the official Bronnoysund registry.
+$('orgNumber').addEventListener('blur',async()=>{
+  const org=$('orgNumber').value.trim();
+  if(!/^[0-9]{9}$/.test(org))return;
+  try{
+    const r=await fetch(API+'?action=company_lookup&org_number='+encodeURIComponent(org),{credentials:'include',cache:'no-store'});
+    const d=await r.json();
+    if(r.ok&&d.ok){$('companyName').value=d.name;notice('Company verified: '+d.name)}
+    else notice('Company lookup unavailable. Check the organisation number and name.',true);
+  }catch(e){notice('Company lookup unavailable; enter the name manually.',true)}
+});
 $('refForm').onsubmit=async e=>{e.preventDefault();try{await post('create_referral',{program_id:pid(),org_number:$('orgNumber').value.trim(),company_name:$('companyName').value.trim(),note:$('refNote').value.trim(),partner_id:Number($('refPartner').value||0)});$('refForm').reset();notice('Referral registered');await load()}catch(e){notice(e.message,true)}};
 $('inviteForm').onsubmit=async e=>{e.preventDefault();try{const r=await post('create_invite',{program_id:pid(),label:$('inviteLabel').value.trim(),parent_partner_id:Number($('inviteParent').value||0)});$('inviteUrl').textContent=r.invite_url;show('inviteResult',true);notice('Private invitation created');}catch(e){notice(e.message,true)}};
 $('copyInvite').onclick=async()=>{try{await navigator.clipboard.writeText($('inviteUrl').textContent);notice('Link copied')}catch(e){notice('Copy manually from the box',true)}};
@@ -159,6 +170,7 @@ function render(){
  if(!d.program){show('adminCreate',d.is_admin);show('joinGate',!d.is_admin);return}
  $('programName').textContent=d.program.name;
  if(!d.joined){show('joinGate',true);return}
+ if(state.token) show('joinGate',true); // Allow an existing partner to accept an invite to a second program.
  document.querySelectorAll('[data-admin],.admin-col').forEach(el=>el.classList.toggle('hidden',!d.is_admin));
  const commissions=d.commissions||[],refs=d.referrals||[],partners=d.partners||[];
  $('statRef').textContent=refs.length;

@@ -418,6 +418,10 @@ if ($currentRole === '') {
     unset($_SESSION['vipps_partner_invite']);
     $target = '/partner-network.html?invite=' . rawurlencode($token);
     $reason = 'b2b_partner_invite';
+} elseif ($currentRole === 'ambassador' && $intent === 'b2b') {
+    // Explicit SETAEI B2B login. Do not send an authenticated partner to store setup.
+    $target = '/partner-network.html';
+    $reason = 'b2b_program_application';
 } elseif ($currentRole === 'ambassador' && $isB2bPartner && empty($user['ambassador_id'])) {
     $target = '/partner-network.html';
     $reason = 'b2b_existing_partner';

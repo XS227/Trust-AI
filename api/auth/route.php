@@ -38,6 +38,17 @@ try {
         jsonResponse(200, ['ok' => false, 'error' => 'invalid_role']);
     }
 
+    // B2B referral members may have no Shopify ambassador account.
+    if ($role === 'ambassador' && empty($user['ambassador_id']) && isset($pdo) && $pdo instanceof PDO) {
+        try {
+            $s = $pdo->prepare('SELECT p.id FROM b2b_partners p JOIN b2b_programs g ON g.id=p.program_id WHERE p.user_id=? AND p.status="active" AND g.status="active" LIMIT 1');
+            $s->execute([(int)$user['id']]);
+            if ($s->fetchColumn()) $roleRedirects['ambassador'] = '/partner-network.html';
+        } catch (Throwable $e) {
+            // The B2B schema is optional until migrated; preserve existing routes.
+        }
+    }
+
     jsonResponse(200, ['ok' => true, 'role' => $role, 'redirect' => $roleRedirects[$role]]);
 } catch (Throwable $e) {
     error_log('api/auth/route.php runtime failure: ' . $e->getMessage());

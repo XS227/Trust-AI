@@ -74,7 +74,7 @@ $partnerInvite = (string)($_SESSION['vipps_partner_invite'] ?? '');
 if ($effectiveRole === 'ambassador' && preg_match('/^[A-Za-z0-9_-]{43}$/D', $partnerInvite)) {
     unset($_SESSION['vipps_partner_invite']);
     $redirect = '/partner-network.html?invite=' . rawurlencode($partnerInvite);
-} elseif ($effectiveRole === 'ambassador' && $isB2bPartner) {
+} elseif ($effectiveRole === 'ambassador' && ($isB2bPartner || (string)($_SESSION['vipps_intent'] ?? '') === 'b2b')) {
     $redirect = '/partner-network.html';
 } else {
     $redirect = $effectiveRole === 'ambassador'

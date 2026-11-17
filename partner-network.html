@@ -188,7 +188,14 @@ function render(){
    tableRow($('refRows'),[displayCompany(r),r.org_number,r.status,(r.created_at||'').slice(0,10)],change);
    if(d.is_admin)option($('saleRef'),r.id,displayCompany(r)+' ('+r.org_number+')');
  });
- partners.forEach(p=>tableRow($('teamRows'),[p.display_name,p.type,p.status]));
+ partners.forEach(p=>{
+   const adminAction=d.is_admin?button('Share '+Number(p.upline_share_percent||0)+'%',async()=>{
+      const input=prompt('Parent share from direct recruit commission pool (0–30%)',p.upline_share_percent);
+      if(input===null)return;
+      try{await post('set_upline_share',{program_id:pid(),partner_id:p.id,upline_share_percent:Number(input)});notice('Share updated');await load()}catch(e){notice(e.message,true)}
+   }):null;
+   tableRow($('teamRows'),[p.display_name,p.type,p.status],adminAction);
+ });
  commissions.forEach(c=>{
    const action=d.is_admin&&c.status==='ready'?button('Mark paid',async()=>{if(!confirm('Confirm external payout was actually made?'))return;try{await post('mark_commission_paid',{program_id:pid(),commission_id:c.id});notice('Marked paid');await load()}catch(e){notice(e.message,true)}}):null;
    tableRow($('commissionRows'),[displayCompany(c),c.kind+(d.is_admin?' · '+c.partner_name:''),money(c.amount),c.status],action);

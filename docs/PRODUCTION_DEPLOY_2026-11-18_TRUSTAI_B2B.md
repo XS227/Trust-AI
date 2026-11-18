@@ -29,6 +29,12 @@ Review: GitHub PR #36 (still DRAFT / not merged).
    - foreign Origin => 403
    - temporary PHP probe returned ENV_STORAGE_OK for invoice storage permissions and environment; test probe removed immediately.
 
+## Invoice size config follow-up
+
+After the initial smoke test, the production PHP-FPM runtime reported upload_max_filesize=2M and post_max_size=8M while the partner invoice UI supports an 8 MiB PDF. Corrected **only for the new TrustAI site** by adding /var/www/trustai-release-b2b-20261118/.user.ini with upload_max_filesize=8M and post_max_size=10M and setting client_max_body_size 10m in its HTTPS Nginx server block. nginx -t passed; Nginx and FPM were reloaded. A temporary HTTP PHP probe confirmed 8M|10M|.user.ini, then the probe was removed. The attempted per-request PHP_VALUE override did not take effect and was removed; .user.ini is the effective configuration.
+
+CAUTION: the .user.ini is a runtime-only file in the release directory, not part of the Git worktree tracked content. When publishing a later release, recreate/copy the site-specific limits and confirm them. The Nginx vhost currently has client_max_body_size 10m, which was added after the original vhost backup. The old site rollback configuration is still available as nginx-trustai.conf.before. No actual uploaded PDF has been tested yet.
+
 ## Not yet verified; remaining work for next agent
 
 - Real person's Vipps OAuth return/callback, role assignment and age confirmation. A redirect HTTP 302 is not a full completed login.

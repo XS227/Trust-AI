@@ -6,14 +6,23 @@ require_once __DIR__ . '/_vipps_common.php';
 $cfg = trustaiVippsRequireConfig();
 
 $intent = strtolower(trim((string)($_GET['intent'] ?? 'auto')));
-if (!in_array($intent, ['auto', 'login', 'ambassador', 'store'], true)) {
+if (!in_array($intent, ['auto', 'login', 'ambassador', 'store', 'b2b'], true)) {
     $intent = 'auto';
+}
+
+// Single-use B2B partner invite: keep the token server-side across the Vipps callback.
+// It is never used as proof of identity; a verified Vipps login is still required.
+$invite = (string)($_GET['partner_invite'] ?? '');
+if (preg_match('/^[A-Za-z0-9_-]{43}$/D', $invite)) {
+    $_SESSION['vipps_partner_invite'] = $invite;
+} else {
+    unset($_SESSION['vipps_partner_invite']);
 }
 
 $desiredRole = strtolower(trim((string)($_GET['role'] ?? '')));
 if (!in_array($desiredRole, ['ambassador', 'store_admin'], true)) {
     $desiredRole = '';
-    if ($intent === 'ambassador') {
+    if ($intent === 'ambassador' || $intent === 'b2b') {
         $desiredRole = 'ambassador';
     } elseif ($intent === 'store') {
         $desiredRole = 'store_admin';
@@ -36,6 +45,7 @@ $_SESSION['trustai_epoch'] = TRUSTAI_SESSION_EPOCH;
 $_SESSION['vipps_csrf'] = $csrf;
 $_SESSION['vipps_pkce_verifier'] = $verifier;
 $_SESSION['vipps_intent'] = $intent;
+$_SESSION['vipps_b2b_requested'] = ($intent === 'b2b');
 $_SESSION['vipps_desired_role'] = $desiredRole;
 
 $statePayload = [

@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Partner Network | TrustAI</title>
+<style>
+:root{color-scheme:dark;--bg:#080e17;--panel:#121c2b;--border:#27364b;--text:#eff6ff;--muted:#91a6bc;--mint:#5eead4;--purple:#a78bfa;--blue:#60a5fa}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% -20%,#19334a,transparent 55%),var(--bg);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);min-height:100vh}
+a{color:var(--mint)}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}
+.wrap{max-width:1240px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;border-bottom:1px solid var(--border);padding-bottom:20px}
+.brand{font-size:23px;font-weight:850;letter-spacing:-1.5px;text-decoration:none;color:#fff}.brand span{color:var(--mint)}.top-right{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.pill{border:1px solid var(--border);border-radius:99px;padding:7px 11px;color:var(--muted);font-size:12px}
+.lang{background:transparent;border:1px solid var(--border);border-radius:9px;padding:8px 11px;color:var(--text)}
+.hero{padding:42px 0 22px;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+.eyebrow{font-size:11px;letter-spacing:2px;color:var(--mint);font-weight:800;text-transform:uppercase}h1{font-size:clamp(31px,5vw,52px);line-height:1.08;letter-spacing:-2px;margin:12px 0}p{color:var(--muted);line-height:1.55}
+.hero p{max-width:600px;margin:10px 0}.layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:22px}
+.side{border:1px solid var(--border);background:#101a28;border-radius:16px;padding:12px;height:max-content}
+.nav{display:block;width:100%;border:0;background:transparent;color:var(--muted);text-align:left;padding:13px 14px;border-radius:10px;font-weight:650;margin-bottom:4px}
+.nav.active,.nav:hover{background:#1d3147;color:var(--text)}.content{min-width:0}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:20px}
+.card{background:linear-gradient(145deg,#172539,#0e1928);border:1px solid var(--border);border-radius:16px;padding:20px}
+.card small{display:block;color:var(--muted);font-size:12px;margin-bottom:10px}.card strong{font-size:31px;letter-spacing:-1px}
+.panel{background:#101b2b;border:1px solid var(--border);border-radius:18px;padding:22px;margin-bottom:16px}.panel h2{font-size:19px;letter-spacing:-.5px;margin:0 0 8px}.panel p{font-size:13px;margin:0 0 18px}
+.form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:6px}
+.field.full{grid-column:1/-1}label{font-size:12px;font-weight:650;color:#abc0d0}
+input,select,textarea{width:100%;border-radius:10px;border:1px solid #35465b;background:#0b1523;color:#f6faff;padding:12px;outline:none;min-height:44px}
+input:focus,select:focus,textarea:focus{border-color:var(--mint)}textarea{resize:vertical;min-height:74px}
+.btn{border:0;padding:12px 18px;border-radius:10px;background:linear-gradient(115deg,#5eead4,#56aaff);color:#052239;font-weight:800}
+.btn.secondary{background:#27384d;color:#eff6ff}.btn.vipps{background:#ff5b24;color:white}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.subhead{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.table-wrap{overflow:auto}table{border-collapse:collapse;min-width:580px;width:100%;font-size:13px}
+th{text-align:left;font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:#98a9be;border-bottom:1px solid var(--border);padding:12px 10px}
+td{border-bottom:1px solid #243448;padding:12px 10px;vertical-align:middle}tbody tr:last-child td{border-bottom:0}
+.status{padding:5px 8px;background:#1c3544;border-radius:7px;display:inline-block;color:#bde8f1;font-size:11px}
+.muted{color:var(--muted)}.note{padding:13px;background:#132b2f;border:1px solid #2c665d;border-radius:11px;color:#adf1e5;font-size:13px;line-height:1.6}
+.trusted-badge{display:inline-flex;background:rgba(94,234,212,.14);border:1px solid #5eead4;color:#a6fff0;font-weight:800;border-radius:999px;padding:5px 9px;margin-left:9px;font-size:11px;letter-spacing:.3px}
+.welcome-scrim{position:fixed;inset:0;background:rgba(2,10,19,.86);backdrop-filter:blur(12px);display:grid;place-items:center;z-index:80;padding:20px}
+.welcome-box{max-width:490px;width:100%;background:linear-gradient(150deg,#18384a,#101827 68%);border:1px solid rgba(94,234,212,.5);box-shadow:0 20px 120px rgba(94,234,212,.1);padding:40px 28px;border-radius:24px;text-align:center}
+.welcome-mark{font-size:50px;line-height:1.4}.welcome-box h2{font-size:clamp(27px,5vw,37px);margin:14px 0;letter-spacing:-1.2px}
+.welcome-box p{font-size:15px;margin-bottom:22px}.welcome-company{background:#0c2833;border:1px solid #2e5b65;border-radius:12px;padding:12px;color:#c5f9ee;margin-bottom:22px}
+#notice{display:none;position:sticky;top:10px;z-index:30;padding:12px 16px;border:1px solid #2b8e81;background:#102d35;border-radius:12px;margin-bottom:14px}
+#notice.error{background:#351d24;border-color:#914451}.hidden{display:none!important}.copybox{padding:12px;border:1px dashed var(--mint);border-radius:10px;overflow-wrap:anywhere;color:var(--mint);font-size:12px}
+footer{padding:36px 0;color:#6c8193;text-align:center;font-size:12px}
+@media(max-width:820px){.layout{grid-template-columns:1fr}.side{display:flex;overflow:auto;gap:5px}.nav{width:auto;white-space:nowrap}.cards{grid-template-columns:1fr 1fr}.hero{padding-top:25px}}
+@media(max-width:570px){.cards{grid-template-columns:1fr}.form{grid-template-columns:1fr}.wrap{padding:16px}.panel{padding:17px}.top{align-items:flex-start}.top-right .pill{display:none}}
+</style></head>
+<body>
+<div class="wrap">
+<header class="top"><a class="brand" href="/">Trust<span>AI</span> <span style="font-size:12px;color:#91a6bc;font-weight:500;letter-spacing:0">/ Partners</span></a>
+<div class="top-right"><span class="pill" id="who">Secure partner workspace</span><button class="lang" id="langBtn">🇳🇴 NO</button><a class="pill" href="/app.html" data-i18n="mainApp">Main app</a></div></header>
+<section class="hero"><div><div class="eyebrow" data-i18n="eyebrow">Referral growth network</div><h1 data-i18n="hero">Your network. Measurable value.</h1><p data-i18n="intro">Register companies, follow deals and see confirmed commissions. Bring your own partners on board.</p></div><div class="pill" id="programName">TrustAI Network</div></section>
+<div id="notice" role="status" aria-live="polite"></div>
+<div id="trustedWelcome" class="welcome-scrim hidden" role="dialog" aria-modal="true" aria-labelledby="trustedTitle" aria-describedby="trustedCopy">
+  <div class="welcome-box">
+    <div class="welcome-mark" aria-hidden="true">✦</div>
+    <div class="eyebrow">TrustAI · First approved referral</div>
+    <h2 id="trustedTitle">Gratulerer med din første godkjente anbefaling!</h2>
+    <p id="trustedCopy">Din første anbefaling er nå godkjent i TrustAI. Du er nå en <strong style="color:#5eead4">Trusted One.</strong></p>
+    <div class="welcome-company" id="trustedCompany">Stenhuset</div>
+    <button class="btn" id="welcomeContinue" type="button">Utforsk min portefølje</button>
+  </div>
+</div>
+<div id="loginGate" class="panel hidden">
+  <h2 data-i18n="secureAccess">Secure partner sign-in</h2>
+  <p data-i18n="loginCopy">Sign in with Vipps to access your invitations, referrals and commissions.</p>
+  <button class="btn vipps" id="loginBtn" data-i18n="loginVipps">Continue with Vipps</button>
+</div>
+<div id="joinGate" class="panel hidden">
+  <h2 data-i18n="acceptTitle">Accept partner invitation</h2>
+  <p data-i18n="inviteDesc">A private invitation is required to join a partner program.</p>
+  <div class="form"><div class="field full"><label data-i18n="inviteCode">Invitation token</label><input id="joinToken" autocomplete="off" placeholder="Paste your private invitation token"></div>
+  <div><button class="btn" id="acceptBtn" data-i18n="acceptInvite">Activate partner profile</button></div></div>
+</div>
+<div id="applyGate" class="panel hidden">
+ <h2 data-i18n="applyHeadline">Become a SETAEI business partner</h2>
+ <p data-i18n="applyCopy">No store domain is needed. Sign in with Vipps, request access to SETAEI and wait for approval. Existing referrals are assigned after verification.</p>
+ <div id="applicationState" class="note hidden"></div>
+ <form id="applicationForm" class="form">
+  <div class="field"><label data-i18n="yourName">Your name</label><input id="applicationName" maxlength="180" required placeholder="Thomas Hannaas"></div>
+  <div class="field"><label data-i18n="businessName">Business / partner company</label><input id="applicationBusiness" maxlength="200" required placeholder="RAWScales"></div>
+  <div class="field full"><label data-i18n="applicationNote">Message for SETAEI (optional)</label><textarea id="applicationNote" maxlength="1000"></textarea></div>
+  <div class="field full"><button type="submit" class="btn" data-i18n="applyBtn">Request access to SETAEI</button></div>
+ </form>
+</div>
+<div id="adminCreate" class="panel hidden"><h2 data-i18n="createProgram">Create your first partner program</h2><p data-i18n="programDesc">Set up a company program before inviting your first partner.</p>
+  <form id="programForm" class="form"><div class="field"><label data-i18n="programLabel">Program name</label><input id="newProgramName" value="SETAEI" required></div>
+  <div class="field" style="justify-content:flex-end"><button class="btn" type="submit" data-i18n="create">Create program</button></div></form>
+</div>
+<div id="workspace" class="layout hidden">
+<nav class="side"><button class="nav active" data-tab="overview" data-i18n="overview">Overview</button><button class="nav" data-tab="referrals" data-i18n="referrals">Companies</button><button class="nav" data-tab="network" data-i18n="network">My network</button><button class="nav" data-tab="commissions" data-i18n="commissions">Commissions</button><button class="nav hidden" data-admin data-tab="sales" data-i18n="sales">Sales admin</button></nav>
+<div class="content">
+<section data-pane="overview">
+  <div class="cards"><div class="card"><small data-i18n="referredCompanies">Referred companies</small><strong id="statRef">0</strong></div>
+  <div class="card"><small data-i18n="pendingAmount">Pending commissions</small><strong id="statPending">0 kr</strong></div>
+  <div class="card"><small data-i18n="readyAmount">Ready to invoice</small><strong id="statReady">0 kr</strong></div></div>
+  <div class="panel"><h2 data-i18n="howWorks">How it works</h2><p data-i18n="steps">1. Introduce a company by Norwegian organisation number. 2. The business owner confirms sales, costs and commissions. 3. After payment, the commission becomes available for invoicing. 4. Only admins mark payouts as paid.</p><div class="note" data-i18n="profitRule">Standard: 30% of positive net profit after actual costs. Discounted deals can have an approved fixed commission; no payout exceeds profit.</div></div>
+</section>
+<section data-pane="referrals" class="hidden">
+ <div class="panel"><h2 data-i18n="registerCompany">Register a referred company</h2><p data-i18n="orgHint">Each organisation number can only be registered once per program, protecting the original referrer.</p>
+  <form id="refForm" class="form">
+   <div class="field"><label data-i18n="orgNumber">Organisation number</label><input id="orgNumber" pattern="[0-9]{9}" inputmode="numeric" maxlength="9" required placeholder="9 digits"></div>
+   <div class="field"><label data-i18n="companyName">Company name</label><input id="companyName" maxlength="200" required></div>
+   <div class="field full"><label data-i18n="brandName">Trading name / brand (optional)</label><input id="brandName" maxlength="160" placeholder="Stenhuset"></div>
+   <div class="field full hidden" data-admin><label data-i18n="referringPartner">Referring partner</label><select id="refPartner"></select></div>
+   <div class="field full"><label data-i18n="partnerNote">Note for SETAEI</label><textarea id="refNote" maxlength="1000"></textarea></div>
+   <div class="field full"><button class="btn" type="submit" data-i18n="submitReferral">Submit referral</button></div>
+  </form></div>
+ <div class="panel"><h2 data-i18n="pipeline">Referral pipeline</h2><div class="table-wrap"><table><thead><tr><th data-i18n="companyName">Company</th><th data-i18n="orgNumber">Org. no.</th><th data-i18n="status">Status</th><th data-i18n="created">Registered</th><th class="admin-col hidden" data-i18n="action">Action</th></tr></thead><tbody id="refRows"></tbody></table></div></div>
+</section>
+<section data-pane="network" class="hidden">
+ <div class="panel"><h2 data-i18n="invitePartner">Invite a seller, partner or ambassador</h2>
+  <p data-i18n="inviteEx">Earn an upline share only when your directly invited partners bring in real, profitable sales. No reward for recruiting people.</p>
+  <form class="form" id="inviteForm">
+   <div class="field"><label data-i18n="partnerName">Partner / company name</label><input id="inviteLabel" required maxlength="160" placeholder="RAWScales"></div>
+   <div class="field"><label data-i18n="partnerType">Partner type</label><select id="inviteType"><option value="partner">Partner</option><option value="seller">Seller</option><option value="ambassador">Ambassador</option></select></div>
+   <div class="field hidden" data-admin><label data-i18n="parentPartner">Upline (optional)</label><select id="inviteParent"><option value="">Root / no upline</option></select></div>
+   <div class="field full hidden" data-admin><label data-i18n="approvedReservation">Link an approved customer to this invitation</label><select id="inviteReservation"><option value="">None</option></select></div>
+   <div class="field full hidden" data-admin><label data-i18n="expectedVippsEmail">Vipps account email (private)</label><input id="inviteVippsEmail" type="email" autocomplete="off" placeholder="Email from verified contact"><p class="muted" style="margin:4px 0 0;font-size:12px" data-i18n="vippsEmailHelp">When attaching an approved referral, provide the expected Vipps email or phone to prevent other people from claiming the portfolio.</p></div>
+   <div class="field full hidden" data-admin><label data-i18n="expectedVippsPhone">Verified Vipps mobile number (optional, private)</label><input id="inviteVippsPhone" type="tel" autocomplete="off" placeholder="+47 ..."><p class="muted" style="margin:4px 0 0;font-size:12px" data-i18n="vippsPhoneHelp">Leave blank if unknown. Vipps will register the user's real phone when they authenticate.</p></div>
+   <div class="field full"><button type="submit" class="btn" data-i18n="generateLink">Generate secure invitation link</button></div>
+  </form><div id="inviteResult" class="hidden" style="margin-top:16px"><div class="copybox" id="inviteUrl"></div><p data-i18n="invitePrivate">This single-use link expires in 14 days. Share privately with your partner.</p><button class="btn secondary" id="copyInvite" data-i18n="copyLink">Copy link</button></div>
+ </div>
+ <div class="panel hidden" data-admin id="applicationPanel">
+  <h2 data-i18n="applicationsHead">Vipps-verified SETAEI partner applications</h2>
+  <p data-i18n="applicationsDesc">Verify the applicant's identity before approval. Only assign an existing introduction to the correct partner.</p>
+  <div class="field"><label data-i18n="assignReserved">Approved introduction to assign (optional)</label><select id="approveReserved"><option value="">None</option></select></div>
+  <div class="table-wrap"><table><thead><tr><th data-i18n="yourName">Name</th><th data-i18n="businessName">Company</th><th>Verified contact</th><th data-i18n="status">Status</th><th data-i18n="action">Action</th></tr></thead><tbody id="applicationRows"></tbody></table></div>
+ </div>
+ <div class="panel hidden" data-admin id="pendingIntros"><h2>Approved introductions ready for onboarding</h2>
+  <p>Admin-only reservations. An approved introduction is not a paid sale or an active Vipps account.</p>
+  <div class="table-wrap"><table><thead><tr><th>Partner</th><th>Customer</th><th>Suggested commission</th><th>Reservation</th></tr></thead><tbody id="reservedRows"></tbody></table></div>
+ </div>
+ <div class="panel"><h2 data-i18n="partnerTeam">Partner network</h2><div class="table-wrap"><table><thead><tr><th data-i18n="partnerName">Partner</th><th data-i18n="role">Role</th><th data-i18n="status">Status</th></tr></thead><tbody id="teamRows"></tbody></table></div></div>
+</section>
+<section data-pane="commissions" class="hidden">
+ <div class="panel hidden" id="invoiceUploadPanel">
+  <h2 data-i18n="invoiceUploadTitle">Submit a commission invoice to SETAEI</h2>
+  <p data-i18n="invoiceUploadHint">Upload a real PDF invoice. It will be reviewed by SETAEI. Submitting a document does not mean the commission is approved or paid.</p>
+  <form id="invoiceUploadForm" class="form" enctype="multipart/form-data">
+    <div class="field"><label data-i18n="referral">Referred company</label><select id="invoiceReferral" required></select></div>
+    <div class="field"><label data-i18n="invoiceNumber">Invoice number</label><input id="invoiceNumber" required maxlength="100" placeholder="2026-001"></div>
+    <div class="field"><label data-i18n="invoiceAmount">Amount (NOK ex. VAT, if applicable)</label><input id="invoiceAmount" type="number" min=".01" step=".01" required placeholder="3000"></div>
+    <div class="field"><label data-i18n="invoicePdf">Invoice PDF (max 8 MB)</label><input id="invoicePdf" type="file" accept="application/pdf,.pdf" required></div>
+    <div class="field full"><button type="submit" class="btn" id="submitInvoice" data-i18n="submitInvoice">Send invoice for review</button></div>
+  </form>
+ </div>
+ <div class="panel"><h2 data-i18n="submittedInvoices">Partner invoices</h2><p data-i18n="invoiceProgress">Received, review, approved and paid invoice status in one place.</p>
+  <div class="table-wrap"><table><thead><tr><th data-i18n="invoiceNumber">Invoice</th><th data-i18n="companyName">Company</th><th data-i18n="amount">Amount</th><th data-i18n="status">Status</th><th data-i18n="action">Action</th></tr></thead><tbody id="partnerInvoiceRows"></tbody></table></div>
+ </div>
+ <div class="panel"><h2 data-i18n="commissionLedger">Commission ledger</h2><p data-i18n="ledgerHint">Amounts appear after the business owner enters actual sales and expenses. Payments are confirmed manually.</p>
+ <div class="table-wrap"><table><thead><tr><th data-i18n="companyName">Company</th><th data-i18n="commissionType">Type</th><th data-i18n="amount">Amount</th><th data-i18n="status">Status</th><th class="admin-col hidden" data-i18n="action">Action</th></tr></thead><tbody id="commissionRows"></tbody></table></div></div>
+</section>
+<section data-pane="sales" class="hidden">
+ <div class="panel"><h2 data-i18n="recordSale">Record sale / update commission</h2><p data-i18n="costPrivate">Only the admin sees sales prices, internal costs and profit. Use real amounts excluding VAT, after discounts. A fixed commission can override the default profit percentage.</p>
+  <form id="saleForm" class="form">
+   <div class="field"><label data-i18n="referral">Referred company</label><select id="saleRef" required></select></div>
+   <div class="field"><label data-i18n="invoiceRef">Invoice reference</label><input id="invoiceRef" required></div>
+   <div class="field"><label data-i18n="saleRevenue">Revenue after discount (ex. VAT)</label><input id="saleRevenue" type="number" min="0" step=".01" required></div>
+   <div class="field"><label data-i18n="saleCosts">Direct costs (ex. VAT)</label><input id="saleCosts" type="number" min="0" step=".01" required></div>
+   <div class="field"><label data-i18n="commissionMode">Commission model</label><select id="commissionMode"><option value="profit_percent">30% of positive net profit</option><option value="fixed">Fixed commission</option></select></div>
+   <div class="field" id="fixedWrap"><label data-i18n="fixedAmount">Fixed commission (NOK)</label><input id="fixedAmount" type="number" min="0" step=".01" value="3000"></div>
+   <div class="field"><label data-i18n="invoiceStatus">Invoice status</label><select id="saleStage"><option value="draft">Draft</option><option value="invoiced">Invoiced</option><option value="paid">Paid by customer</option><option value="cancelled">Cancelled</option></select></div>
+   <div class="field"><label data-i18n="costsVerified">Costs verified against actual accounts?</label><select id="saleCostsVerified"><option value="0">Not yet verified</option><option value="1">Costs verified</option></select></div>
+   <div class="field"><label data-i18n="adminApproval">Admin approval</label><select id="saleApproved"><option value="0">Awaiting approval</option><option value="1">Approved (only if paid)</option></select></div>
+   <div class="field full"><button class="btn" type="submit" data-i18n="saveSale">Save sale & calculate commission</button></div>
+  </form>
+ </div>
+ <div class="panel"><h2 data-i18n="recordedSales">Recorded sales</h2><div class="table-wrap"><table><thead><tr><th data-i18n="companyName">Company</th><th data-i18n="invoiceRef">Invoice</th><th data-i18n="saleRevenue">Revenue</th><th data-i18n="saleCosts">Costs</th><th data-i18n="profit">Profit</th><th data-i18n="status">Status</th><th data-i18n="action">Action</th></tr></thead><tbody id="saleRows"></tbody></table></div></div>
+</section>
+</div></div>
+<footer>TrustAI © <span id="year"></span> · <span data-i18n="footer">Trusted referrals. Account-based permissions.</span></footer>
+</div>
+<script>
+(function(){
+'use strict';
+const API='/api/partner-network/index.php';
+const state={data:null,lang:'en',tab:'overview',token:''};
+const $=id=>document.getElementById(id);
+const q=s=>document.querySelector(s);
+const qs=new URLSearchParams(location.search);
+state.token=qs.get('invite')||sessionStorage.getItem('trustai_partner_invite')||'';
+state.showingWelcome=false;
+if(state.token){sessionStorage.setItem('trustai_partner_invite',state.token);$('joinToken').value=state.token;history.replaceState(null,'','/partner-network.html');}
+$('year').textContent=new Date().getFullYear();
+const t={
+ en:{applyHeadline:"Apply to become a SETAEI partner",applyCopy:"No store URL is needed. Sign in with Vipps and request SETAEI access; a SETAEI administrator verifies your application and assigns your approved introductions.",yourName:"Your full name",businessName:"Business / company",applicationNote:"Note for SETAEI",applyBtn:"Submit SETAEI partner application",applicationsHead:"Vipps partner applications",applicationsDesc:"Check the Vipps identity and partner company before approval or assigning an existing customer.",assignReserved:"Assign a reserved customer (optional)",invoiceUploadTitle:"Invoice SETAEI for earned commission",invoiceUploadHint:"PDF invoice upload for administrator review. The approved customer introduction alone does not make your invoice payable.",invoiceNumber:"Invoice number",invoiceAmount:"Amount (NOK ex. VAT, if applicable)",invoicePdf:"PDF invoice (maximum 8 MB)",submitInvoice:"Upload invoice for review",submittedInvoices:"Submitted partner invoices",invoiceProgress:"Your received invoices, review status and settlement",eyebrow:'Referral growth network',hero:'Your network. Measurable value.',intro:'Register companies, follow deals and see confirmed commissions. Bring your own partners on board.',mainApp:'Main app',secureAccess:'Secure partner sign-in',loginCopy:'Sign in with Vipps to access your invitations, referrals and commissions.',loginVipps:'Continue with Vipps',acceptTitle:'Accept partner invitation',inviteDesc:'A private invitation is required to join a partner program.',inviteCode:'Invitation token',acceptInvite:'Activate partner profile',createProgram:'Create your first partner program',programDesc:'Set up a company program before inviting your first partner.',programLabel:'Program name',create:'Create program',overview:'Overview',referrals:'Companies',network:'My network',commissions:'Commissions',sales:'Sales admin',referredCompanies:'Referred companies',pendingAmount:'Pending commissions',readyAmount:'Ready to invoice',howWorks:'How it works',steps:'1. Introduce a company by Norwegian organisation number. 2. The business owner confirms sales, costs and commissions. 3. After payment, the commission becomes available for invoicing. 4. Only admins mark payouts as paid.',profitRule:'Standard: 30% of positive net profit after actual costs. Discounted deals can have an approved fixed commission; no payout exceeds profit.',registerCompany:'Register a referred company',orgHint:'Each organisation number can only be registered once per program, protecting the original referrer.',orgNumber:'Organisation number',companyName:'Company name',brandName:'Trading name / brand (optional)',referringPartner:'Referring partner',partnerNote:'Note for SETAEI',submitReferral:'Submit referral',pipeline:'Referral pipeline',status:'Status',created:'Registered',action:'Action',invitePartner:'Invite a seller, partner or ambassador',inviteEx:'Earn an upline share only when your directly invited partners bring in real, profitable sales. No reward for recruiting people.',partnerName:'Partner / company name',partnerType:'Partner type',approvedReservation:'Attach approved customer (admin only)',expectedVippsEmail:'Verified Vipps email (private)',vippsEmailHelp:'For an approved referral, add expected Vipps email or phone for identity verification.',expectedVippsPhone:'Verified Vipps mobile (optional, private)',vippsPhoneHelp:'Leave blank if unknown. TrustAI will record the verified mobile on first Vipps login.',parentPartner:'Upline (optional)',generateLink:'Generate secure invitation link',invitePrivate:'This single-use link expires in 14 days. Share privately with your partner.',copyLink:'Copy link',partnerTeam:'Partner network',role:'Role',commissionLedger:'Commission ledger',ledgerHint:'Amounts appear after the business owner enters actual sales and expenses. Payments are confirmed manually.',commissionType:'Type',amount:'Amount',recordSale:'Record sale / update commission',costPrivate:'Only the admin sees sales prices, internal costs and profit. Use real amounts excluding VAT, after discounts. A fixed commission can override the default profit percentage.',referral:'Referred company',invoiceRef:'Invoice reference',saleRevenue:'Revenue after discount (ex. VAT)',saleCosts:'Direct costs (ex. VAT)',commissionMode:'Commission model',fixedAmount:'Fixed commission (NOK)',invoiceStatus:'Invoice status',costsVerified:'Direct costs verified?',adminApproval:'Admin approval',saveSale:'Save sale & calculate commission',recordedSales:'Recorded sales',profit:'Profit',footer:'Trusted referrals. Account-based permissions.'},
+ no:{applyHeadline:"Bli SETAEI-partner",applyCopy:"Du trenger ikke registrere setai.no som butikk. Logg inn med Vipps og søk om tilgang til SETAEI. Vi godkjenner søknaden og knytter dine anbefalte kunder til profilen.",yourName:"Ditt fulle navn",businessName:"Bedrift / selskap",applicationNote:"Melding til SETAEI",applyBtn:"Send partnersøknad til SETAEI",applicationsHead:"Partnersøknader med Vipps",applicationsDesc:"Kontroller Vipps-identitet og bedrift før søknaden godkjennes eller en eksisterende kunde tildeles.",assignReserved:"Tildel reservert kunde (valgfritt)",invoiceUploadTitle:"Last opp provisjonsfaktura til SETAEI",invoiceUploadHint:"Last opp PDF-faktura for kontroll. Godkjent kunde betyr ikke automatisk godkjent eller utbetalt provisjon.",invoiceNumber:"Fakturanummer",invoiceAmount:"Beløp (NOK eks. mva. dersom aktuelt)",invoicePdf:"PDF-faktura (maks 8 MB)",submitInvoice:"Send faktura til kontroll",submittedInvoices:"Innsendte fakturaer",invoiceProgress:"Mottatt faktura, behandlingsstatus og utbetaling",eyebrow:'Nettverk for anbefalt salg',hero:'Ditt nettverk. Målbare resultater.',intro:'Registrer bedrifter, følg opp salg og se provisjoner. Inviter partnere til ditt eget nettverk.',mainApp:'Hovedapp',secureAccess:'Sikker partnerinnlogging',loginCopy:'Logg inn med Vipps for å se anbefalinger og provisjon.',loginVipps:'Fortsett med Vipps',acceptTitle:'Godta partnerinvitasjon',inviteDesc:'Du trenger en privat invitasjon for å bli partner.',inviteCode:'Invitasjonskode',acceptInvite:'Aktiver partnerprofil',createProgram:'Opprett første partnerprogram',programDesc:'Opprett et bedriftsprogram før du inviterer første partner.',programLabel:'Programnavn',create:'Opprett program',overview:'Oversikt',referrals:'Bedrifter',network:'Mitt nettverk',commissions:'Provisjoner',sales:'Salgsadministrasjon',referredCompanies:'Anbefalte bedrifter',pendingAmount:'Provisjon til behandling',readyAmount:'Klar til fakturering',howWorks:'Slik fungerer det',steps:'1. Registrer kunden med organisasjonsnummer. 2. SETAEI bekrefter salgsbeløp, kostnader og provisjon. 3. Etter betalt faktura blir provisjonen klar. 4. Kun administrator markerer utbetaling som betalt.',profitRule:'Standard: 30 % av positiv nettofortjeneste etter faktiske kostnader. Rabatterte salg kan få fast avtalt provisjon. Provisjon kan aldri overstige fortjenesten.',registerCompany:'Registrer anbefalt bedrift',orgHint:'Et organisasjonsnummer kan kun registreres én gang per program. Første anbefaling beskyttes.',orgNumber:'Organisasjonsnummer',companyName:'Bedriftsnavn',brandName:'Merkenavn / handelsnavn (valgfritt)',referringPartner:'Ansvarlig partner',partnerNote:'Notat til SETAEI',submitReferral:'Registrer anbefaling',pipeline:'Salgspipeline',status:'Status',created:'Registrert',action:'Handling',invitePartner:'Inviter selger, partner eller ambassadør',inviteEx:'Du får en andel når direkte inviterte partnere skaper lønnsomme kundesalg – aldri kun for rekruttering.',partnerName:'Partner / bedriftsnavn',partnerType:'Partnertype',approvedReservation:'Knytt godkjent kunde til invitasjonen (kun admin)',expectedVippsEmail:'E-post knyttet til Vipps (privat)',vippsEmailHelp:'Ved godkjent henvisning må forventet Vipps-e-post eller mobilnummer oppgis før invitasjon.',expectedVippsPhone:'Vipps-nummer (valgfritt, privat)',vippsPhoneHelp:'La feltet stå tomt hvis nummeret er ukjent. Vipps registrerer nummeret ved første innlogging.',parentPartner:'Overordnet partner (valgfritt)',generateLink:'Opprett sikker invitasjonslenke',invitePrivate:'Engangslenken utløper om 14 dager. Del den privat med partneren.',copyLink:'Kopier lenke',partnerTeam:'Partnernettverk',role:'Rolle',commissionLedger:'Provisjonsoversikt',ledgerHint:'Beløp vises etter at SETAEI har registrert faktisk salg og kostnader. Utbetalinger bekreftes manuelt.',commissionType:'Type',amount:'Beløp',recordSale:'Registrer salg / oppdater provisjon',costPrivate:'Kun administrator ser priser, interne kostnader og fortjeneste. Bruk faktiske beløp eks. mva. etter rabatter. Fast avtalt provisjon kan overstyre standardprosenten.',referral:'Anbefalt bedrift',invoiceRef:'Fakturareferanse',saleRevenue:'Salgsinntekt etter rabatt (eks. mva.)',saleCosts:'Direkte kostnader (eks. mva.)',commissionMode:'Provisjonsmodell',fixedAmount:'Fast provisjon (NOK)',invoiceStatus:'Fakturastatus',costsVerified:'Er direkte kostnader kontrollert?',adminApproval:'Godkjenning',saveSale:'Lagre salg og beregn provisjon',recordedSales:'Registrerte salg',profit:'Fortjeneste',footer:'Trygge anbefalinger. Rollebaserte tilganger.'}
+};
+function tr(key){return t[state.lang][key]||key}
+function applyLang(){document.documentElement.lang=state.lang;document.querySelectorAll('[data-i18n]').forEach(el=>{el.textContent=tr(el.dataset.i18n)});$('langBtn').textContent=state.lang==='en'?'🇳🇴 NO':'🇬🇧 EN'}
+$('langBtn').onclick=()=>{state.lang=state.lang==='en'?'no':'en';applyLang()};
+function show(id,yes){$(id).classList.toggle('hidden',!yes)}
+function notice(msg,error=false){$('notice').style.display='block';$('notice').classList.toggle('error',error);$('notice').textContent=msg}
+function displayCompany(r){return r.brand_name?r.brand_name+' · '+r.company_name:r.company_name}
+function money(v){return new Intl.NumberFormat(state.lang==='no'?'nb-NO':'en-US',{maximumFractionDigits:2,minimumFractionDigits:0}).format(Number(v||0))+' kr'}
+function node(tag,txt){const n=document.createElement(tag);n.textContent=String(txt??'');return n}
+function tableRow(parent,cells,actionButton){const row=document.createElement('tr');cells.forEach(c=>row.appendChild(node('td',c)));if(actionButton){const td=document.createElement('td');td.appendChild(actionButton);row.appendChild(td)}parent.appendChild(row)}
+function button(label,fn){const b=node('button',label);b.className='btn secondary';b.style.padding='7px 9px';b.onclick=fn;return b}
+function clear(id){$(id).replaceChildren()}
+function option(sel,value,label){const o=document.createElement('option');o.value=value;o.textContent=label;sel.appendChild(o)}
+function switchTab(tab){state.tab=tab;document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));document.querySelectorAll('[data-pane]').forEach(p=>p.classList.toggle('hidden',p.dataset.pane!==tab))}
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
+async function fetchData(){const r=await fetch(API+'?action=dashboard',{credentials:'include',cache:'no-store'});const json=await r.json().catch(()=>({ok:false,error:'bad_response'}));if(!r.ok)throw new Error(json.error||'request_failed');return json}
+async function post(action,payload){const r=await fetch(API+'?action='+encodeURIComponent(action),{method:'POST',credentials:'include',headers:{'Content-Type':'application/json','X-CSRF-Token':state.data.csrf},body:JSON.stringify(payload)});const json=await r.json().catch(()=>({ok:false,error:'invalid_response'}));if(!r.ok||!json.ok)throw new Error(json.error||'request_failed');return json}
+const pid=()=>state.data.program?.id||0;
+$('loginBtn').onclick=()=>{let url='/api/auth/vipps/login.php?intent=b2b';if(state.token)url+='&partner_invite='+encodeURIComponent(state.token);location.href=url};
+$('acceptBtn').onclick=async()=>{try{const token=$('joinToken').value.trim();const r=await post('accept_invite',{token});sessionStorage.removeItem('trustai_partner_invite');state.token='';notice('Partner profile activated');await load(r.program_id)}catch(e){notice(e.message,true)}};
+$('programForm').onsubmit=async e=>{e.preventDefault();try{await post('create_program',{name:$('newProgramName').value.trim()});notice('Program created');await load()}catch(e){notice(e.message,true)}};
+// Look up the registered company name from the official Bronnoysund registry.
+$('orgNumber').addEventListener('blur',async()=>{
+  const org=$('orgNumber').value.trim();
+  if(!/^[0-9]{9}$/.test(org))return;
+  try{
+    const r=await fetch(API+'?action=company_lookup&org_number='+encodeURIComponent(org),{credentials:'include',cache:'no-store'});
+    const d=await r.json();
+    if(r.ok&&d.ok){$('companyName').value=d.name;notice('Company verified: '+d.name)}
+    else notice('Company lookup unavailable. Check the organisation number and name.',true);
+  }catch(e){notice('Company lookup unavailable; enter the name manually.',true)}
+});
+$('refForm').onsubmit=async e=>{e.preventDefault();try{await post('create_referral',{program_id:pid(),org_number:$('orgNumber').value.trim(),company_name:$('companyName').value.trim(),brand_name:$('brandName').value.trim(),note:$('refNote').value.trim(),partner_id:Number($('refPartner').value||0)});$('refForm').reset();notice('Referral registered');await load()}catch(e){notice(e.message,true)}};
+$('inviteForm').onsubmit=async e=>{e.preventDefault();try{const r=await post('create_invite',{program_id:pid(),label:$('inviteLabel').value.trim(),partner_type:$('inviteType').value,parent_partner_id:Number($('inviteParent').value||0),reserved_referral_id:Number($('inviteReservation').value||0),expected_vipps_phone:$('inviteVippsPhone').value.trim(),expected_vipps_email:$('inviteVippsEmail').value.trim()});$('inviteUrl').textContent=r.invite_url;show('inviteResult',true);notice('Private invitation created');}catch(e){notice(e.message,true)}};
+$('copyInvite').onclick=async()=>{try{await navigator.clipboard.writeText($('inviteUrl').textContent);notice('Link copied')}catch(e){notice('Copy manually from the box',true)}};
+$('commissionMode').onchange=()=>{const fixed=$('commissionMode').value==='fixed';$('fixedWrap').classList.toggle('hidden',!fixed)};
+$('commissionMode').onchange();
+$('saleForm').onsubmit=async e=>{e.preventDefault();try{const payload={program_id:pid(),sale_id:Number($('saleForm').dataset.editId||0),referral_id:Number($('saleRef').value),invoice_reference:$('invoiceRef').value.trim(),revenue_ex_vat:$('saleRevenue').value,direct_cost_ex_vat:$('saleCosts').value,commission_mode:$('commissionMode').value,fixed_commission:$('fixedAmount').value,stage:$('saleStage').value,costs_verified:$('saleCostsVerified').value==='1',approved:$('saleApproved').value==='1'};const r=await post('save_sale',payload);notice('Sale saved. Commission total: '+money(r.commission_total));$('saleForm').reset();$('saleForm').dataset.editId='';$('commissionMode').onchange();await load()}catch(e){notice(e.message,true)}};
+$('welcomeContinue').onclick=async()=>{
+  const w=state.data?.welcome;
+  if(!w)return;
+  $('welcomeContinue').disabled=true;
+  try{
+    await post('acknowledge_welcome',{program_id:pid(),welcome_id:w.id});
+    show('trustedWelcome',false);
+    state.showingWelcome=false;
+    switchTab('referrals');
+    await load();
+  }catch(e){notice('Could not confirm welcome: '+e.message,true)}
+  finally{$('welcomeContinue').disabled=false}
+};
+
+$('applicationForm').onsubmit=async e=>{
+ e.preventDefault();
+ const buttonEl=$('applicationForm').querySelector('button[type=submit]');
+ buttonEl.disabled=true;
+ try{
+  const r=await post('apply_to_program',{
+    program_id:pid(),display_name:$('applicationName').value.trim(),
+    company_name:$('applicationBusiness').value.trim(),note:$('applicationNote').value.trim()
+  });
+  notice(state.lang==='no'?'Søknaden er sendt. SETAEI godkjenner den i administrasjonen.':'Your application was submitted. SETAEI will review it.');
+  await load(r.program_id||pid());
+ }catch(err){notice(err.message,true)}
+ finally{buttonEl.disabled=false}
+};
+$('invoiceUploadForm').onsubmit=async e=>{
+ e.preventDefault();
+ const buttonEl=$('submitInvoice');
+ const file=$('invoicePdf').files[0];
+ if(!file || file.size>8*1024*1024 || file.size<100){notice('Choose a valid PDF under 8 MB',true);return}
+ if(file.type && file.type!=='application/pdf'){notice('Only PDF invoices are accepted',true);return}
+ const data=new FormData();
+ data.append('program_id',String(pid()));
+ data.append('referral_id',$('invoiceReferral').value);
+ data.append('invoice_number',$('invoiceNumber').value.trim());
+ data.append('claimed_amount',$('invoiceAmount').value);
+ data.append('invoice_pdf',file);
+ const editId=Number($('invoiceUploadForm').dataset.editId||0);
+ if(editId)data.append('invoice_id',String(editId));
+ buttonEl.disabled=true;
+ const controller=new AbortController();
+ const stop=setTimeout(()=>controller.abort(),45000);
+ try{
+  const response=await fetch('/api/partner-network/invoice-upload.php',{method:'POST',credentials:'include',headers:{'X-CSRF-Token':state.data.csrf},body:data,signal:controller.signal});
+  const result=await response.json().catch(()=>({ok:false,error:'invalid_response'}));
+  if(!response.ok||!result.ok)throw new Error(result.error||'upload_failed');
+  $('invoiceUploadForm').reset();delete $('invoiceUploadForm').dataset.editId;
+  notice(state.lang==='no'?'Fakturaen er mottatt og venter på kontroll. Ingen automatisk betaling.':'Invoice uploaded for administrator review. No automatic payout.');
+  await load();
+ }catch(err){notice(err.name==='AbortError'?'Upload took too long; check invoice status before retrying.':err.message,true)}
+ finally{clearTimeout(stop);buttonEl.disabled=false}
+};
+function render(){
+ const d=state.data;show('loginGate',false);show('joinGate',false);show('adminCreate',false);show('applyGate',false);show('workspace',!!d.program&&!!d.joined);
+ if(!d.program){show('adminCreate',d.is_admin);show('joinGate',!d.is_admin&&!!state.token);if(!d.is_admin&&!state.token)notice('SETAEI partnerprogrammet er ikke aktivert på denne serveren ennå.',true);return}
+ $('programName').textContent=d.program.name;
+ if(!d.joined){
+   show('joinGate',!!state.token);
+   const applyAvailable=d.program.name==='SETAEI'&&!d.is_admin;
+   show('applyGate',applyAvailable);
+   if(applyAvailable){
+      const app=d.application;
+      $('applicationForm').classList.toggle('hidden',!!app);
+      show('applicationState',!!app);
+      if(app)$('applicationState').textContent=app.status==='pending'?'Partnersøknad sendt til SETAEI. Venter på godkjenning.':(app.status==='approved'?'Partnergodkjenningen er registrert. Logg inn på nytt.':'Søknaden ble avvist. Kontakt SETAEI.');
+   }
+   return;
+ }
+ if(state.token) show('joinGate',true); // Allow an existing partner to accept an invite to a second program.
+ document.querySelectorAll('[data-admin],.admin-col').forEach(el=>el.classList.toggle('hidden',!d.is_admin));
+ const commissions=d.commissions||[],refs=d.referrals||[],partners=d.partners||[];
+ $('statRef').textContent=refs.length;
+ $('statPending').textContent=money(commissions.filter(c=>c.status==='pending').reduce((s,c)=>s+Number(c.amount),0));
+ $('statReady').textContent=money(commissions.filter(c=>c.status==='ready').reduce((s,c)=>s+Number(c.amount),0));
+ $('who').textContent=d.is_admin?'Super administrator':(d.membership?.display_name||'Partner')+(d.badge?' ✦ '+d.badge:'');
+ if(!d.is_admin && d.welcome && !state.showingWelcome){
+   state.showingWelcome=true;
+   $('trustedCompany').textContent=d.welcome.company_name||'Stenhuset';
+   show('trustedWelcome',true);
+   $('welcomeContinue').focus();
+ }
+ clear('refRows');clear('teamRows');clear('commissionRows');clear('saleRows');clear('reservedRows');clear('applicationRows');clear('partnerInvoiceRows');$('refPartner').replaceChildren();$('inviteParent').replaceChildren();$('inviteReservation').replaceChildren();$('approveReserved').replaceChildren();$('saleRef').replaceChildren();$('invoiceReferral').replaceChildren();
+ option($('inviteReservation'),'','No reserved customer');
+ option($('approveReserved'),'','No customer to assign');
+ if(d.is_admin)(d.reserved_referrals||[]).forEach(r=>{
+   const linked=r.claimed_at?'Claimed':(r.invite_id?'Linked to invitation':'Available');
+   tableRow($('reservedRows'),[r.partner_label,displayCompany(r),money(r.suggested_fixed_commission),linked]);
+   if(!r.claimed_at&&!r.invite_id){option($('inviteReservation'),r.id,r.partner_label+' — '+displayCompany(r));option($('approveReserved'),r.id,r.partner_label+' — '+displayCompany(r));}
+ });
+
+ if(d.is_admin){
+   option($('inviteParent'),'','Root / no upline');
+   partners.forEach(p=>{option($('refPartner'),p.id,p.display_name);option($('inviteParent'),p.id,p.display_name)});
+   (d.applications||[]).forEach(a=>{
+      const controls=document.createElement('div');controls.className='actions';
+      if(a.status==='pending'){
+        controls.appendChild(button('Godkjenn',async()=>{
+          const reservedId=Number($('approveReserved').value||0);
+          const msg='Verify that the Vipps account really belongs to this person/company:\n'+a.display_name+' / '+a.company_name+'\n'+a.email+'\n'+(a.phone_number||'No Vipps phone available')+
+            (reservedId?'\n\nIMPORTANT: You are assigning an EXISTING approved customer to this account.':'\n\nNo customer will be assigned automatically.');
+          if(!confirm(msg))return;
+          try{await post('decide_application',{program_id:pid(),application_id:a.id,decision:'approved',reserved_referral_id:reservedId,identity_confirmed:true});notice('Partner approved. Portfolio assigned if selected.');await load()}catch(e){notice(e.message,true)}
+        }));
+        controls.appendChild(button('Avslå',async()=>{
+          if(!confirm('Reject this application?'))return;
+          try{await post('decide_application',{program_id:pid(),application_id:a.id,decision:'rejected'});notice('Application rejected');await load()}catch(e){notice(e.message,true)}
+        }));
+      }
+      tableRow($('applicationRows'),[a.display_name||'',a.company_name||'',(a.vipps_verified?'Vipps ✓ · ':'')+(a.email||'')+(a.phone_number?' · '+a.phone_number:''),a.status],controls);
+   });
+ }
+ refs.forEach(r=>{
+   const change=d.is_admin?button(r.approval_status==='approved'?'Approved':'Approve',async()=>{
+      const approval=r.approval_status==='approved'?'pending':'approved';
+      if(!confirm('Set introduction approval to '+approval+'? This is NOT approval to pay a commission.'))return;
+      try{await post('set_referral_approval',{program_id:pid(),referral_id:r.id,approval_status:approval});notice('Introduction updated');await load()}catch(e){notice(e.message,true)}
+   }):null;
+   tableRow($('refRows'),[displayCompany(r),r.org_number,r.status+' · '+r.approval_status,(r.created_at||'').slice(0,10)],change);
+   if(d.is_admin)option($('saleRef'),r.id,displayCompany(r)+' ('+r.org_number+')');
+   else if(r.approval_status==='approved')option($('invoiceReferral'),r.id,displayCompany(r));
+ });
+ partners.forEach(p=>{
+   const adminAction=d.is_admin?button('Share '+Number(p.upline_share_percent||0)+'%',async()=>{
+      const input=prompt('Parent share from direct recruit commission pool (0–30%)',p.upline_share_percent);
+      if(input===null)return;
+      try{await post('set_upline_share',{program_id:pid(),partner_id:p.id,upline_share_percent:Number(input)});notice('Share updated');await load()}catch(e){notice(e.message,true)}
+   }):null;
+   tableRow($('teamRows'),[p.display_name,p.type,p.status],adminAction);
+ });
+ show('invoiceUploadPanel',!d.is_admin&&!!$('invoiceReferral').options.length);
+ (d.partner_invoices||[]).forEach(inv=>{
+   const buttons=document.createElement('div');buttons.className='actions';
+   buttons.appendChild(button('PDF',()=>{
+     location.href='/api/partner-network/invoice-file.php?id='+encodeURIComponent(inv.id);
+   }));
+   if(d.is_admin && inv.status==='submitted'){
+     buttons.appendChild(button('Approve',async()=>{
+       const matching=(d.commissions||[]).filter(c=>
+          c.partner_id==inv.partner_id && c.status==='ready' &&
+          c.company_name===inv.company_name &&
+          Math.round(Number(c.amount)*100)===Math.round(Number(inv.claimed_amount)*100));
+       if(!matching.length){notice('No matching approved earned commission. Verify customer payment, costs and payout first.',true);return}
+       const id=matching.length===1?matching[0].id:Number(prompt('Select ready commission ID: '+matching.map(m=>m.id).join(', '),matching[0].id));
+       if(!matching.some(m=>Number(m.id)===Number(id))){notice('Invalid commission choice',true);return}
+       if(!confirm('Approve this invoice against verified, customer-paid commission #'+id+'?'))return;
+       try{await post('review_partner_invoice',{program_id:pid(),invoice_id:inv.id,decision:'approve',commission_id:id});notice('Invoice approved. Still unpaid until bank transfer confirmed.');await load()}catch(e){notice(e.message,true)}
+     }));
+     buttons.appendChild(button('Revision',async()=>{
+       const reason=prompt('Reason to request a revised PDF invoice (visible to partner)?');
+       if(!reason)return;
+       try{await post('review_partner_invoice',{program_id:pid(),invoice_id:inv.id,decision:'needs_revision',note:reason});notice('Revision requested');await load()}catch(e){notice(e.message,true)}
+     }));
+   }
+   if(d.is_admin && inv.status==='approved'){
+     buttons.appendChild(button('Mark paid',async()=>{
+       if(!confirm('Only continue if the bank transfer was actually sent and verified. Mark invoice and commission PAID?'))return;
+       try{await post('mark_partner_invoice_paid',{program_id:pid(),invoice_id:inv.id,confirmed_external_payment:true});notice('Invoice and commission marked paid');await load()}catch(e){notice(e.message,true)}
+     }));
+   }
+   if(!d.is_admin && inv.status==='needs_revision'){
+     buttons.appendChild(button('Send revised PDF',()=>{
+       $('invoiceUploadForm').dataset.editId=inv.id;
+       $('invoiceReferral').value=inv.referral_id;
+       $('invoiceNumber').value=inv.invoice_number;
+       $('invoiceAmount').value=inv.claimed_amount;
+       switchTab('commissions');
+       $('invoiceUploadPanel').scrollIntoView({behavior:'smooth',block:'start'});
+       notice('Upload a corrected PDF for invoice '+inv.invoice_number);
+     }));
+   }
+   tableRow($('partnerInvoiceRows'),[inv.invoice_number,displayCompany(inv),money(inv.claimed_amount),inv.status+(inv.status==='needs_revision'&&inv.admin_note?' · '+inv.admin_note:'')],buttons);
+ });
+ commissions.forEach(c=>{
+   const action=d.is_admin&&c.status==='ready'&&d.program.name!=='SETAEI'?button('Mark paid',async()=>{if(!confirm('Confirm external payout was actually made?'))return;try{await post('mark_commission_paid',{program_id:pid(),commission_id:c.id});notice('Marked paid');await load()}catch(e){notice(e.message,true)}}):null;
+   tableRow($('commissionRows'),[displayCompany(c),c.kind+(d.is_admin?' · '+c.partner_name:''),money(c.amount),c.status],action);
+ });
+ (d.sales||[]).forEach(s=>{
+   const edit=button('Edit',()=>{$('saleForm').dataset.editId=s.id;$('saleRef').value=s.referral_id;$('invoiceRef').value=s.invoice_reference;$('saleRevenue').value=s.revenue_ex_vat;$('saleCosts').value=s.direct_cost_ex_vat;$('commissionMode').value=s.commission_mode;$('commissionMode').onchange();$('fixedAmount').value=s.fixed_commission||0;$('saleStage').value=s.stage;$('saleCostsVerified').value=s.costs_verified?'1':'0';$('saleApproved').value=s.approved?'1':'0';window.scrollTo({top:300,behavior:'smooth'});notice('Editing sale #'+s.id)});
+   tableRow($('saleRows'),[displayCompany(s),s.invoice_reference,money(s.revenue_ex_vat),money(s.direct_cost_ex_vat),money(s.profit),s.stage],edit)
+ });
+ switchTab(state.tab==='sales'&&!d.is_admin?'overview':state.tab);
+}
+async function load(programId){try{let url=API+'?action=dashboard';if(programId)url+='&program_id='+encodeURIComponent(programId);const res=await fetch(url,{credentials:'include',cache:'no-store'});const json=await res.json().catch(()=>({ok:false,error:'invalid_response'}));if(res.status===401){show('loginGate',true);show('workspace',false);show('joinGate',false);return}if(!res.ok){notice(json.error||'Server error',true);show('workspace',false);return}state.data=json;render()}catch(e){notice('Connection error: '+e.message,true)}}
+applyLang();load();
+})();
+</script></body></html>

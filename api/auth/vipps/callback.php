@@ -288,8 +288,8 @@ if ($user) {
                 provider = COALESCE(provider, "vipps"),
                 provider_id = COALESCE(provider_id, :sub2),
                 full_name = COALESCE(NULLIF(full_name, ""), :full_name),
-                phone_number = COALESCE(NULLIF(phone_number, ""), :phone),
-                phone = COALESCE(NULLIF(phone, ""), :phone2),
+                phone_number = COALESCE(NULLIF(:phone, ""), phone_number),
+                phone = COALESCE(NULLIF(:phone2, ""), phone),
                 birth_date = COALESCE(birth_date, :bdate)
           WHERE id = :id'
     );
@@ -372,7 +372,27 @@ if ($currentRole === '' && in_array($desiredRole, ['ambassador', 'store_admin'],
     $currentRole = $desiredRole;
 }
 
+// Detect members of the independent B2B network; these accounts do not require
+// a Shopify ambassador_id. Keep Vipps login working before the optional migration.
+$isB2bPartner = false;
+if ($currentRole === 'ambassador') {
+    try {
+        $s = $pdo->prepare('SELECT p.id FROM b2b_partners p JOIN b2b_programs g ON g.id=p.program_id WHERE p.user_id=? AND p.status="active" AND g.status="active" LIMIT 1');
+        $s->execute([(int)$user['id']]);
+        $isB2bPartner = (bool)$s->fetchColumn();
+    } catch (Throwable $e) {
+        $isB2bPartner = false;
+    }
+}
+
 trustaiStartSessionForUser($user);
+// Only the phone returned by this Vipps OIDC userinfo call may be used to verify
+// a B2B invitation's optional expected mobile. Stored CRM phones are not proof.
+$_SESSION['vipps_verified_phone'] = $phone;
+$_SESSION['vipps_verified_at'] = time();
+
+// Preserve explicit B2B selection for the 18+ role-picker redirect.
+$_SESSION['vipps_b2b_requested'] = ($intent === 'b2b');
 
 // Carry the age-verification status into the post-login session. The role
 // picker / role-setting endpoint enforces it before any role is committed.
@@ -394,6 +414,20 @@ if ($currentRole === '') {
     // confirmation, since their role is already set).
     $target = '/vipps-role.html?confirm_age=1';
     $reason = 'existing_role_age_unverified';
+} elseif ($currentRole === 'ambassador'
+    && preg_match('/^[A-Za-z0-9_-]{43}$/D', (string)($_SESSION['vipps_partner_invite'] ?? ''))) {
+    // A B2B invite takes priority over the ecommerce store-specific ambassador signup.
+    $token = (string)$_SESSION['vipps_partner_invite'];
+    unset($_SESSION['vipps_partner_invite']);
+    $target = '/partner-network.html?invite=' . rawurlencode($token);
+    $reason = 'b2b_partner_invite';
+} elseif ($currentRole === 'ambassador' && $intent === 'b2b') {
+    // Explicit SETAEI B2B login. Do not send an authenticated partner to store setup.
+    $target = '/partner-network.html';
+    $reason = 'b2b_program_application';
+} elseif ($currentRole === 'ambassador' && $isB2bPartner && empty($user['ambassador_id'])) {
+    $target = '/partner-network.html';
+    $reason = 'b2b_existing_partner';
 } elseif ($currentRole === 'ambassador' && empty($user['ambassador_id'])) {
     $target = '/ambassador-signup.html?vipps=1';
     $reason = 'ambassador_missing_application';

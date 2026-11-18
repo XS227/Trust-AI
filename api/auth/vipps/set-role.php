@@ -61,9 +61,26 @@ if ($currentRole === '' && $role !== '') {
 
 unset($_SESSION['vipps_pending_user_id']);
 
-$redirect = $effectiveRole === 'ambassador'
-    ? '/ambassador-signup.html?vipps=1'
-    : ($effectiveRole === 'store_admin' ? '/store-signup.html?vipps=1' : '/app.html');
+$isB2bPartner = false;
+if ($effectiveRole === 'ambassador') {
+    try {
+        $s = $pdo->prepare('SELECT p.id FROM b2b_partners p JOIN b2b_programs g ON g.id=p.program_id WHERE p.user_id=? AND p.status="active" AND g.status="active" LIMIT 1');
+        $s->execute([(int)$user['id']]);
+        $isB2bPartner = (bool)$s->fetchColumn();
+    } catch (Throwable $e) { $isB2bPartner = false; }
+}
+
+$partnerInvite = (string)($_SESSION['vipps_partner_invite'] ?? '');
+if ($effectiveRole === 'ambassador' && preg_match('/^[A-Za-z0-9_-]{43}$/D', $partnerInvite)) {
+    unset($_SESSION['vipps_partner_invite']);
+    $redirect = '/partner-network.html?invite=' . rawurlencode($partnerInvite);
+} elseif ($effectiveRole === 'ambassador' && ($isB2bPartner || !empty($_SESSION['vipps_b2b_requested']))) {
+    $redirect = '/partner-network.html';
+} else {
+    $redirect = $effectiveRole === 'ambassador'
+        ? '/ambassador-signup.html?vipps=1'
+        : ($effectiveRole === 'store_admin' ? '/store-signup.html?vipps=1' : '/app.html');
+}
 
 trustaiVippsDebugLog('set_role_ok', [
     'role' => $effectiveRole,

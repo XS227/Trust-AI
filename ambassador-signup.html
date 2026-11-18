@@ -77,6 +77,11 @@ button:disabled{opacity:.55;cursor:not-allowed}
     ✅ You are signed in with Vipps. Select a store and submit your application.
   </div>
 
+  <div style="background:rgba(94,234,212,.08);border:1px solid rgba(94,234,212,.35);padding:15px;border-radius:12px;margin:14px 0">
+    <strong style="color:#b5fff3">Skal du anbefale bedrifter til SETAEI?</strong>
+    <p class="help" style="margin:7px 0 12px">SETAEI-partnere bruker TrustAI Partner Network, ikke butikkregistreringen under.</p>
+    <a href="/partner-network.html" style="display:block;text-align:center;background:#54dbc8;padding:12px;border-radius:9px;color:#062b2a;text-decoration:none;font-weight:800">Gå til SETAEI-partnerportalen →</a>
+  </div>
   <form id="f">
     <div id="contactFields">
       <label>Name</label><input id="name" required>
@@ -175,6 +180,10 @@ function clearStoreCard() {
 async function lookupStore() {
   const domain = document.getElementById('partner').value.trim();
   if (!domain) return;
+  if (/^(?:https?:\/\/)?(?:www\.)?setai\.no\/?$/i.test(domain)) {
+    location.href='/partner-network.html';
+    return;
+  }
   clearStoreCard();
   const spinner = document.getElementById('lookupSpinner');
   spinner.style.display = 'block';
@@ -202,6 +211,11 @@ document.getElementById('f').addEventListener('submit', async e => {
   const btn = document.getElementById('submitBtn');
   const partner = document.getElementById('partner').value.trim();
   if (!partner) { flash('Store domain is required.'); return; }
+  // setai.no is not a Shopify store in this flow. Keep B2B partner application separate.
+  if (/^(?:https?:\/\/)?(?:www\.)?setai\.no\/?$/i.test(partner)) {
+    location.href='/partner-network.html';
+    return;
+  }
   if (!isVipps) {
     const pw = document.getElementById('password').value;
     const pw2 = document.getElementById('password2').value;
@@ -209,11 +223,13 @@ document.getElementById('f').addEventListener('submit', async e => {
     if (pw.length < 8) { flash('Password must be at least 8 characters.'); return; }
   }
   btn.disabled = true; btn.textContent = 'Submitting application…';
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
   try {
     let res;
     if (isDemo) {
       res = await fetch('/api/demo/ambassador-apply.php', {
-        method:'POST', credentials:'include',
+        method:'POST', credentials:'include', signal:controller.signal,
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
           name:   document.getElementById('name').value.trim(),
@@ -224,13 +240,13 @@ document.getElementById('f').addEventListener('submit', async e => {
       });
     } else if (isVipps) {
       res = await fetch('/api/auth/vipps/finish-ambassador.php', {
-        method:'POST', credentials:'include',
+        method:'POST', credentials:'include', signal:controller.signal,
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ store_url: partner, domain: partner })
       });
     } else {
       res = await fetch('/api/create-ambassador-application.php', {
-        method:'POST', credentials:'include',
+        method:'POST', credentials:'include', signal:controller.signal,
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
           name: document.getElementById('name').value.trim(),
@@ -255,8 +271,9 @@ document.getElementById('f').addEventListener('submit', async e => {
       flash('Error: ' + (data.message || data.error || 'unknown'));
     }
   } catch (err) {
-    flash('Network error: ' + err.message);
+    flash(err.name === 'AbortError' ? 'Tilkoblingen tok for lang tid. Prøv igjen, eller bruk SETAEI-partnerportalen ovenfor.' : 'Network error: ' + err.message);
   } finally {
+    clearTimeout(timeout);
     btn.disabled = false; btn.textContent = 'Submit application';
   }
 });

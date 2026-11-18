@@ -5,7 +5,7 @@ Intellegence referal system
 
 **START HERE:** [AGENT_HANDOFF.md](AGENT_HANDOFF.md). Source branch: `feature/b2b-partner-network-20261117`; draft review: [PR #36](https://github.com/XS227/Trust-AI/pull/36).
 
-This branch implements independent Vipps-based SETAEI partner onboarding, RAWScales/Stenhuset reserved first referral, one-time Trusted One popup, profit-protected commissions, and private PDF commission invoice review. **Source work only — not deployed to trustai.no.** Before production: audit/backup the historic ProISP VPS `1431514`, apply both B2B migrations and the reviewed idempotent reservation seed, configure private PDF storage, run live Vipps/permission/E2E tests, and log exact deployment evidence. **Do not create a fake Thomas Vipps user or treat the suggested NOK 3,000 as paid.**
+**DEPLOYED TO trustai.no:** VPS `1431514` on 2026-11-18 at source SHA `18864f69e25da3e38660a36e1d563fb471bfed4e`. New public portal: https://trustai.no/partner-network.html. Both B2B migrations and one RAWScales/Stenhuset reserved referral were applied; private invoice storage works. **Full real-person Vipps return, Thomas account onboarding and actual PDF invoice E2E remain UNTESTED.** PR #36 is still draft/not merged. [Live rollout evidence and rollback](docs/PRODUCTION_DEPLOY_2026-11-18_TRUSTAI_B2B.md). **No fake Thomas user, no approved payout, and no NOK 3,000 paid.**
 
 ## Multi-tenant SaaS (super_admin / store_admin / ambassador)
 

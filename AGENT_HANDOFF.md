@@ -1,12 +1,12 @@
 # TRUSTAI — NEXT AGENT HANDOFF (SETAEI B2B)
-Updated: 2026-11-17. Read this before continuing.
+Updated: 2026-11-18 21:00 UTC. Read this before continuing.
 
 **Repository:** https://github.com/XS227/Trust-AI
 **Work branch:** feature/b2b-partner-network-20261117
 **Open DRAFT PR:** https://github.com/XS227/Trust-AI/pull/36
 **Related docs:** docs/B2B_SETAEI_VIPPS_INVOICES_2026-11-17.md and docs/B2B_PARTNER_NETWORK_2026-11-17.md
 
-IMPORTANT: The implementation is committed in GitHub, not deployed or verified on trustai.no. Do not merge, mark done, or tell the client that Thomas's production account exists without completing the steps below. Continue this branch; do not start a parallel project.
+**LIVE STATUS OVERRIDE:** TrustAI B2B was deployed on 18 Nov 2026 to VPS 1431514 at release SHA 18864f69e25da3e38660a36e1d563fb471bfed4e. Public portal https://trustai.no/partner-network.html returns 200; Vipps login redirects 302; unauthorized API 401, forgery 401, foreign Origin 403; PHP private invoice storage confirmed. Two B2B migrations plus RAWScales/Stenhuset reservation SEED were applied; one reserved referral, zero real partner accounts, zero payouts. IMPORTANT: Thomas's actual Vipps login, admin approval, first welcome and real PDF invoice E2E are still untested/not done. PR #36 remains DRAFT and unmerged. [Full deployment record, backups and rollback](docs/PRODUCTION_DEPLOY_2026-11-18_TRUSTAI_B2B.md). Older paragraphs below describing the VPS as offline are historical pre-deployment context; do NOT repeat them as current status. Continue Issue #37 and complete real Vipps E2E, not the already finished migration/deploy.
 
 ## User requirements (source of truth)
 

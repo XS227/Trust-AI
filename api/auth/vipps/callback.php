@@ -144,6 +144,51 @@ if ($fullName === '') {
 }
 $phone = trustaiVippsNormalizePhone((string)($ui['phone_number'] ?? ''));
 
+if ((string)($decoded['app'] ?? '') === 'kashi') {
+    // kashi.is runs on its own server: sign the profile and hand it over server-to-server. See kashi.php.
+    $secret = trustaiVippsConfigValue('KASHI_BROKER_SECRET', 'KASHI_BROKER_SECRET');
+    $kashiState = (string)($_SESSION['vipps_kashi_state'] ?? '');
+    unset($_SESSION['vipps_kashi_state']);
+    if (strlen($secret) < 32 || $kashiState === '') {
+        header('Location: https://kashi.is/#login/failed');
+        exit;
+    }
+    $payload = json_encode([
+        'profile' => [
+            'sub' => $vippsSub,
+            'name' => $fullName,
+            'phone_number' => $phone,
+            'email' => $email,
+        ],
+        'state' => $kashiState,
+        'ts' => time(),
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    $ch = curl_init('https://kashi.is/api/auth/vipps/broker');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => $payload,
+        CURLOPT_TIMEOUT => 8,
+        CURLOPT_HTTPHEADER => [
+            'Content-Type: application/json',
+            'X-Kashi-Signature: ' . hash_hmac('sha256', (string)$payload, $secret),
+        ],
+    ]);
+    $bridgeBody = curl_exec($ch);
+    $bridgeHttp = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    $bridge = json_decode((string)$bridgeBody, true);
+    $completion = is_array($bridge) ? (string)($bridge['completion_url'] ?? '') : '';
+    if ($bridgeHttp >= 200 && $bridgeHttp < 300 && str_starts_with($completion, 'https://kashi.is/api/auth/vipps/complete?')) {
+        trustaiVippsDebugLog('kashi_bridge_ok', ['has_sub' => true, 'has_phone' => $phone !== '', 'has_email' => $email !== '']);
+        header('Location: ' . $completion);
+        exit;
+    }
+    trustaiVippsDebugLog('kashi_bridge_failed', ['http' => $bridgeHttp]);
+    header('Location: https://kashi.is/#login/failed');
+    exit;
+}
+
 if ((string)($decoded['app'] ?? '') === 'bilvaskexpress') {
     $next = (string)($decoded['next'] ?? '/booking/');
     if ($next === '' || $next[0] !== '/' || str_starts_with($next, '//')) {
